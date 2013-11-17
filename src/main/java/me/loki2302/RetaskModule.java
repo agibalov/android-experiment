@@ -1,7 +1,6 @@
 package me.loki2302;
 
 import me.loki2302.dal.RetaskApi;
-
 import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;

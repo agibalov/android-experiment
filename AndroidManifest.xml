@@ -20,6 +20,6 @@
         </activity>
         
         <activity android:name="me.loki2302.activities.WorkspaceActivity" />
-        <activity android:name="me.loki2302.activities.TaskActivityaskActivity" />
+        <activity android:name="me.loki2302.activities.TaskActivity" />
     </application>
 </manifest>

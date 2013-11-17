@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import me.loki2302.dal.dto.ServiceResultDto;
 
 import roboguice.inject.ContextSingleton;
+import roboguice.util.Ln;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -32,15 +33,18 @@ public class ApiCallProcessor {
 			public void run() {
 				try {
 					final ServiceResultDto<TResult> result = apiCall.performApiCall(retaskApi);
+					
+					Ln.i("Response ok=%b, error=%s", result.ok, result.error);
+					
 					if(result.ok) {
-						((Activity)context).runOnUiThread(new Runnable() {
+						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
 								callback.onSuccess(result.payload);								
 							}							
 						});						
-					} else {
-						((Activity)context).runOnUiThread(new Runnable() {
+					} else {						
+						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
 								callback.onError();								
@@ -50,7 +54,7 @@ public class ApiCallProcessor {
 				} catch(Exception e) {
 					e.printStackTrace();
 					
-					((Activity)context).runOnUiThread(new Runnable() {
+					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
 							callback.onError();								
@@ -61,5 +65,9 @@ public class ApiCallProcessor {
 				}
 			}				
 		});
+	}
+	
+	private void runOnUiThread(Runnable runnable) {
+		((Activity)context).runOnUiThread(runnable);
 	}
 }

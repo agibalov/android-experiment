@@ -1,5 +1,6 @@
-package me.loki2302;
+package me.loki2302.activities;
 
+import me.loki2302.R;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;

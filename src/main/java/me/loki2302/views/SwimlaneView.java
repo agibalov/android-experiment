@@ -1,7 +1,8 @@
-package me.loki2302;
+package me.loki2302.views;
 
 import java.util.List;
 
+import me.loki2302.R;
 import me.loki2302.dal.dto.TaskDto;
 import roboguice.util.Ln;
 import android.content.Context;

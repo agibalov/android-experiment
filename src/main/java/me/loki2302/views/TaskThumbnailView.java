@@ -1,5 +1,6 @@
-package me.loki2302;
+package me.loki2302.views;
 
+import me.loki2302.R;
 import me.loki2302.dal.dto.TaskDto;
 import android.content.Context;
 import android.widget.FrameLayout;

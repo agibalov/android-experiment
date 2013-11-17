@@ -1,13 +1,18 @@
-package me.loki2302;
+package me.loki2302.activities;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import me.loki2302.ApplicationState;
+import me.loki2302.R;
 import me.loki2302.dal.ApiCallback;
 import me.loki2302.dal.RetaskService;
 import me.loki2302.dal.dto.TaskDto;
 import me.loki2302.dal.dto.TaskStatus;
 import me.loki2302.dal.dto.WorkspaceDto;
+import me.loki2302.views.OnTaskThumbnailClickedListener;
+import me.loki2302.views.SwimlaneView;
+import me.loki2302.views.WorkspaceTabView;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;

@@ -1,5 +1,7 @@
-package me.loki2302;
+package me.loki2302.activities;
 
+import me.loki2302.ApplicationState;
+import me.loki2302.R;
 import me.loki2302.dal.ApiCallback;
 import me.loki2302.dal.RetaskService;
 import me.loki2302.dal.dto.SessionDto;

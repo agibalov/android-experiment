@@ -1,6 +1,7 @@
-package me.loki2302;
+package me.loki2302.views;
 
 import java.util.List;
+
 
 import android.view.View;
 import android.view.ViewGroup;

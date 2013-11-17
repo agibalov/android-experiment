@@ -47,17 +47,17 @@ public class ApiCallProcessor {
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								callback.onError();								
+								callback.onError(result, null);								
 							}							
 						});
 					}						
-				} catch(Exception e) {
+				} catch(final Exception e) {
 					e.printStackTrace();
 					
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							callback.onError();								
+							callback.onError(null, e);								
 						}							
 					});
 				} finally {

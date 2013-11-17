@@ -7,6 +7,7 @@ import me.loki2302.ApplicationState;
 import me.loki2302.R;
 import me.loki2302.dal.ApiCallback;
 import me.loki2302.dal.RetaskService;
+import me.loki2302.dal.dto.ServiceResultDto;
 import me.loki2302.dal.dto.TaskDto;
 import me.loki2302.dal.dto.TaskStatus;
 import me.loki2302.dal.dto.WorkspaceDto;
@@ -21,6 +22,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
+
 import com.google.inject.Inject;
 
 public class WorkspaceActivity extends RoboActivity {
@@ -39,73 +41,84 @@ public class WorkspaceActivity extends RoboActivity {
 		setContentView(R.layout.home_view);
 		tabHost.setup();
 				
-		retaskService.getWorkspace(applicationState.getSessionToken(), new ApiCallback<WorkspaceDto>() {
-			@Override
-			public void onSuccess(WorkspaceDto result) {
-				if(true) {
-					final List<TaskDto> tasks = getTasksInStatus(result.tasks, TaskStatus.NotStarted);
-					TabSpec tabSpec = tabHost.newTabSpec("todo");
-					
-					WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
-					indicator.setTabName("TO DO");
-					tabSpec.setIndicator(indicator);
-					
-					tabSpec.setContent(new TabHost.TabContentFactory() {
-						@Override
-						public View createTabContent(String tag) {
-							SwimlaneView swimlaneView = new SwimlaneView(WorkspaceActivity.this);
-							swimlaneView.setModel(tasks, onTaskThumbnailClickedListener);
-							return swimlaneView;
-						}
-					});
-					tabHost.addTab(tabSpec);
-				}
-				
-				if(true) {
-					final List<TaskDto> tasks = getTasksInStatus(result.tasks, TaskStatus.InProgress);
-					TabSpec tabSpec = tabHost.newTabSpec("inprogress");
-					
-					WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
-					indicator.setTabName("DOING");
-					tabSpec.setIndicator(indicator);
-					
-					tabSpec.setContent(new TabHost.TabContentFactory() {
-						@Override
-						public View createTabContent(String tag) {
-							SwimlaneView swimlaneView = new SwimlaneView(WorkspaceActivity.this);
-							swimlaneView.setModel(tasks, onTaskThumbnailClickedListener);
-							return swimlaneView;
-						}
-					});
-					tabHost.addTab(tabSpec);
-				}
-				
-				if(true) {
-					final List<TaskDto> tasks = getTasksInStatus(result.tasks, TaskStatus.Done);
-					TabSpec tabSpec = tabHost.newTabSpec("done");
-					
-					WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
-					indicator.setTabName("DONE");
-					tabSpec.setIndicator(indicator);
-					
-					tabSpec.setContent(new TabHost.TabContentFactory() {
-						@Override
-						public View createTabContent(String tag) {
-							SwimlaneView swimlaneView = new SwimlaneView(WorkspaceActivity.this);
-							swimlaneView.setModel(tasks, onTaskThumbnailClickedListener);
-							return swimlaneView;
-						}
-					});
-					tabHost.addTab(tabSpec);
-				}
-			}
-
-			@Override
-			public void onError() {
-				Ln.i("Failed to load workspace");				
-			}
-		});
+		retaskService.getWorkspace(applicationState.getSessionToken(), onWorkspaceLoadResult);
 	}
+	
+	private final ApiCallback<WorkspaceDto> onWorkspaceLoadResult = new ApiCallback<WorkspaceDto>() {
+		@Override
+		public void onSuccess(WorkspaceDto result) {
+			if(true) {
+				final List<TaskDto> tasks = getTasksInStatus(result.tasks, TaskStatus.NotStarted);
+				TabSpec tabSpec = tabHost.newTabSpec("todo");
+				
+				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
+				indicator.setTabName("TO DO");
+				tabSpec.setIndicator(indicator);
+				
+				tabSpec.setContent(new TabHost.TabContentFactory() {
+					@Override
+					public View createTabContent(String tag) {
+						SwimlaneView swimlaneView = new SwimlaneView(WorkspaceActivity.this);
+						swimlaneView.setModel(tasks, onTaskThumbnailClickedListener);
+						return swimlaneView;
+					}
+				});
+				tabHost.addTab(tabSpec);
+			}
+			
+			if(true) {
+				final List<TaskDto> tasks = getTasksInStatus(result.tasks, TaskStatus.InProgress);
+				TabSpec tabSpec = tabHost.newTabSpec("inprogress");
+				
+				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
+				indicator.setTabName("DOING");
+				tabSpec.setIndicator(indicator);
+				
+				tabSpec.setContent(new TabHost.TabContentFactory() {
+					@Override
+					public View createTabContent(String tag) {
+						SwimlaneView swimlaneView = new SwimlaneView(WorkspaceActivity.this);
+						swimlaneView.setModel(tasks, onTaskThumbnailClickedListener);
+						return swimlaneView;
+					}
+				});
+				tabHost.addTab(tabSpec);
+			}
+			
+			if(true) {
+				final List<TaskDto> tasks = getTasksInStatus(result.tasks, TaskStatus.Done);
+				TabSpec tabSpec = tabHost.newTabSpec("done");
+				
+				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
+				indicator.setTabName("DONE");
+				tabSpec.setIndicator(indicator);
+				
+				tabSpec.setContent(new TabHost.TabContentFactory() {
+					@Override
+					public View createTabContent(String tag) {
+						SwimlaneView swimlaneView = new SwimlaneView(WorkspaceActivity.this);
+						swimlaneView.setModel(tasks, onTaskThumbnailClickedListener);
+						return swimlaneView;
+					}
+				});
+				tabHost.addTab(tabSpec);
+			}
+		}
+
+		@Override
+		public void onError(ServiceResultDto<WorkspaceDto> response, Exception e) {
+			Ln.i("Failed to load workspace");				
+		}
+	};
+	
+	private OnTaskThumbnailClickedListener onTaskThumbnailClickedListener = new OnTaskThumbnailClickedListener() {
+		@Override
+		public void onTaskThumbnailClicked(TaskDto model) {
+			Intent intent = new Intent(WorkspaceActivity.this, TaskActivity.class);
+			intent.putExtra("taskDescription", model.taskDescription);
+			startActivity(intent);
+		}		
+	};
 	
 	private static List<TaskDto> getTasksInStatus(List<TaskDto> tasks, TaskStatus taskStatus) {
 		List<TaskDto> filteredTasks = new ArrayList<TaskDto>();
@@ -119,13 +132,4 @@ public class WorkspaceActivity extends RoboActivity {
 		
 		return filteredTasks;
 	}
-	
-	private OnTaskThumbnailClickedListener onTaskThumbnailClickedListener = new OnTaskThumbnailClickedListener() {
-		@Override
-		public void onTaskThumbnailClicked(TaskDto model) {
-			Intent intent = new Intent(WorkspaceActivity.this, TaskActivity.class);
-			intent.putExtra("taskDescription", model.taskDescription);
-			startActivity(intent);
-		}		
-	};
 }

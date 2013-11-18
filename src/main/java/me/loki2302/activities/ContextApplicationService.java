@@ -24,6 +24,10 @@ public class ContextApplicationService {
 	@Inject
 	private ApplicationService applicationService;
 	
+	//
+	// TODO: can I get rid of this class if inject Provider<Activity> to real application service?
+	//
+	
 	public void signIn(String email, String password, ApplicationServiceCallback<String> callback) {
 		applicationService.signIn(
 				longOperationListener, 

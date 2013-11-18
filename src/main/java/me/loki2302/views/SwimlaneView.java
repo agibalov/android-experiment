@@ -4,6 +4,7 @@ import java.util.List;
 
 import me.loki2302.R;
 import me.loki2302.application.Task;
+import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 import android.content.Context;
 import android.view.View;
@@ -13,13 +14,15 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 
 public class SwimlaneView extends FrameLayout {
-	private final ListView taskThumbnailsListView;
+	@InjectView(R.id.taskThumbailsListView)
+	private ListView taskThumbnailsListView;
+	
 	private OnTaskThumbnailClickedListener onTaskThumbnailClickedListener;
 	
 	public SwimlaneView(Context context) {
 		super(context);
 		inflate(context, R.layout.swimlane_view, this);
-		taskThumbnailsListView = (ListView)findViewById(R.id.taskThumbailsListView);
+		UiUtils.injectViews(this);
 		
 		taskThumbnailsListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override

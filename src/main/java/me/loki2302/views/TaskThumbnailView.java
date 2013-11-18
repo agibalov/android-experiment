@@ -1,6 +1,7 @@
 package me.loki2302.views;
 
 import me.loki2302.R;
+import me.loki2302.dal.Task;
 import me.loki2302.dal.dto.TaskDto;
 import android.content.Context;
 import android.widget.FrameLayout;
@@ -8,7 +9,7 @@ import android.widget.TextView;
 
 public class TaskThumbnailView extends FrameLayout {
 	private final TextView taskReprTextView;
-	private TaskDto model;
+	private Task model;
 	
 	public TaskThumbnailView(Context context) {
 		super(context);
@@ -16,14 +17,14 @@ public class TaskThumbnailView extends FrameLayout {
 		taskReprTextView = (TextView)findViewById(R.id.taskReprTextView);
 	}
 	
-	public void setModel(TaskDto task) {
+	public void setModel(Task task) {
 		model = task;
 		
-		String repr = task.taskDescription;
+		String repr = task.description;
 		taskReprTextView.setText(repr);
 	}
 	
-	public TaskDto getModel() {
+	public Task getModel() {
 		return model;
 	}
 }

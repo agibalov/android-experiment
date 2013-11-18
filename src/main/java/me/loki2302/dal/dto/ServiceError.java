@@ -4,6 +4,7 @@ import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonValue;
 
 public enum ServiceError {
+	NoError(0),
     InternalError(1),
     NoSuchUser(2),
     InvalidPassword(3),
@@ -37,6 +38,6 @@ public enum ServiceError {
     		return serviceError;
     	}
     	
-    	throw new IllegalArgumentException();
+    	throw new IllegalArgumentException(String.format("Don't know how to map error code %d", errorCode));
     }
 }

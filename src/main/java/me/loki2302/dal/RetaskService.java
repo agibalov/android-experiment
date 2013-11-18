@@ -1,5 +1,6 @@
 package me.loki2302.dal;
 
+
 import me.loki2302.dal.apicalls.GetWorkspaceApiCall;
 import me.loki2302.dal.apicalls.SignInApiCall;
 import me.loki2302.dal.apicalls.SignUpApiCall;
@@ -11,13 +12,9 @@ import com.google.inject.Inject;
 
 @ContextSingleton
 public class RetaskService {
-	private final ApiCallProcessor apiCallProcessor;	
-	
 	@Inject
-	public RetaskService(ApiCallProcessor apiCallProcessor) {
-		this.apiCallProcessor = apiCallProcessor;
-	}
-	
+	private ApiCallProcessor apiCallProcessor;	
+		
 	public void signIn(String email, String password, ApiCallback<SessionDto> callback) {
 		apiCallProcessor.process(new SignInApiCall(email, password), callback);
 	}

@@ -3,6 +3,7 @@ package me.loki2302.views;
 import java.util.List;
 
 import me.loki2302.R;
+import me.loki2302.dal.Task;
 import me.loki2302.dal.dto.TaskDto;
 import roboguice.util.Ln;
 import android.content.Context;
@@ -24,20 +25,20 @@ public class SwimlaneView extends FrameLayout {
 		taskThumbnailsListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				TaskDto taskDto = ((TaskThumbnailView)view).getModel();
-				Ln.i("item clicked - %d", taskDto.taskId);
+				Task task = ((TaskThumbnailView)view).getModel();
+				Ln.i("item clicked - %d", task.id);
 				if(onTaskThumbnailClickedListener != null) {
-					onTaskThumbnailClickedListener.onTaskThumbnailClicked(taskDto);
+					onTaskThumbnailClickedListener.onTaskThumbnailClicked(task);
 				}
 			}			
 		});
 	}
 	
-	public void setModel(List<TaskDto> tasks, OnTaskThumbnailClickedListener onTaskThumbnailClickedListener) {
+	public void setModel(List<Task> tasks, OnTaskThumbnailClickedListener onTaskThumbnailClickedListener) {
 		this.onTaskThumbnailClickedListener = onTaskThumbnailClickedListener;
-		taskThumbnailsListView.setAdapter(new ModelListAdapter<TaskDto>(tasks, new ViewFactory<TaskDto>() {
+		taskThumbnailsListView.setAdapter(new ModelListAdapter<Task>(tasks, new ViewFactory<Task>() {
 			@Override
-			public View makeView(TaskDto model) {
+			public View makeView(Task model) {
 				TaskThumbnailView taskThumbnailView = new TaskThumbnailView(getContext());
 				taskThumbnailView.setModel(model);
 				return taskThumbnailView;

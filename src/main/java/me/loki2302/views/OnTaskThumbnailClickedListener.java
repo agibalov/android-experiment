@@ -1,7 +1,7 @@
 package me.loki2302.views;
 
-import me.loki2302.dal.dto.TaskDto;
+import me.loki2302.dal.Task;
 
 public interface OnTaskThumbnailClickedListener {
-	void onTaskThumbnailClicked(TaskDto model);
+	void onTaskThumbnailClicked(Task model);
 }

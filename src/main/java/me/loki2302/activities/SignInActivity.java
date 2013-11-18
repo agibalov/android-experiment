@@ -37,8 +37,8 @@ public class SignInActivity extends RoboActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.sign_in_view);	
-				
+		setContentView(R.layout.sign_in_view);		
+		
 		signInButton.setOnClickListener(onSignInClicked);	
 	}
 	

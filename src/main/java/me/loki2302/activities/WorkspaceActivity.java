@@ -1,22 +1,17 @@
 package me.loki2302.activities;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import me.loki2302.ApplicationState;
 import me.loki2302.R;
-import me.loki2302.dal.ApiCallback;
-import me.loki2302.dal.RetaskService;
-import me.loki2302.dal.dto.ServiceResultDto;
-import me.loki2302.dal.dto.TaskDto;
+import me.loki2302.dal.ApplicationService;
+import me.loki2302.dal.ApplicationServiceCallback;
+import me.loki2302.dal.Task;
 import me.loki2302.dal.dto.TaskStatus;
-import me.loki2302.dal.dto.WorkspaceDto;
 import me.loki2302.views.OnTaskThumbnailClickedListener;
 import me.loki2302.views.SwimlaneView;
 import me.loki2302.views.WorkspaceTabView;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
-import roboguice.util.Ln;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -27,10 +22,7 @@ import com.google.inject.Inject;
 
 public class WorkspaceActivity extends RoboActivity {
 	@Inject
-	private RetaskService retaskService;
-	
-	@Inject
-	private ApplicationState applicationState;
+	private ApplicationService applicationService;
 	
 	@InjectView(R.id.tabHost)
 	private TabHost tabHost;
@@ -40,15 +32,10 @@ public class WorkspaceActivity extends RoboActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.home_view);
 		tabHost.setup();
-				
-		retaskService.getWorkspace(applicationState.getSessionToken(), onWorkspaceLoadResult);
-	}
-	
-	private final ApiCallback<WorkspaceDto> onWorkspaceLoadResult = new ApiCallback<WorkspaceDto>() {
-		@Override
-		public void onSuccess(WorkspaceDto result) {
-			if(true) {
-				final List<TaskDto> tasks = getTasksInStatus(result.tasks, TaskStatus.NotStarted);
+		
+		applicationService.getTasksByStatus(TaskStatus.NotStarted, new ApplicationServiceCallback<List<Task>> () {
+			@Override
+			public void onSuccess(final List<Task> result) {
 				TabSpec tabSpec = tabHost.newTabSpec("todo");
 				
 				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
@@ -59,15 +46,21 @@ public class WorkspaceActivity extends RoboActivity {
 					@Override
 					public View createTabContent(String tag) {
 						SwimlaneView swimlaneView = new SwimlaneView(WorkspaceActivity.this);
-						swimlaneView.setModel(tasks, onTaskThumbnailClickedListener);
+						swimlaneView.setModel(result, onTaskThumbnailClickedListener);
 						return swimlaneView;
 					}
 				});
 				tabHost.addTab(tabSpec);
 			}
-			
-			if(true) {
-				final List<TaskDto> tasks = getTasksInStatus(result.tasks, TaskStatus.InProgress);
+
+			@Override
+			public void onError() {
+			}			
+		});
+		
+		applicationService.getTasksByStatus(TaskStatus.InProgress, new ApplicationServiceCallback<List<Task>>() {
+			@Override
+			public void onSuccess(final List<Task> result) {
 				TabSpec tabSpec = tabHost.newTabSpec("inprogress");
 				
 				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
@@ -78,15 +71,21 @@ public class WorkspaceActivity extends RoboActivity {
 					@Override
 					public View createTabContent(String tag) {
 						SwimlaneView swimlaneView = new SwimlaneView(WorkspaceActivity.this);
-						swimlaneView.setModel(tasks, onTaskThumbnailClickedListener);
+						swimlaneView.setModel(result, onTaskThumbnailClickedListener);
 						return swimlaneView;
 					}
 				});
 				tabHost.addTab(tabSpec);
 			}
-			
-			if(true) {
-				final List<TaskDto> tasks = getTasksInStatus(result.tasks, TaskStatus.Done);
+
+			@Override
+			public void onError() {
+			}			
+		});
+		
+		applicationService.getTasksByStatus(TaskStatus.Done, new ApplicationServiceCallback<List<Task>>() {
+			@Override
+			public void onSuccess(final List<Task> result) {
 				TabSpec tabSpec = tabHost.newTabSpec("done");
 				
 				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
@@ -97,39 +96,25 @@ public class WorkspaceActivity extends RoboActivity {
 					@Override
 					public View createTabContent(String tag) {
 						SwimlaneView swimlaneView = new SwimlaneView(WorkspaceActivity.this);
-						swimlaneView.setModel(tasks, onTaskThumbnailClickedListener);
+						swimlaneView.setModel(result, onTaskThumbnailClickedListener);
 						return swimlaneView;
 					}
 				});
 				tabHost.addTab(tabSpec);
 			}
-		}
 
-		@Override
-		public void onError(ServiceResultDto<WorkspaceDto> response, Exception e) {
-			Ln.i("Failed to load workspace");				
-		}
-	};
+			@Override
+			public void onError() {				
+			}			
+		});
+	}
 	
 	private OnTaskThumbnailClickedListener onTaskThumbnailClickedListener = new OnTaskThumbnailClickedListener() {
 		@Override
-		public void onTaskThumbnailClicked(TaskDto model) {
+		public void onTaskThumbnailClicked(Task model) {
 			Intent intent = new Intent(WorkspaceActivity.this, TaskActivity.class);
-			intent.putExtra("taskDescription", model.taskDescription);
+			intent.putExtra("taskId", model.id);
 			startActivity(intent);
 		}		
 	};
-	
-	private static List<TaskDto> getTasksInStatus(List<TaskDto> tasks, TaskStatus taskStatus) {
-		List<TaskDto> filteredTasks = new ArrayList<TaskDto>();
-		for(TaskDto task : tasks) {
-			if(!task.taskStatus.equals(taskStatus)) {
-				continue;
-			}
-			
-			filteredTasks.add(task);
-		}
-		
-		return filteredTasks;
-	}
 }

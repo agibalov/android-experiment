@@ -25,7 +25,7 @@ public class ApiCallProcessor {
 	private Context context;
 	
 	public <TResult> void process(final ApiCall<TResult> apiCall, final ApiCallback<TResult> callback) {
-		
+				
 		final ProgressDialog progressDialog = ProgressDialog.show(context, "Working...", apiCall.describe(), true);
 		
 		executor.execute(new Runnable() {
@@ -34,7 +34,7 @@ public class ApiCallProcessor {
 				try {
 					final ServiceResultDto<TResult> result = apiCall.performApiCall(retaskApi);
 					
-					Ln.i("Response ok=%b, error=%s", result.ok, result.error);
+					Ln.i("api=%s, response ok=%b, error=%s", apiCall.describe(), result.ok, result.error);
 					
 					if(result.ok) {
 						runOnUiThread(new Runnable() {

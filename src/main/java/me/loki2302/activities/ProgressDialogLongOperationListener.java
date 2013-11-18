@@ -8,7 +8,7 @@ import android.content.Context;
 import com.google.inject.Inject;
 
 @ContextSingleton 
-class ProgressDialogLongOperationListener implements LongOperationListener {
+public class ProgressDialogLongOperationListener implements LongOperationListener {
 	@Inject
 	private Context context;
 	

@@ -1,7 +1,7 @@
 package me.loki2302.activities;
 
 import me.loki2302.R;
-import me.loki2302.dal.ApplicationService;
+import me.loki2302.dal.ApplicationServiceCallback;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
@@ -16,11 +16,8 @@ import com.google.inject.Inject;
 
 public class SignInActivity extends RoboActivity {
 	@Inject
-	private ApplicationService applicationService;
-		
-	@Inject
-	private ProgressDialogLongOperationListener progressDialogLongOperationListener;
-	
+	private ContextApplicationService applicationService;
+			
 	@InjectView(R.id.emailEditText)
 	private EditText emailEditText;
 	
@@ -46,9 +43,9 @@ public class SignInActivity extends RoboActivity {
 		public void onClick(View arg0) {
 			final String email = emailEditText.getText().toString();
 			final String password = passwordEditText.getText().toString();
-			applicationService.signIn(progressDialogLongOperationListener, email, password, new RunOnUiThreadApplicationServiceCallback<String>(SignInActivity.this) {
+			applicationService.signIn(email, password, new ApplicationServiceCallback<String>() {
 				@Override
-				protected void onSuccessOnUiThread(String result) {
+				public void onSuccess(String result) {
 					Ln.i("Authenticated: %s", result);
 					
 					Intent intent = new Intent(SignInActivity.this, WorkspaceActivity.class);
@@ -57,7 +54,7 @@ public class SignInActivity extends RoboActivity {
 				}
 
 				@Override
-				protected void onErrorOnUiThread() {
+				public void onError() {
 					Ln.i("Failed to authenticate");
 				}				
 			});

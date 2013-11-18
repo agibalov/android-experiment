@@ -4,7 +4,7 @@ import java.util.List;
 
 import me.loki2302.R;
 import me.loki2302.application.Task;
-import me.loki2302.dal.ApplicationService;
+import me.loki2302.dal.ApplicationServiceCallback;
 import me.loki2302.dal.dto.TaskStatus;
 import me.loki2302.views.OnTaskThumbnailClickedListener;
 import me.loki2302.views.SwimlaneView;
@@ -21,11 +21,8 @@ import com.google.inject.Inject;
 
 public class WorkspaceActivity extends RoboActivity {
 	@Inject
-	private ApplicationService applicationService;
-	
-	@Inject
-	private ProgressDialogLongOperationListener progressDialogLongOperationListener;
-	
+	private ContextApplicationService applicationService;
+		
 	@InjectView(R.id.tabHost)
 	private TabHost tabHost;
 	
@@ -35,9 +32,9 @@ public class WorkspaceActivity extends RoboActivity {
 		setContentView(R.layout.home_view);
 		tabHost.setup();
 		
-		applicationService.getTasksByStatus(progressDialogLongOperationListener, TaskStatus.NotStarted, new RunOnUiThreadApplicationServiceCallback<List<Task>> (this) {
+		applicationService.getTasksByStatus(TaskStatus.NotStarted, new ApplicationServiceCallback<List<Task>>() {
 			@Override
-			protected void onSuccessOnUiThread(final List<Task> result) {
+			public void onSuccess(final List<Task> result) {
 				TabSpec tabSpec = tabHost.newTabSpec("todo");
 				
 				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
@@ -56,13 +53,13 @@ public class WorkspaceActivity extends RoboActivity {
 			}
 
 			@Override
-			protected void onErrorOnUiThread() {				
+			public void onError() {
 			}			
 		});
 		
-		applicationService.getTasksByStatus(progressDialogLongOperationListener, TaskStatus.InProgress, new RunOnUiThreadApplicationServiceCallback<List<Task>>(this) {
+		applicationService.getTasksByStatus(TaskStatus.InProgress, new ApplicationServiceCallback<List<Task>>() {
 			@Override
-			protected void onSuccessOnUiThread(final List<Task> result) {
+			public void onSuccess(final List<Task> result) {
 				TabSpec tabSpec = tabHost.newTabSpec("inprogress");
 				
 				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
@@ -81,13 +78,13 @@ public class WorkspaceActivity extends RoboActivity {
 			}
 
 			@Override
-			protected void onErrorOnUiThread() {				
+			public void onError() {				
 			}			
 		});
 		
-		applicationService.getTasksByStatus(progressDialogLongOperationListener, TaskStatus.Done, new RunOnUiThreadApplicationServiceCallback<List<Task>>(this) {
+		applicationService.getTasksByStatus(TaskStatus.Done, new ApplicationServiceCallback<List<Task>>() {
 			@Override
-			protected void onSuccessOnUiThread(final List<Task> result) {
+			public void onSuccess(final List<Task> result) {
 				TabSpec tabSpec = tabHost.newTabSpec("done");
 				
 				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
@@ -106,7 +103,7 @@ public class WorkspaceActivity extends RoboActivity {
 			}
 
 			@Override
-			protected void onErrorOnUiThread() {
+			public void onError() {
 			}			
 		});
 	}

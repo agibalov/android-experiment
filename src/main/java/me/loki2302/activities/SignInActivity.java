@@ -1,11 +1,7 @@
 package me.loki2302.activities;
 
-import me.loki2302.ApplicationState;
 import me.loki2302.R;
-import me.loki2302.dal.ApiCallback;
-import me.loki2302.dal.RetaskService;
-import me.loki2302.dal.dto.ServiceResultDto;
-import me.loki2302.dal.dto.SessionDto;
+import me.loki2302.dal.ApplicationService;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
@@ -20,10 +16,10 @@ import com.google.inject.Inject;
 
 public class SignInActivity extends RoboActivity {
 	@Inject
-	private RetaskService retaskService;
-	
+	private ApplicationService applicationService;
+		
 	@Inject
-	private ApplicationState applicationState;
+	private ProgressDialogLongOperationListener progressDialogLongOperationListener;
 	
 	@InjectView(R.id.emailEditText)
 	private EditText emailEditText;
@@ -37,7 +33,10 @@ public class SignInActivity extends RoboActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.sign_in_view);		
+		setContentView(R.layout.sign_in_view);
+		
+		emailEditText.setText("");
+		passwordEditText.setText("");
 		
 		signInButton.setOnClickListener(onSignInClicked);	
 	}
@@ -47,25 +46,21 @@ public class SignInActivity extends RoboActivity {
 		public void onClick(View arg0) {
 			final String email = emailEditText.getText().toString();
 			final String password = passwordEditText.getText().toString();
-			retaskService.signIn(email, password, onSignInResult);			
-		}			
-	};
-	
-	private final ApiCallback<SessionDto> onSignInResult = new ApiCallback<SessionDto>() {
-		@Override
-		public void onSuccess(SessionDto result) {
-			Ln.i("Authenticated: %s", result.sessionToken);
-			
-			applicationState.setSessionToken(result.sessionToken);
-			
-			Intent intent = new Intent(SignInActivity.this, WorkspaceActivity.class);
-			startActivity(intent);
-			finish();
-		}
+			applicationService.signIn(progressDialogLongOperationListener, email, password, new RunOnUiThreadApplicationServiceCallback<String>(SignInActivity.this) {
+				@Override
+				protected void onSuccessOnUiThread(String result) {
+					Ln.i("Authenticated: %s", result);
+					
+					Intent intent = new Intent(SignInActivity.this, WorkspaceActivity.class);
+					startActivity(intent);
+					finish();					
+				}
 
-		@Override
-		public void onError(ServiceResultDto<SessionDto> response, Exception e) {
-			Ln.i("Failed to authenticate");
-		}				
+				@Override
+				protected void onErrorOnUiThread() {
+					Ln.i("Failed to authenticate");
+				}				
+			});
+		}			
 	};
 }

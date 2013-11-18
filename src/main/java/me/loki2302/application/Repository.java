@@ -1,8 +1,7 @@
-package me.loki2302.dal;
+package me.loki2302.application;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class Repository<TEntity extends Entity> {
 	private final List<TEntity> entities = new ArrayList<TEntity>();

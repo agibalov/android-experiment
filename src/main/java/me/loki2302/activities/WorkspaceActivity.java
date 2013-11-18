@@ -3,9 +3,8 @@ package me.loki2302.activities;
 import java.util.List;
 
 import me.loki2302.R;
+import me.loki2302.application.Task;
 import me.loki2302.dal.ApplicationService;
-import me.loki2302.dal.ApplicationServiceCallback;
-import me.loki2302.dal.Task;
 import me.loki2302.dal.dto.TaskStatus;
 import me.loki2302.views.OnTaskThumbnailClickedListener;
 import me.loki2302.views.SwimlaneView;
@@ -24,6 +23,9 @@ public class WorkspaceActivity extends RoboActivity {
 	@Inject
 	private ApplicationService applicationService;
 	
+	@Inject
+	private ProgressDialogLongOperationListener progressDialogLongOperationListener;
+	
 	@InjectView(R.id.tabHost)
 	private TabHost tabHost;
 	
@@ -33,9 +35,9 @@ public class WorkspaceActivity extends RoboActivity {
 		setContentView(R.layout.home_view);
 		tabHost.setup();
 		
-		applicationService.getTasksByStatus(TaskStatus.NotStarted, new ApplicationServiceCallback<List<Task>> () {
+		applicationService.getTasksByStatus(progressDialogLongOperationListener, TaskStatus.NotStarted, new RunOnUiThreadApplicationServiceCallback<List<Task>> (this) {
 			@Override
-			public void onSuccess(final List<Task> result) {
+			protected void onSuccessOnUiThread(final List<Task> result) {
 				TabSpec tabSpec = tabHost.newTabSpec("todo");
 				
 				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
@@ -50,17 +52,17 @@ public class WorkspaceActivity extends RoboActivity {
 						return swimlaneView;
 					}
 				});
-				tabHost.addTab(tabSpec);
+				tabHost.addTab(tabSpec);				
 			}
 
 			@Override
-			public void onError() {
+			protected void onErrorOnUiThread() {				
 			}			
 		});
 		
-		applicationService.getTasksByStatus(TaskStatus.InProgress, new ApplicationServiceCallback<List<Task>>() {
+		applicationService.getTasksByStatus(progressDialogLongOperationListener, TaskStatus.InProgress, new RunOnUiThreadApplicationServiceCallback<List<Task>>(this) {
 			@Override
-			public void onSuccess(final List<Task> result) {
+			protected void onSuccessOnUiThread(final List<Task> result) {
 				TabSpec tabSpec = tabHost.newTabSpec("inprogress");
 				
 				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
@@ -75,17 +77,17 @@ public class WorkspaceActivity extends RoboActivity {
 						return swimlaneView;
 					}
 				});
-				tabHost.addTab(tabSpec);
+				tabHost.addTab(tabSpec);				
 			}
 
 			@Override
-			public void onError() {
+			protected void onErrorOnUiThread() {				
 			}			
 		});
 		
-		applicationService.getTasksByStatus(TaskStatus.Done, new ApplicationServiceCallback<List<Task>>() {
+		applicationService.getTasksByStatus(progressDialogLongOperationListener, TaskStatus.Done, new RunOnUiThreadApplicationServiceCallback<List<Task>>(this) {
 			@Override
-			public void onSuccess(final List<Task> result) {
+			protected void onSuccessOnUiThread(final List<Task> result) {
 				TabSpec tabSpec = tabHost.newTabSpec("done");
 				
 				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
@@ -100,11 +102,11 @@ public class WorkspaceActivity extends RoboActivity {
 						return swimlaneView;
 					}
 				});
-				tabHost.addTab(tabSpec);
+				tabHost.addTab(tabSpec);				
 			}
 
 			@Override
-			public void onError() {				
+			protected void onErrorOnUiThread() {
 			}			
 		});
 	}

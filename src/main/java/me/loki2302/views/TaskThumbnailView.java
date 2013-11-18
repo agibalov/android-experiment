@@ -1,8 +1,7 @@
 package me.loki2302.views;
 
 import me.loki2302.R;
-import me.loki2302.dal.Task;
-import me.loki2302.dal.dto.TaskDto;
+import me.loki2302.application.Task;
 import android.content.Context;
 import android.widget.FrameLayout;
 import android.widget.TextView;

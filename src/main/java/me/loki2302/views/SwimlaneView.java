@@ -3,8 +3,7 @@ package me.loki2302.views;
 import java.util.List;
 
 import me.loki2302.R;
-import me.loki2302.dal.Task;
-import me.loki2302.dal.dto.TaskDto;
+import me.loki2302.application.Task;
 import roboguice.util.Ln;
 import android.content.Context;
 import android.view.View;

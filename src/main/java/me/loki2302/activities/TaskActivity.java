@@ -1,9 +1,8 @@
 package me.loki2302.activities;
 
 import me.loki2302.R;
+import me.loki2302.application.Task;
 import me.loki2302.dal.ApplicationService;
-import me.loki2302.dal.ApplicationServiceCallback;
-import me.loki2302.dal.Task;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
@@ -20,6 +19,9 @@ public class TaskActivity extends RoboActivity {
 	
 	@Inject
 	private ApplicationService applicationService;
+	
+	@Inject
+	private ProgressDialogLongOperationListener progressDialogLongOperationListener;
 		
 	@InjectView(R.id.taskDescriptionWebView)
 	private WebView taskDescriptionWebView;
@@ -38,18 +40,18 @@ public class TaskActivity extends RoboActivity {
 			throw new IllegalStateException("Looks like taskId is missing in Intent");
 		}
 		
-		applicationService.getTask(taskId, new ApplicationServiceCallback<Task>() {
+		applicationService.getTask(progressDialogLongOperationListener, taskId, new RunOnUiThreadApplicationServiceCallback<Task>(this) {
 			@Override
-			public void onSuccess(Task result) {
+			protected void onSuccessOnUiThread(Task result) {
 				String taskDescription = result.description;
 				String taskDescriptionHtml = markdownProcessor.markdown(taskDescription);
 				String html = String.format(markdownHtmlTemplate, taskDescriptionHtml);
-				taskDescriptionWebView.loadData(html, "text/html", null);
+				taskDescriptionWebView.loadData(html, "text/html", null);				
 			}
 
 			@Override
-			public void onError() {
-				Ln.i("Error ocurred while retrieving task");
+			protected void onErrorOnUiThread() {
+				Ln.i("Error ocurred while retrieving task");				
 			}			
 		});	
 	}		

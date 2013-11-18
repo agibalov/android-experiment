@@ -4,50 +4,67 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import roboguice.inject.ContextSingleton;
-import roboguice.util.Ln;
-
-import me.loki2302.ApplicationState;
+import me.loki2302.application.Repository;
+import me.loki2302.application.Task;
+import me.loki2302.application.TaskStatusIsQuery;
 import me.loki2302.dal.dto.ServiceResultDto;
+import me.loki2302.dal.dto.SessionDto;
 import me.loki2302.dal.dto.TaskDto;
 import me.loki2302.dal.dto.TaskStatus;
 import me.loki2302.dal.dto.WorkspaceDto;
+import roboguice.util.Ln;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
-@ContextSingleton
+@Singleton
 public class ApplicationService {
-	@Inject
-	private ApplicationState applicationState;
+	private String sessionToken;
 	
 	@Inject
 	private RetaskService retaskService;
 		
+	private volatile boolean isTaskRepositoryInitialized;
+	private final Repository<Task> taskRepository = new Repository<Task>();
 	private final Object isTaskRepositoryInitializingLock = new Object();
 	private volatile boolean isTaskRepositoryInitializing;
-	private final Queue<Runnable> taskRepositoryAwaitersQueue = new LinkedBlockingQueue<Runnable>();	
+	private final Queue<Runnable> taskRepositoryAwaitersQueue = new LinkedBlockingQueue<Runnable>();
 	
-	public void getTasksByStatus(final TaskStatus status, final ApplicationServiceCallback<List<Task>> callback) {
-		Ln.i("getTasksByStatus(%s), isTaskRepositoryInitialized=%b", status, applicationState.isTaskRepositoryInitialized());
-		whenTaskRepositoryIsReady(new Runnable() {
+	public void signIn(LongOperationListener longOperationListener, final String email, String password, final ApplicationServiceCallback<String> callback) {
+		retaskService.signIn(longOperationListener, email, password, new ApiCallback<SessionDto>() {
+			@Override
+			public void onSuccess(SessionDto result) {
+				ApplicationService.this.sessionToken = result.sessionToken;
+				callback.onSuccess(result.sessionToken);
+			}
+
+			@Override
+			public void onError(ServiceResultDto<SessionDto> response, Exception e) {				
+			}			
+		});		
+	}
+	
+	public void getTasksByStatus(LongOperationListener longOperationListener, final TaskStatus status, final ApplicationServiceCallback<List<Task>> callback) {
+		Ln.i("getTasksByStatus(%s), isTaskRepositoryInitialized=%b", status, isTaskRepositoryInitialized);
+		whenTaskRepositoryIsReady(longOperationListener, new Runnable() {
 			@Override
 			public void run() {
-				callback.onSuccess(applicationState.getTaskRepository().getWhere(new TaskStatusIsQuery(status)));
+				callback.onSuccess(taskRepository.getWhere(new TaskStatusIsQuery(status)));
 			}			
 		});
 	}
 	
-	public void getTask(final int taskId, final ApplicationServiceCallback<Task> callback) {
-		whenTaskRepositoryIsReady(new Runnable() {
+	public void getTask(LongOperationListener longOperationListener, final int taskId, final ApplicationServiceCallback<Task> callback) {
+		whenTaskRepositoryIsReady(longOperationListener, new Runnable() {
 			@Override
 			public void run() {
-				callback.onSuccess(applicationState.getTaskRepository().getOne(taskId));
+				callback.onSuccess(taskRepository.getOne(taskId));
 			}			
 		});
 	}
 	
-	private void whenTaskRepositoryIsReady(Runnable runnable) {
-		if(applicationState.isTaskRepositoryInitialized()) {
+	private void whenTaskRepositoryIsReady(LongOperationListener longOperationListener, Runnable runnable) {
+		if(isTaskRepositoryInitialized) {
 			runnable.run();
 		} else {
 			synchronized(taskRepositoryAwaitersQueue) {
@@ -62,15 +79,15 @@ public class ApplicationService {
 				isTaskRepositoryInitializing = true;
 			}
 			
-			retaskService.getWorkspace(applicationState.getSessionToken(), new ApiCallback<WorkspaceDto>() {
+			retaskService.getWorkspace(longOperationListener, sessionToken, new ApiCallback<WorkspaceDto>() {
 				@Override
 				public void onSuccess(WorkspaceDto result) {
 					for(TaskDto taskDto : result.tasks) {
 						Task task = taskFromTaskDto(taskDto);
-						applicationState.getTaskRepository().add(task);
+						taskRepository.add(task);
 					}
 					
-					applicationState.setTaskRepositoryInitialized(true);
+					isTaskRepositoryInitialized = true;
 					
 					synchronized(taskRepositoryAwaitersQueue) {
 						while(!taskRepositoryAwaitersQueue.isEmpty()) {

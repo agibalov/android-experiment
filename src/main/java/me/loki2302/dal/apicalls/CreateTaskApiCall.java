@@ -1,10 +1,20 @@
 package me.loki2302.dal.apicalls;
 
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
 import me.loki2302.dal.ApiCall;
-import me.loki2302.dal.RetaskApi;
+import me.loki2302.dal.TaskServiceResult;
 import me.loki2302.dal.dto.ServiceResultDto;
 import me.loki2302.dal.dto.TaskDescriptionDto;
 import me.loki2302.dal.dto.TaskDto;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 public class CreateTaskApiCall implements ApiCall<TaskDto> {
 	private final String sessionToken;
@@ -21,7 +31,24 @@ public class CreateTaskApiCall implements ApiCall<TaskDto> {
 	}
 
 	@Override
-	public ServiceResultDto<TaskDto> performApiCall(RetaskApi retaskApi) {
-		return retaskApi.createTask(sessionToken, taskDescriptionDto);
+	public ServiceResultDto<TaskDto> performApiCall(String apiRootUrl, RestTemplate restTemplate) {
+		Map<String, String> uriVariables = new HashMap<String, String>();
+		uriVariables.put("sessionToken", sessionToken);
+		
+		URI uri = UriComponentsBuilder
+				.fromUriString(apiRootUrl)
+				.path("/CreateTask")
+				.query("sessionToken={sessionToken}")					
+				.buildAndExpand(uriVariables)
+				.toUri();
+		
+		ResponseEntity<TaskServiceResult> result = restTemplate
+				.exchange(
+						uri, 
+						HttpMethod.POST, 
+						new HttpEntity<TaskDescriptionDto>(taskDescriptionDto), 
+						TaskServiceResult.class);
+		
+		return result.getBody();
 	}		
 }

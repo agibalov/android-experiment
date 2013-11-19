@@ -35,7 +35,7 @@ public class SignInActivity extends RoboActivity {
 		emailEditText.setText("");
 		passwordEditText.setText("");
 		
-		signInButton.setOnClickListener(onSignInClicked);	
+		signInButton.setOnClickListener(onSignInClicked);
 	}
 	
 	private final OnClickListener onSignInClicked = new OnClickListener() {

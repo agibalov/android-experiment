@@ -6,4 +6,5 @@ before_install:
   - export ANDROID_HOME=`pwd`/android-sdk-linux
   - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
   # use "android list sdk -a" to retrieve list of all packages available. 24 stands for SDK 1.6, API 4
-  - android update sdk --filter 1,2,24 --obsolete --no-ui --force
+  # - android update sdk --filter 1,2,24 --obsolete --no-ui --force
+  - android update sdk --filter android-4 --obsolete --no-ui --force

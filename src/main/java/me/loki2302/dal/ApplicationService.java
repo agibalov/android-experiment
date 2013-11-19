@@ -9,6 +9,7 @@ import me.loki2302.application.Task;
 import me.loki2302.application.TaskStatusIsQuery;
 import me.loki2302.dal.dto.ServiceResultDto;
 import me.loki2302.dal.dto.SessionDto;
+import me.loki2302.dal.dto.TaskDescriptionDto;
 import me.loki2302.dal.dto.TaskDto;
 import me.loki2302.dal.dto.TaskStatus;
 import me.loki2302.dal.dto.WorkspaceDto;
@@ -39,7 +40,22 @@ public class ApplicationService {
 			}
 
 			@Override
-			public void onError(ServiceResultDto<SessionDto> response, Exception e) {				
+			public void onError(ServiceResultDto<SessionDto> response, Exception e) {
+				// TODO
+			}			
+		});		
+	}
+	
+	public void signUp(LongOperationListener longOperationListener, final String email, String password, final ApplicationServiceCallback<Object> callback) {
+		retaskService.signUp(longOperationListener, email, password, new ApiCallback<Object>() {
+			@Override
+			public void onSuccess(Object result) {
+				callback.onSuccess(result);
+			}
+
+			@Override
+			public void onError(ServiceResultDto<Object> response, Exception e) {
+				// TODO
 			}			
 		});		
 	}
@@ -59,6 +75,80 @@ public class ApplicationService {
 			@Override
 			public void run() {
 				callback.onSuccess(taskRepository.getOne(taskId));
+			}			
+		});
+	}
+	
+	public void createTask(LongOperationListener longOperationListener, String taskDescription, final ApplicationServiceCallback<Task> callback) {
+		TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
+		taskDescriptionDto.taskDescription = taskDescription;
+		retaskService.createTask(longOperationListener, sessionToken, taskDescriptionDto, new ApiCallback<TaskDto>() {
+			@Override
+			public void onSuccess(TaskDto result) {
+				// TODO
+			}
+
+			@Override
+			public void onError(ServiceResultDto<TaskDto> response, Exception e) {
+				// TODO
+			}			
+		});
+	}	
+	
+	public void updateTask(LongOperationListener longOperationListener, int taskId, String taskDescription, final ApplicationServiceCallback<Task> callback) {
+		TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
+		taskDescriptionDto.taskDescription = taskDescription;
+		retaskService.updateTask(longOperationListener, sessionToken, taskId, taskDescriptionDto, new ApiCallback<TaskDto>() {
+			@Override
+			public void onSuccess(TaskDto result) {
+				// TODO
+			}
+
+			@Override
+			public void onError(ServiceResultDto<TaskDto> response, Exception e) {
+				// TODO
+			}			
+		});
+	}
+	
+	public void progressTask(LongOperationListener longOperationListener, int taskId, final ApplicationServiceCallback<Task> callback) {
+		retaskService.progressTask(longOperationListener, sessionToken, taskId, new ApiCallback<TaskDto>() {
+			@Override
+			public void onSuccess(TaskDto result) {
+				// TODO
+			}
+
+			@Override
+			public void onError(ServiceResultDto<TaskDto> response, Exception e) {
+				// TODO
+			}			
+		});
+	}
+	
+	public void unprogressTask(LongOperationListener longOperationListener, int taskId, final ApplicationServiceCallback<Task> callback) {
+		retaskService.unprogressTask(longOperationListener, sessionToken, taskId, new ApiCallback<TaskDto>() {
+			@Override
+			public void onSuccess(TaskDto result) {
+				// TODO
+			}
+
+			@Override
+			public void onError(ServiceResultDto<TaskDto> response, Exception e) {
+				// TODO
+			}			
+		});
+	}
+	
+	public void deleteTask(LongOperationListener longOperationListener, int taskId, final ApplicationServiceCallback<Object> callback) {
+		retaskService.deleteTask(longOperationListener, sessionToken, taskId, new ApiCallback<Object>() {
+			@Override
+			public void onSuccess(Object result) {
+				// TODO
+			}
+
+			@Override
+			public void onError(ServiceResultDto<Object> response, Exception e) {
+				// TODO
 			}			
 		});
 	}
@@ -99,7 +189,7 @@ public class ApplicationService {
 
 				@Override
 				public void onError(ServiceResultDto<WorkspaceDto> response, Exception e) {
-					// callback.onError();
+					// TODO
 				}				
 			});
 		}		

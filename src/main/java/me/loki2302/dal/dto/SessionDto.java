@@ -5,6 +5,4 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class SessionDto {
 	@JsonProperty("SessionToken")
 	public String sessionToken;
-	
-	public static class SessionServiceResult extends ServiceResultDto<SessionDto> {}
 }

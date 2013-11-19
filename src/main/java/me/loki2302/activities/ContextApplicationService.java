@@ -47,7 +47,43 @@ public class ContextApplicationService {
 		applicationService.getTask(
 				longOperationListener, 
 				taskId, 
-				callback);
+				runOnUiThread(callback));
+	}
+	
+	public void createTask(String taskDescription, ApplicationServiceCallback<Task> callback) {
+		applicationService.createTask(
+				longOperationListener, 
+				taskDescription, 
+				runOnUiThread(callback));
+	}
+	
+	public void updateTask(int taskId, String taskDescription, ApplicationServiceCallback<Task> callback) {
+		applicationService.updateTask(
+				longOperationListener,
+				taskId,
+				taskDescription, 
+				runOnUiThread(callback));
+	}
+	
+	public void progressTask(int taskId, ApplicationServiceCallback<Task> callback) {
+		applicationService.progressTask(
+				longOperationListener,
+				taskId,
+				runOnUiThread(callback));
+	}
+	
+	public void unprogressTask(int taskId, ApplicationServiceCallback<Task> callback) {
+		applicationService.unprogressTask(
+				longOperationListener,
+				taskId,
+				runOnUiThread(callback));
+	}
+	
+	public void deleteTask(int taskId, ApplicationServiceCallback<Object> callback) {
+		applicationService.deleteTask(
+				longOperationListener,
+				taskId,
+				runOnUiThread(callback));
 	}
 	
 	private <T> ApplicationServiceCallback<T> runOnUiThread(ApplicationServiceCallback<T> applicationServiceCallback) {

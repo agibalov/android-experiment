@@ -51,5 +51,5 @@ public class TaskActivity extends RoboActivity {
 				Ln.i("Error ocurred while retrieving task");				
 			}			
 		});	
-	}		
+	}
 }

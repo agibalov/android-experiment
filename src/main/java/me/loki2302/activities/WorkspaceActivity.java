@@ -14,6 +14,8 @@ import roboguice.inject.InjectView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 
@@ -22,6 +24,9 @@ import com.google.inject.Inject;
 public class WorkspaceActivity extends RoboActivity {
 	@Inject
 	private ContextApplicationService applicationService;
+	
+	@InjectView(R.id.createTaskButton)
+	private Button createTaskButton;
 		
 	@InjectView(R.id.tabHost)
 	private TabHost tabHost;
@@ -104,6 +109,14 @@ public class WorkspaceActivity extends RoboActivity {
 
 			@Override
 			public void onError() {
+			}			
+		});
+		
+		createTaskButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				Intent intent = new Intent(WorkspaceActivity.this, CreateTaskActivity.class);
+				startActivity(intent);
 			}			
 		});
 	}

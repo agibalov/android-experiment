@@ -85,7 +85,9 @@ public class ApplicationService {
 		retaskService.createTask(longOperationListener, sessionToken, taskDescriptionDto, new ApiCallback<TaskDto>() {
 			@Override
 			public void onSuccess(TaskDto result) {
-				// TODO
+				Task task = taskFromTaskDto(result);
+				taskRepository.add(task);
+				callback.onSuccess(task);
 			}
 
 			@Override
@@ -101,7 +103,9 @@ public class ApplicationService {
 		retaskService.updateTask(longOperationListener, sessionToken, taskId, taskDescriptionDto, new ApiCallback<TaskDto>() {
 			@Override
 			public void onSuccess(TaskDto result) {
-				// TODO
+				Task task = taskFromTaskDto(result);
+				taskRepository.add(task);
+				callback.onSuccess(task);
 			}
 
 			@Override
@@ -115,7 +119,9 @@ public class ApplicationService {
 		retaskService.progressTask(longOperationListener, sessionToken, taskId, new ApiCallback<TaskDto>() {
 			@Override
 			public void onSuccess(TaskDto result) {
-				// TODO
+				Task task = taskFromTaskDto(result);
+				taskRepository.add(task);
+				callback.onSuccess(task);
 			}
 
 			@Override
@@ -129,7 +135,9 @@ public class ApplicationService {
 		retaskService.unprogressTask(longOperationListener, sessionToken, taskId, new ApiCallback<TaskDto>() {
 			@Override
 			public void onSuccess(TaskDto result) {
-				// TODO
+				Task task = taskFromTaskDto(result);
+				taskRepository.add(task);
+				callback.onSuccess(task);
 			}
 
 			@Override
@@ -139,11 +147,12 @@ public class ApplicationService {
 		});
 	}
 	
-	public void deleteTask(LongOperationListener longOperationListener, int taskId, final ApplicationServiceCallback<Object> callback) {
+	public void deleteTask(LongOperationListener longOperationListener, final int taskId, final ApplicationServiceCallback<Object> callback) {
 		retaskService.deleteTask(longOperationListener, sessionToken, taskId, new ApiCallback<Object>() {
 			@Override
 			public void onSuccess(Object result) {
-				// TODO
+				taskRepository.remove(taskId);
+				callback.onSuccess(result);
 			}
 
 			@Override

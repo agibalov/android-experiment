@@ -7,6 +7,11 @@ public class Repository<TEntity extends Entity> {
 	private final List<TEntity> entities = new ArrayList<TEntity>();
 	
 	public void add(TEntity entity) {
+		TEntity existingEntity = getOne(entity.id);
+		if(existingEntity != null) {
+			entities.remove(existingEntity);
+		}
+		
 		entities.add(entity);
 	}
 	
@@ -33,5 +38,10 @@ public class Repository<TEntity extends Entity> {
 		}
 		
 		return null;
+	}
+	
+	public void remove(int id) {
+		TEntity entity = getOne(id);
+		entities.remove(entity);
 	}
 }

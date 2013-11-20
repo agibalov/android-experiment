@@ -1,5 +1,7 @@
 package me.loki2302.dal;
 
+import org.jdeferred.Promise;
+
 import me.loki2302.dal.apicalls.CreateTaskApiCall;
 import me.loki2302.dal.apicalls.DeleteTaskApiCall;
 import me.loki2302.dal.apicalls.GetWorkspaceApiCall;
@@ -21,99 +23,83 @@ public class RetaskService {
 	@Inject
 	private ApiCallProcessor apiCallProcessor;	
 		
-	public void signIn(
+	public Promise<SessionDto, Exception, Void> signIn(
 			LongOperationListener longOperationListener, 
 			String email, 
-			String password, 
-			ApiCallback<SessionDto> callback) {
+			String password) {
 		
-		apiCallProcessor.process(
+		return apiCallProcessor.process(
 				longOperationListener, 
-				new SignInApiCall(email, password), 
-				callback);
+				new SignInApiCall(email, password));
 	}
 	
-	public void signUp(
+	public Promise<Object, Exception, Void> signUp(
 			LongOperationListener longOperationListener, 
 			String email, 
-			String password, 
-			ApiCallback<Object> callback) {
+			String password) {
 		
-		apiCallProcessor.process(
+		return apiCallProcessor.process(
 				longOperationListener, 
-				new SignUpApiCall(email, password), 
-				callback);
+				new SignUpApiCall(email, password));
 	}
 	
-	public void getWorkspace(
+	public Promise<WorkspaceDto, Exception, Void> getWorkspace(
+			LongOperationListener longOperationListener, 
+			String sessionToken) {
+		
+		return apiCallProcessor.process(
+				longOperationListener, 
+				new GetWorkspaceApiCall(sessionToken));
+	}
+	
+	public Promise<TaskDto, Exception, Void> createTask(
 			LongOperationListener longOperationListener, 
 			String sessionToken, 
-			ApiCallback<WorkspaceDto> callback) {
+			TaskDescriptionDto taskDescriptionDto) {
 		
-		apiCallProcessor.process(
+		return apiCallProcessor.process(
 				longOperationListener, 
-				new GetWorkspaceApiCall(sessionToken),
-				callback);
+				new CreateTaskApiCall(sessionToken, taskDescriptionDto));		
 	}
 	
-	public void createTask(
-			LongOperationListener longOperationListener, 
-			String sessionToken, 
-			TaskDescriptionDto taskDescriptionDto, 
-			ApiCallback<TaskDto> callback) {
-		
-		apiCallProcessor.process(
-				longOperationListener, 
-				new CreateTaskApiCall(sessionToken, taskDescriptionDto), 
-				callback);		
-	}
-	
-	public void updateTask(
+	public Promise<TaskDto, Exception, Void> updateTask(
 			LongOperationListener longOperationListener, 
 			String sessionToken,
 			int taskId,
-			TaskDescriptionDto taskDescriptionDto, 
-			ApiCallback<TaskDto> callback) {
+			TaskDescriptionDto taskDescriptionDto) {
 		
-		apiCallProcessor.process(
+		return apiCallProcessor.process(
 				longOperationListener, 
-				new UpdateTaskApiCall(sessionToken, taskId, taskDescriptionDto), 
-				callback);
+				new UpdateTaskApiCall(sessionToken, taskId, taskDescriptionDto));
 	}
 	
-	public void progressTask(
+	public Promise<TaskDto, Exception, Void> progressTask(
 			LongOperationListener longOperationListener, 
 			String sessionToken,
-			int taskId, 
-			ApiCallback<TaskDto> callback) {
+			int taskId) {
 		
-		apiCallProcessor.process(
+		return apiCallProcessor.process(
 				longOperationListener, 
-				new ProgressTaskApiCall(sessionToken, taskId), 
-				callback);
+				new ProgressTaskApiCall(sessionToken, taskId));
 	}
 	
-	public void unprogressTask(
+	public Promise<TaskDto, Exception, Void> unprogressTask(
 			LongOperationListener longOperationListener, 
 			String sessionToken,
-			int taskId, 
-			ApiCallback<TaskDto> callback) {
+			int taskId) {
 		
-		apiCallProcessor.process(
+		return apiCallProcessor.process(
 				longOperationListener, 
-				new UnprogressTaskApiCall(sessionToken, taskId), 
-				callback);
+				new UnprogressTaskApiCall(sessionToken, taskId));
 	}
 	
-	public void deleteTask(
+	public Promise<Object, Exception, Void> deleteTask(
 			LongOperationListener longOperationListener, 
 			String sessionToken,
-			int taskId, 
-			ApiCallback<Object> callback) {
+			int taskId) {
 		
-		apiCallProcessor.process(
+		return apiCallProcessor.process(
 				longOperationListener, 
-				new DeleteTaskApiCall(sessionToken, taskId), 
-				callback);
+				new DeleteTaskApiCall(sessionToken, taskId));
 	}
 }

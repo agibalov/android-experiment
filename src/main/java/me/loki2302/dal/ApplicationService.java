@@ -7,12 +7,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 import me.loki2302.application.Repository;
 import me.loki2302.application.Task;
 import me.loki2302.application.TaskStatusIsQuery;
-import me.loki2302.dal.dto.ServiceResultDto;
 import me.loki2302.dal.dto.SessionDto;
 import me.loki2302.dal.dto.TaskDescriptionDto;
 import me.loki2302.dal.dto.TaskDto;
 import me.loki2302.dal.dto.TaskStatus;
 import me.loki2302.dal.dto.WorkspaceDto;
+
+import org.jdeferred.Deferred;
+import org.jdeferred.DoneCallback;
+import org.jdeferred.DonePipe;
+import org.jdeferred.Promise;
+import org.jdeferred.impl.DeferredObject;
+
 import roboguice.util.Ln;
 
 import com.google.inject.Inject;
@@ -31,133 +37,100 @@ public class ApplicationService {
 	private volatile boolean isTaskRepositoryInitializing;
 	private final Queue<Runnable> taskRepositoryAwaitersQueue = new LinkedBlockingQueue<Runnable>();
 	
-	public void signIn(LongOperationListener longOperationListener, final String email, String password, final ApplicationServiceCallback<String> callback) {
-		retaskService.signIn(longOperationListener, email, password, new ApiCallback<SessionDto>() {
+	public Promise<String, Exception, Void> signIn(LongOperationListener longOperationListener, final String email, String password) {
+		return retaskService.signIn(longOperationListener, email, password).then(new DonePipe<SessionDto, String, Exception, Void>() {
 			@Override
-			public void onSuccess(SessionDto result) {
-				ApplicationService.this.sessionToken = result.sessionToken;
-				callback.onSuccess(result.sessionToken);
+			public Deferred<String, Exception, Void> pipeDone(SessionDto result) {
+				sessionToken = result.sessionToken;
+				return new DeferredObject<String, Exception, Void>().resolve(result.sessionToken);
 			}
-
-			@Override
-			public void onError(ServiceResultDto<SessionDto> response, Exception e) {
-				// TODO
-			}			
 		});		
 	}
 	
-	public void signUp(LongOperationListener longOperationListener, final String email, String password, final ApplicationServiceCallback<Object> callback) {
-		retaskService.signUp(longOperationListener, email, password, new ApiCallback<Object>() {
-			@Override
-			public void onSuccess(Object result) {
-				callback.onSuccess(result);
-			}
-
-			@Override
-			public void onError(ServiceResultDto<Object> response, Exception e) {
-				// TODO
-			}			
-		});		
+	public Promise<Object, Exception, Void> signUp(LongOperationListener longOperationListener, final String email, String password) {
+		return retaskService.signUp(longOperationListener, email, password);		
 	}
 	
-	public void getTasksByStatus(LongOperationListener longOperationListener, final TaskStatus status, final ApplicationServiceCallback<List<Task>> callback) {
+	public Promise<List<Task>, Exception, Void> getTasksByStatus(LongOperationListener longOperationListener, final TaskStatus status) {
+		final Deferred<List<Task>, Exception, Void> deferred = new DeferredObject<List<Task>, Exception, Void>(); 
+		
 		Ln.i("getTasksByStatus(%s), isTaskRepositoryInitialized=%b", status, isTaskRepositoryInitialized);
 		whenTaskRepositoryIsReady(longOperationListener, new Runnable() {
 			@Override
 			public void run() {
-				callback.onSuccess(taskRepository.getWhere(new TaskStatusIsQuery(status)));
+				deferred.resolve(taskRepository.getWhere(new TaskStatusIsQuery(status)));
 			}			
 		});
+		
+		return deferred.promise();
 	}
 	
-	public void getTask(LongOperationListener longOperationListener, final int taskId, final ApplicationServiceCallback<Task> callback) {
+	public Promise<Task, Exception, Void> getTask(LongOperationListener longOperationListener, final int taskId) {
+		final Deferred<Task, Exception, Void> deferred = new DeferredObject<Task, Exception, Void>();
+		
 		whenTaskRepositoryIsReady(longOperationListener, new Runnable() {
 			@Override
 			public void run() {
-				callback.onSuccess(taskRepository.getOne(taskId));
+				deferred.resolve(taskRepository.getOne(taskId));
 			}			
 		});
+		
+		return deferred.promise();
 	}
 	
-	public void createTask(LongOperationListener longOperationListener, String taskDescription, final ApplicationServiceCallback<Task> callback) {
+	public Promise<Task, Exception, Void> createTask(LongOperationListener longOperationListener, String taskDescription) {
 		TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
 		taskDescriptionDto.taskDescription = taskDescription;
-		retaskService.createTask(longOperationListener, sessionToken, taskDescriptionDto, new ApiCallback<TaskDto>() {
+		return retaskService.createTask(longOperationListener, sessionToken, taskDescriptionDto).then(new DonePipe<TaskDto, Task, Exception, Void>() {
 			@Override
-			public void onSuccess(TaskDto result) {
+			public Deferred<Task, Exception, Void> pipeDone(TaskDto result) {
 				Task task = taskFromTaskDto(result);
 				taskRepository.add(task);
-				callback.onSuccess(task);
-			}
-
-			@Override
-			public void onError(ServiceResultDto<TaskDto> response, Exception e) {
-				// TODO
+				return new DeferredObject<Task, Exception, Void>().resolve(task);
 			}			
 		});
 	}	
 	
-	public void updateTask(LongOperationListener longOperationListener, int taskId, String taskDescription, final ApplicationServiceCallback<Task> callback) {
+	public Promise<Task, Exception, Void> updateTask(LongOperationListener longOperationListener, int taskId, String taskDescription) {
 		TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
 		taskDescriptionDto.taskDescription = taskDescription;
-		retaskService.updateTask(longOperationListener, sessionToken, taskId, taskDescriptionDto, new ApiCallback<TaskDto>() {
+		return retaskService.updateTask(longOperationListener, sessionToken, taskId, taskDescriptionDto).then(new DonePipe<TaskDto, Task, Exception, Void>() {
 			@Override
-			public void onSuccess(TaskDto result) {
+			public Deferred<Task, Exception, Void> pipeDone(TaskDto result) {
 				Task task = taskFromTaskDto(result);
 				taskRepository.add(task);
-				callback.onSuccess(task);
-			}
-
-			@Override
-			public void onError(ServiceResultDto<TaskDto> response, Exception e) {
-				// TODO
+				return new DeferredObject<Task, Exception, Void>().resolve(task);
 			}			
 		});
 	}
 	
-	public void progressTask(LongOperationListener longOperationListener, int taskId, final ApplicationServiceCallback<Task> callback) {
-		retaskService.progressTask(longOperationListener, sessionToken, taskId, new ApiCallback<TaskDto>() {
+	public Promise<Task, Exception, Void> progressTask(LongOperationListener longOperationListener, int taskId) {
+		return retaskService.progressTask(longOperationListener, sessionToken, taskId).then(new DonePipe<TaskDto, Task, Exception, Void>() {
 			@Override
-			public void onSuccess(TaskDto result) {
+			public Deferred<Task, Exception, Void> pipeDone(TaskDto result) {
 				Task task = taskFromTaskDto(result);
 				taskRepository.add(task);
-				callback.onSuccess(task);
-			}
-
-			@Override
-			public void onError(ServiceResultDto<TaskDto> response, Exception e) {
-				// TODO
+				return new DeferredObject<Task, Exception, Void>().resolve(task);
 			}			
 		});
 	}
 	
-	public void unprogressTask(LongOperationListener longOperationListener, int taskId, final ApplicationServiceCallback<Task> callback) {
-		retaskService.unprogressTask(longOperationListener, sessionToken, taskId, new ApiCallback<TaskDto>() {
+	public Promise<Task, Exception, Void> unprogressTask(LongOperationListener longOperationListener, int taskId) {
+		return retaskService.unprogressTask(longOperationListener, sessionToken, taskId).then(new DonePipe<TaskDto, Task, Exception, Void>() {
 			@Override
-			public void onSuccess(TaskDto result) {
+			public Deferred<Task, Exception, Void> pipeDone(TaskDto result) {
 				Task task = taskFromTaskDto(result);
 				taskRepository.add(task);
-				callback.onSuccess(task);
-			}
-
-			@Override
-			public void onError(ServiceResultDto<TaskDto> response, Exception e) {
-				// TODO
+				return new DeferredObject<Task, Exception, Void>().resolve(task);
 			}			
 		});
 	}
 	
-	public void deleteTask(LongOperationListener longOperationListener, final int taskId, final ApplicationServiceCallback<Object> callback) {
-		retaskService.deleteTask(longOperationListener, sessionToken, taskId, new ApiCallback<Object>() {
+	public Promise<Object, Exception, Void> deleteTask(LongOperationListener longOperationListener, final int taskId) {
+		return retaskService.deleteTask(longOperationListener, sessionToken, taskId).then(new DoneCallback<Object>() {
 			@Override
-			public void onSuccess(Object result) {
-				taskRepository.remove(taskId);
-				callback.onSuccess(result);
-			}
-
-			@Override
-			public void onError(ServiceResultDto<Object> response, Exception e) {
-				// TODO
+			public void onDone(Object result) {
+				taskRepository.remove(taskId);				
 			}			
 		});
 	}
@@ -178,9 +151,9 @@ public class ApplicationService {
 				isTaskRepositoryInitializing = true;
 			}
 			
-			retaskService.getWorkspace(longOperationListener, sessionToken, new ApiCallback<WorkspaceDto>() {
+			retaskService.getWorkspace(longOperationListener, sessionToken).done(new DoneCallback<WorkspaceDto>() {
 				@Override
-				public void onSuccess(WorkspaceDto result) {
+				public void onDone(WorkspaceDto result) {
 					for(TaskDto taskDto : result.tasks) {
 						Task task = taskFromTaskDto(taskDto);
 						taskRepository.add(task);
@@ -193,12 +166,7 @@ public class ApplicationService {
 							Runnable runnable = taskRepositoryAwaitersQueue.poll();
 							runnable.run();
 						}
-					}
-				}
-
-				@Override
-				public void onError(ServiceResultDto<WorkspaceDto> response, Exception e) {
-					// TODO
+					}					
 				}				
 			});
 		}		

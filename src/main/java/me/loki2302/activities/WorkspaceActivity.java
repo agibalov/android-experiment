@@ -1,10 +1,8 @@
 package me.loki2302.activities;
 
 import java.util.List;
-
 import me.loki2302.R;
 import me.loki2302.application.Task;
-import me.loki2302.dal.ApplicationServiceCallback;
 import me.loki2302.dal.dto.TaskStatus;
 import me.loki2302.views.OnTaskThumbnailClickedListener;
 import me.loki2302.views.SwimlaneView;
@@ -18,6 +16,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
+import android.widget.TabHost.TabContentFactory;
 
 import com.google.inject.Inject;
 
@@ -37,88 +36,73 @@ public class WorkspaceActivity extends RoboActivity {
 		setContentView(R.layout.home_view);
 		tabHost.setup();
 		
-		applicationService.getTasksByStatus(TaskStatus.NotStarted, new ApplicationServiceCallback<List<Task>>() {
+		TabSpec toDoTabSpec = tabHost.newTabSpec("todo");		
+		WorkspaceTabView toDoTabView = new WorkspaceTabView(this);
+		final SwimlaneView toDoSwimlaneView = new SwimlaneView(this);
+		toDoTabView.setTabName("TO DO");
+		toDoTabSpec.setIndicator(toDoTabView);
+		toDoTabSpec.setContent(new TabContentFactory() {
 			@Override
-			public void onSuccess(final List<Task> result) {
-				TabSpec tabSpec = tabHost.newTabSpec("todo");
-				
-				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
-				indicator.setTabName("TO DO");
-				tabSpec.setIndicator(indicator);
-				
-				tabSpec.setContent(new TabHost.TabContentFactory() {
-					@Override
-					public View createTabContent(String tag) {
-						SwimlaneView swimlaneView = new SwimlaneView(WorkspaceActivity.this);
-						swimlaneView.setModel(result, onTaskThumbnailClickedListener);
-						return swimlaneView;
-					}
-				});
-				tabHost.addTab(tabSpec);				
+			public View createTabContent(String tag) {		
+				return toDoSwimlaneView;
 			}
-
-			@Override
-			public void onError() {
-			}			
-		});
+		});		
+		tabHost.addTab(toDoTabSpec);
 		
-		applicationService.getTasksByStatus(TaskStatus.InProgress, new ApplicationServiceCallback<List<Task>>() {
+		TabSpec inProgressTabSpec = tabHost.newTabSpec("inprogress");				
+		WorkspaceTabView inProgressTabView = new WorkspaceTabView(this);
+		final SwimlaneView inProgressSwimlaneView = new SwimlaneView(this);
+		inProgressTabView.setTabName("DOING");
+		inProgressTabSpec.setIndicator(inProgressTabView);
+		inProgressTabSpec.setContent(new TabContentFactory() {
 			@Override
-			public void onSuccess(final List<Task> result) {
-				TabSpec tabSpec = tabHost.newTabSpec("inprogress");
-				
-				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
-				indicator.setTabName("DOING");
-				tabSpec.setIndicator(indicator);
-				
-				tabSpec.setContent(new TabHost.TabContentFactory() {
-					@Override
-					public View createTabContent(String tag) {
-						SwimlaneView swimlaneView = new SwimlaneView(WorkspaceActivity.this);
-						swimlaneView.setModel(result, onTaskThumbnailClickedListener);
-						return swimlaneView;
-					}
-				});
-				tabHost.addTab(tabSpec);				
+			public View createTabContent(String tag) {		
+				return inProgressSwimlaneView;
 			}
-
-			@Override
-			public void onError() {				
-			}			
 		});
+		tabHost.addTab(inProgressTabSpec);
 		
-		applicationService.getTasksByStatus(TaskStatus.Done, new ApplicationServiceCallback<List<Task>>() {
+		TabSpec doneTabSpec = tabHost.newTabSpec("done");				
+		WorkspaceTabView doneTabView = new WorkspaceTabView(this);
+		final SwimlaneView doneSwimlaneView = new SwimlaneView(this);
+		doneTabView.setTabName("DONE");
+		doneTabSpec.setIndicator(doneTabView);
+		doneTabSpec.setContent(new TabContentFactory() {
 			@Override
-			public void onSuccess(final List<Task> result) {
-				TabSpec tabSpec = tabHost.newTabSpec("done");
-				
-				WorkspaceTabView indicator = new WorkspaceTabView(WorkspaceActivity.this);
-				indicator.setTabName("DONE");
-				tabSpec.setIndicator(indicator);
-				
-				tabSpec.setContent(new TabHost.TabContentFactory() {
-					@Override
-					public View createTabContent(String tag) {
-						SwimlaneView swimlaneView = new SwimlaneView(WorkspaceActivity.this);
-						swimlaneView.setModel(result, onTaskThumbnailClickedListener);
-						return swimlaneView;
-					}
-				});
-				tabHost.addTab(tabSpec);				
+			public View createTabContent(String tag) {		
+				return doneSwimlaneView;
 			}
-
-			@Override
-			public void onError() {
-			}			
 		});
+		tabHost.addTab(doneTabSpec);
 		
 		createTaskButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				Intent intent = new Intent(WorkspaceActivity.this, CreateTaskActivity.class);
 				startActivity(intent);
+			}
+		});
+		
+		applicationService.getTasksByStatus(TaskStatus.NotStarted).done(new UiDoneCallback<List<Task>>(this) {
+			@Override
+			protected void uiOnDone(final List<Task> result) {
+				toDoSwimlaneView.setModel(result, onTaskThumbnailClickedListener);
 			}			
 		});
+		
+		applicationService.getTasksByStatus(TaskStatus.InProgress).done(new UiDoneCallback<List<Task>>(this) {
+			@Override
+			protected void uiOnDone(final List<Task> result) {
+				inProgressSwimlaneView.setModel(result, onTaskThumbnailClickedListener);
+			}			
+		});
+		
+		applicationService.getTasksByStatus(TaskStatus.Done).done(new UiDoneCallback<List<Task>>(this) {
+			@Override
+			protected void uiOnDone(final List<Task> result) {
+				doneSwimlaneView.setModel(result, onTaskThumbnailClickedListener);
+			}			
+		});		
 	}
 	
 	private OnTaskThumbnailClickedListener onTaskThumbnailClickedListener = new OnTaskThumbnailClickedListener() {

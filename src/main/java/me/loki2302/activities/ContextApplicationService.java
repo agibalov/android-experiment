@@ -2,13 +2,12 @@ package me.loki2302.activities;
 
 import java.util.List;
 
+import org.jdeferred.Promise;
 import me.loki2302.application.Task;
 import me.loki2302.dal.ApplicationService;
-import me.loki2302.dal.ApplicationServiceCallback;
 import me.loki2302.dal.dto.TaskStatus;
 import roboguice.inject.ContextSingleton;
 
-import android.app.Activity;
 import android.content.Context;
 
 import com.google.inject.Inject;
@@ -28,65 +27,57 @@ public class ContextApplicationService {
 	// TODO: can I get rid of this class if inject Provider<Activity> to real application service?
 	//
 	
-	public void signIn(String email, String password, ApplicationServiceCallback<String> callback) {
-		applicationService.signIn(
+	public Promise<String, Exception, Void> signIn(String email, String password) {
+		return applicationService.signIn(
 				longOperationListener, 
 				email, 
-				password, 
-				runOnUiThread(callback));
+				password);
 	}
 	
-	public void getTasksByStatus(TaskStatus status, ApplicationServiceCallback<List<Task>> callback) {
-		applicationService.getTasksByStatus(
+	public Promise<List<Task>, Exception, Void> getTasksByStatus(TaskStatus status) {
+		return applicationService.getTasksByStatus(
 				longOperationListener, 
-				status, 
-				runOnUiThread(callback));
+				status);
 	}
 	
-	public void getTask(int taskId, ApplicationServiceCallback<Task> callback) {
-		applicationService.getTask(
+	public Promise<Task, Exception, Void> getTask(int taskId) {
+		return applicationService.getTask(
 				longOperationListener, 
-				taskId, 
-				runOnUiThread(callback));
+				taskId);
 	}
 	
-	public void createTask(String taskDescription, ApplicationServiceCallback<Task> callback) {
-		applicationService.createTask(
+	public Promise<Task, Exception, Void> createTask(String taskDescription) {
+		return applicationService.createTask(
 				longOperationListener, 
-				taskDescription, 
-				runOnUiThread(callback));
+				taskDescription);
 	}
 	
-	public void updateTask(int taskId, String taskDescription, ApplicationServiceCallback<Task> callback) {
-		applicationService.updateTask(
+	public Promise<Task, Exception, Void> updateTask(int taskId, String taskDescription) {
+		return applicationService.updateTask(
 				longOperationListener,
 				taskId,
-				taskDescription, 
-				runOnUiThread(callback));
+				taskDescription);
 	}
 	
-	public void progressTask(int taskId, ApplicationServiceCallback<Task> callback) {
-		applicationService.progressTask(
+	public Promise<Task, Exception, Void> progressTask(int taskId) {
+		return applicationService.progressTask(
 				longOperationListener,
-				taskId,
-				runOnUiThread(callback));
+				taskId);
 	}
 	
-	public void unprogressTask(int taskId, ApplicationServiceCallback<Task> callback) {
-		applicationService.unprogressTask(
+	public Promise<Task, Exception, Void> unprogressTask(int taskId) {
+		return applicationService.unprogressTask(
 				longOperationListener,
-				taskId,
-				runOnUiThread(callback));
+				taskId);
 	}
 	
-	public void deleteTask(int taskId, ApplicationServiceCallback<Object> callback) {
-		applicationService.deleteTask(
+	public Promise<Object, Exception, Void> deleteTask(int taskId) {
+		return applicationService.deleteTask(
 				longOperationListener,
-				taskId,
-				runOnUiThread(callback));
+				taskId);
 	}
 	
-	private <T> ApplicationServiceCallback<T> runOnUiThread(ApplicationServiceCallback<T> applicationServiceCallback) {
+/*	private <T> ApplicationServiceCallback<T> runOnUiThread(ApplicationServiceCallback<T> applicationServiceCallback) {
 		return new RunOnUiThreadApplicationServiceCallbackDecorator<T>((Activity)context, applicationServiceCallback);
 	}
 	
@@ -125,5 +116,5 @@ public class ContextApplicationService {
 		private void runOnUiThread(Runnable runnable) {
 			activity.runOnUiThread(runnable);
 		}
-	}
+	}*/
 }

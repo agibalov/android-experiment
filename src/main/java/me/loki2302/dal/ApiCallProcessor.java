@@ -3,6 +3,9 @@ package me.loki2302.dal;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.jdeferred.Deferred;
+import org.jdeferred.Promise;
+import org.jdeferred.impl.DeferredObject;
 import org.springframework.web.client.RestTemplate;
 
 import me.loki2302.dal.dto.ServiceResultDto;
@@ -24,12 +27,13 @@ public class ApiCallProcessor {
 	@Inject	
 	private RestTemplate restTemplate;
 	
-	public <TResult> void process(
+	public <TResult> Promise<TResult, Exception, Void> process(
 			final LongOperationListener longOperationListener, 
-			final ApiCall<TResult> apiCall, 
-			final ApiCallback<TResult> callback) {
+			final ApiCall<TResult> apiCall) {
 		
 		longOperationListener.onLongOperationStarted(apiCall.describe());
+		
+		final Deferred<TResult, Exception, Void> deferred = new DeferredObject<TResult, Exception, Void>(); 
 		
 		executor.execute(new Runnable() {
 			@Override
@@ -37,20 +41,22 @@ public class ApiCallProcessor {
 				try {
 					final ServiceResultDto<TResult> result = apiCall.performApiCall(apiRootUrl, restTemplate);
 					
-					Ln.i("api=%s, response ok=%b, error=%s", apiCall.describe(), result.ok, result.error);
+					Ln.i("api=%s, response ok=%b, error=%s", apiCall, result.ok, result.error);
 					
 					if(result.ok) {
-						callback.onSuccess(result.payload);
-					} else {						
-						callback.onError(result, null);								
+						deferred.resolve(result.payload);
+					} else {
+						deferred.reject(null);								
 					}						
 				} catch(final Exception e) {
 					e.printStackTrace();
-					callback.onError(null, e);								
+					deferred.reject(e);								
 				} finally {
 					longOperationListener.onLongOperationFinished();
 				}
 			}				
 		});
+		
+		return deferred.promise();
 	}
 }

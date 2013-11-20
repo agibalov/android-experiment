@@ -2,7 +2,9 @@ package me.loki2302.activities;
 
 import me.loki2302.R;
 import me.loki2302.application.Task;
-import me.loki2302.dal.ApplicationServiceCallback;
+
+import org.jdeferred.DoneCallback;
+
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
@@ -32,21 +34,14 @@ public class CreateTaskActivity extends RoboActivity {
 		doneButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String taskDescription = taskDescriptionEditText.getText().toString();
-				applicationService.createTask(taskDescription, new ApplicationServiceCallback<Task>() {
+				String taskDescription = taskDescriptionEditText.getText().toString();				
+				applicationService.createTask(taskDescription).done(new DoneCallback<Task>() {
 					@Override
-					public void onSuccess(Task result) {
+					public void onDone(Task result) {
 						Ln.i("Created task with id %d", result.id);
-						finish();
-						
-						// TODO: workspace activity should now reload the data
-					}
-
-					@Override
-					public void onError() {
-						// TODO
+						finish();						
 					}					
-				});
+				});				
 			}			
 		});
 	}

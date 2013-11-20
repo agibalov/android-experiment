@@ -1,7 +1,6 @@
 package me.loki2302.activities;
 
 import me.loki2302.R;
-import me.loki2302.dal.ApplicationServiceCallback;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
@@ -43,19 +42,15 @@ public class SignInActivity extends RoboActivity {
 		public void onClick(View arg0) {
 			final String email = emailEditText.getText().toString();
 			final String password = passwordEditText.getText().toString();
-			applicationService.signIn(email, password, new ApplicationServiceCallback<String>() {
+			
+			applicationService.signIn(email, password).done(new UiDoneCallback<String>(SignInActivity.this) {
 				@Override
-				public void onSuccess(String result) {
+				protected void uiOnDone(String result) {
 					Ln.i("Authenticated: %s", result);
 					
 					Intent intent = new Intent(SignInActivity.this, WorkspaceActivity.class);
 					startActivity(intent);
-					finish();					
-				}
-
-				@Override
-				public void onError() {
-					Ln.i("Failed to authenticate");
+					finish();
 				}				
 			});
 		}			

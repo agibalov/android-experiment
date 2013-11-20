@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SaveOn!</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+    
+    <string name="markdown_html_template">
+        <![CDATA[
+        <html>
+        	<head>
+        		<style type="text/css">
+        			html, body { 
+        				padding: 0; 
+        				margin: 0; 
+        			}
+        		
+        			h1 {
+        				color: red;
+        			}
+        			
+        			p {
+        				color: green;
+        			}
+        		</style>        		
+        	</head>
+        	<body>%s</body>
+        </html>
+        ]]>
+    </string>
+</resources>

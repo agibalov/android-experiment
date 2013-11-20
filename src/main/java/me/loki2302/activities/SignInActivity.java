@@ -39,8 +39,8 @@ public class SignInActivity extends RetaskActivity {
 	private final OnClickListener onSignInClicked = new OnClickListener() {
 		@Override
 		public void onClick(View arg0) {
-			final String email = emailEditText.getText().toString();
-			final String password = passwordEditText.getText().toString();
+			String email = emailEditText.getText().toString();
+			String password = passwordEditText.getText().toString();
 			
 			applicationService.signIn(email, password).done(new UiDoneCallback<String>() {
 				@Override

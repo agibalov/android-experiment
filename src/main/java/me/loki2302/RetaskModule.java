@@ -9,20 +9,14 @@ import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 
 public class RetaskModule implements Module {
 	@Override
 	public void configure(Binder binder) {
+		binder.bindConstant().annotatedWith(Names.named("apiRootUrl")).to("http://retask.me/api");
 	}
 	
-	@Provides
-	@Singleton
-	@Named("apiRootUrl")
-	String apiRootUrl() {
-		return "http://retask.me/api";
-	}
-			
 	@Provides
 	@Singleton
 	RestTemplate restTemplate() {

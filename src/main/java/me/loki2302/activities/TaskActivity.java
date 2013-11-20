@@ -1,8 +1,8 @@
 package me.loki2302.activities;
 
+
 import me.loki2302.R;
 import me.loki2302.application.Task;
-import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
 import android.content.Intent;
@@ -12,7 +12,7 @@ import android.webkit.WebView;
 import com.google.inject.Inject;
 import com.petebevin.markdown.MarkdownProcessor;
 
-public class TaskActivity extends RoboActivity {
+public class TaskActivity extends RetaskActivity {
 	private final static MarkdownProcessor markdownProcessor = new MarkdownProcessor();
 	
 	@Inject
@@ -35,7 +35,7 @@ public class TaskActivity extends RoboActivity {
 			throw new IllegalStateException("Looks like taskId is missing in Intent");
 		}
 		
-		applicationService.getTask(taskId).done(new UiDoneCallback<Task>(this) {
+		applicationService.getTask(taskId).done(new UiDoneCallback<Task>() {
 			@Override
 			protected void uiOnDone(Task result) {
 				String taskDescription = result.description;

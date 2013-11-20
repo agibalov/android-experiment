@@ -1,7 +1,6 @@
 package me.loki2302.activities;
 
 import me.loki2302.R;
-import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 import android.content.Intent;
@@ -13,7 +12,7 @@ import android.widget.EditText;
 
 import com.google.inject.Inject;
 
-public class SignInActivity extends RoboActivity {
+public class SignInActivity extends RetaskActivity {
 	@Inject
 	private ContextApplicationService applicationService;
 			
@@ -43,7 +42,7 @@ public class SignInActivity extends RoboActivity {
 			final String email = emailEditText.getText().toString();
 			final String password = passwordEditText.getText().toString();
 			
-			applicationService.signIn(email, password).done(new UiDoneCallback<String>(SignInActivity.this) {
+			applicationService.signIn(email, password).done(new UiDoneCallback<String>() {
 				@Override
 				protected void uiOnDone(String result) {
 					Ln.i("Authenticated: %s", result);

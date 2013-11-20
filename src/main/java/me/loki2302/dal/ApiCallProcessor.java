@@ -45,8 +45,8 @@ public class ApiCallProcessor {
 					
 					if(result.ok) {
 						deferred.resolve(result.payload);
-					} else {
-						deferred.reject(null);								
+					} else {						
+						deferred.reject(new RetaskException(result));								
 					}						
 				} catch(final Exception e) {
 					e.printStackTrace();

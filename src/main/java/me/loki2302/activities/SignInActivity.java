@@ -1,6 +1,7 @@
 package me.loki2302.activities;
 
 import me.loki2302.R;
+import me.loki2302.dal.dto.ServiceResultDto;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 import android.content.Intent;
@@ -51,7 +52,22 @@ public class SignInActivity extends RetaskActivity {
 					startActivity(intent);
 					finish();
 				}				
+			}).fail(new DefaultFailCallback() {				
+				@Override
+				protected void onNoSuchUser(ServiceResultDto<?> serviceResult) {
+					Ln.i("CUSTOM HANDLER: no such user");
+				}
+
+				@Override
+				protected void onInvalidPassword(ServiceResultDto<?> serviceResult) {
+					Ln.i("CUSTOM HANDLER: invalid password");
+				}
+
+				@Override
+				protected void onValidationError(ServiceResultDto<?> serviceResult) {					
+					Ln.i("CUSTOM HANDLER: validation error - %s", serviceResult.fieldsInError.keySet());
+				}
 			});
 		}			
-	};
+	};	
 }

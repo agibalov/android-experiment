@@ -77,7 +77,7 @@
 				<artifactId>android-maven-plugin</artifactId>
 				<configuration>
 					<sdk>
-						<platform>10</platform>
+						<platform>4</platform>
 					</sdk>
 				</configuration>
 			</plugin>

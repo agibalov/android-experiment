@@ -88,21 +88,21 @@ public class WorkspaceActivity extends RetaskActivity {
 			protected void uiOnDone(final List<Task> result) {
 				toDoSwimlaneView.setModel(result, onTaskThumbnailClickedListener);
 			}			
-		});
+		}).fail(new DefaultFailCallback());
 		
 		applicationService.getTasksByStatus(TaskStatus.InProgress).done(new UiDoneCallback<List<Task>>() {
 			@Override
 			protected void uiOnDone(final List<Task> result) {
 				inProgressSwimlaneView.setModel(result, onTaskThumbnailClickedListener);
 			}			
-		});
+		}).fail(new DefaultFailCallback());
 		
 		applicationService.getTasksByStatus(TaskStatus.Done).done(new UiDoneCallback<List<Task>>() {
 			@Override
 			protected void uiOnDone(final List<Task> result) {
 				doneSwimlaneView.setModel(result, onTaskThumbnailClickedListener);
 			}			
-		});		
+		}).fail(new DefaultFailCallback());		
 	}
 	
 	private OnTaskThumbnailClickedListener onTaskThumbnailClickedListener = new OnTaskThumbnailClickedListener() {

@@ -5,7 +5,6 @@ import me.loki2302.application.Task;
 
 import org.jdeferred.DoneCallback;
 
-import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 import android.os.Bundle;
@@ -16,7 +15,7 @@ import android.widget.EditText;
 
 import com.google.inject.Inject;
 
-public class CreateTaskActivity extends RoboActivity {
+public class CreateTaskActivity extends RetaskActivity {
 	@Inject
 	private ContextApplicationService applicationService;
 	
@@ -41,7 +40,7 @@ public class CreateTaskActivity extends RoboActivity {
 						Ln.i("Created task with id %d", result.id);
 						finish();						
 					}					
-				});				
+				}).fail(new DefaultFailCallback());;				
 			}			
 		});
 	}

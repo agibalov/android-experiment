@@ -43,6 +43,6 @@ public class TaskActivity extends RetaskActivity {
 				String html = String.format(markdownHtmlTemplate, taskDescriptionHtml);
 				taskDescriptionWebView.loadData(html, "text/html", null);				
 			}			
-		});	
+		}).fail(new DefaultFailCallback());;	
 	}
 }

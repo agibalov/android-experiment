@@ -1,14 +1,13 @@
 package me.loki2302.activities;
 
-import java.util.Arrays;
-import java.util.List;
-
 import me.loki2302.dal.RetaskException;
 import me.loki2302.dal.dto.ServiceError;
 import me.loki2302.dal.dto.ServiceResultDto;
 
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
+
+import android.app.AlertDialog;
 
 import roboguice.activity.RoboActivity;
 import roboguice.util.Ln;
@@ -127,36 +126,22 @@ public abstract class RetaskActivity extends RoboActivity {
 		
 		private void handle(Exception result) {
 			Ln.e("DEFAULT ERROR HANDLER");
+			
+			new AlertDialog.Builder(RetaskActivity.this)
+				.setTitle("Unexpected error")
+				.setMessage(String.format("Something is wrong: %s", result.getMessage()))
+				.create()
+				.show();
 		}
 		
-		private void handle(ServiceResultDto<?> result) {
+		private void handle(ServiceResultDto<?> result) {			
 			Ln.e("DEFAULT ERROR HANDLER");
-		}
-	}
-	
-	protected abstract class RunDefaultHandlerIfNotInterestedFailCallback<F> extends UiFailCallback<F> {
-		private final List<ServiceError> serviceErrors;
-		
-		public RunDefaultHandlerIfNotInterestedFailCallback(ServiceError... serviceErrors) {
-			this.serviceErrors = Arrays.asList(serviceErrors);
-		}
-
-		@Override
-		protected void uiOnFail(F result) {
-			if(!(result instanceof RetaskException)) {
-				return; // TODO: call default handler				
-			}
 			
-			RetaskException retaskException = (RetaskException)result;
-			ServiceResultDto<?> serviceResult = retaskException.serviceResult;			
-			boolean isInterested = serviceErrors.contains(serviceResult.error);
-			if(!isInterested) {
-				return; // TODO: call default handler
-			}
-			
-			handleError(serviceResult);
+			new AlertDialog.Builder(RetaskActivity.this)
+				.setTitle("Error")
+				.setMessage(String.format("Service says something is wrong: %s", result.error))
+				.create()
+				.show();
 		}
-		
-		protected abstract void handleError(ServiceResultDto<?> result);
 	}
 }

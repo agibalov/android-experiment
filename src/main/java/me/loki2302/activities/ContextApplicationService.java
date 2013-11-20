@@ -76,45 +76,4 @@ public class ContextApplicationService {
 				longOperationListener,
 				taskId);
 	}
-	
-/*	private <T> ApplicationServiceCallback<T> runOnUiThread(ApplicationServiceCallback<T> applicationServiceCallback) {
-		return new RunOnUiThreadApplicationServiceCallbackDecorator<T>((Activity)context, applicationServiceCallback);
-	}
-	
-	private static class RunOnUiThreadApplicationServiceCallbackDecorator<T> implements ApplicationServiceCallback<T> {
-		private final Activity activity;
-		private final ApplicationServiceCallback<T> applicationServiceCallback;
-		
-		public RunOnUiThreadApplicationServiceCallbackDecorator(
-				Activity activity, 
-				ApplicationServiceCallback<T> applicationServiceCallback) {
-			
-			this.activity = activity;
-			this.applicationServiceCallback = applicationServiceCallback;
-		}
-
-		@Override
-		public void onSuccess(final T result) {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					applicationServiceCallback.onSuccess(result);
-				}				
-			});			
-		}
-
-		@Override
-		public void onError() {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					applicationServiceCallback.onError();
-				}				
-			});			
-		}
-		
-		private void runOnUiThread(Runnable runnable) {
-			activity.runOnUiThread(runnable);
-		}
-	}*/
 }

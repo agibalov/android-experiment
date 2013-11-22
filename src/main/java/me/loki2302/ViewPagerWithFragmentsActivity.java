@@ -6,11 +6,11 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 
-public class MainActivity extends FragmentActivity {
+public class ViewPagerWithFragmentsActivity extends FragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main_view);
+		setContentView(R.layout.viewpager_with_fragments_view);
 		
 		ViewPager viewPager = (ViewPager)findViewById(R.id.viewPager);
 		viewPager.setAdapter(new FragmentStatePagerAdapter(getSupportFragmentManager()) {

@@ -14,13 +14,17 @@ public final class R {
         public static final int icon=0x7f020000;
     }
     public static final class id {
-        public static final int pageContent=0x7f060002;
-        public static final int pageTitle=0x7f060001;
-        public static final int viewPager=0x7f060000;
+        public static final int pageContent=0x7f060003;
+        public static final int pageTitle=0x7f060002;
+        public static final int runViewPagerWithFragmentsButton=0x7f060000;
+        public static final int runViewPagerWithViewsButton=0x7f060001;
+        public static final int viewPager=0x7f060004;
     }
     public static final class layout {
-        public static final int main_view=0x7f030000;
+        public static final int home_view=0x7f030000;
         public static final int page_view=0x7f030001;
+        public static final int viewpager_with_fragments_view=0x7f030002;
+        public static final int viewpager_with_views_view=0x7f030003;
     }
     public static final class string {
         public static final int app_name=0x7f040000;

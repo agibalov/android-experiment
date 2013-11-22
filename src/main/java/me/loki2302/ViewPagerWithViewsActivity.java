@@ -40,7 +40,7 @@ public class ViewPagerWithViewsActivity extends Activity {
 				
 				container.addView(pageView);
 				
-				return pageView; // TODO: this may not be view
+				return pageView; // TODO: this shouldn't necessarily be a view
 			}
 
 			@Override

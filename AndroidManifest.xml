@@ -20,6 +20,7 @@
         </activity>
         
         <activity android:name="me.loki2302.activities.WorkspaceActivity" />
+        <activity android:name="me.loki2302.activities.WorkspaceActivityAlt" />
         <activity android:name="me.loki2302.activities.TaskActivity" />
         <activity android:name="me.loki2302.activities.CreateTaskActivity" />
     </application>

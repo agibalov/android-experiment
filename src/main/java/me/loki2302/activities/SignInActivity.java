@@ -1,6 +1,13 @@
 package me.loki2302.activities;
 
+import java.util.List;
+
 import me.loki2302.R;
+import net.sf.oval.ConstraintViolation;
+import net.sf.oval.Validator;
+import net.sf.oval.constraint.NotEmpty;
+import net.sf.oval.constraint.NotNull;
+import net.sf.oval.context.FieldContext;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 import android.content.Intent;
@@ -34,6 +41,16 @@ public class SignInActivity extends RetaskActivity {
 		passwordEditText.setText("");
 		
 		signInButton.setOnClickListener(onSignInClicked);
+		
+		SignInModel signInModel = new SignInModel();
+		Validator validator = new Validator();
+		List<ConstraintViolation> violations = validator.validate(signInModel);
+		Ln.i("violations: %s", violations);
+		for(ConstraintViolation violation : violations) {
+			Ln.i("violation: %s", ((FieldContext)violation.getContext()).getField().getName());
+			Ln.i(violation.getMessage());
+			Ln.i(violation.getMessageTemplate());
+		}
 	}
 	
 	private final OnClickListener onSignInClicked = new OnClickListener() {
@@ -47,11 +64,37 @@ public class SignInActivity extends RetaskActivity {
 				protected void uiOnDone(String result) {
 					Ln.i("Authenticated: %s", result);
 					
-					Intent intent = new Intent(SignInActivity.this, WorkspaceActivity.class);
+					Intent intent = new Intent(SignInActivity.this, WorkspaceActivityAlt.class);
 					startActivity(intent);
 					finish();
 				}				
 			}).fail(new DefaultFailCallback());
 		}			
 	};	
+	
+	public static class SignInModel {
+		@NotNull
+		@NotEmpty		
+		private String username;
+		
+		@NotNull
+		@NotEmpty
+		private String password;
+		
+		public String getUsername() {
+			return username;
+		}
+		
+		public void setUsername(String username) {
+			this.username = username;
+		}
+		
+		public String getPassword() {
+			return password;
+		}
+		
+		public void setPassword(String password) {
+			this.password = password;
+		}
+	}
 }

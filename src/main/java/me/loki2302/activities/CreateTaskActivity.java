@@ -40,7 +40,7 @@ public class CreateTaskActivity extends RetaskActivity {
 						Ln.i("Created task with id %d", result.id);
 						finish();						
 					}					
-				}).fail(new DefaultFailCallback());;				
+				}).fail(new DefaultFailCallback());				
 			}			
 		});
 	}

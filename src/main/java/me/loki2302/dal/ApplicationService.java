@@ -26,11 +26,12 @@ import com.google.inject.Singleton;
 
 @Singleton
 public class ApplicationService {
-	private String sessionToken;
+	@Inject
+	private ApplicationState applicationState;
 	
 	@Inject
 	private RetaskService retaskService;
-		
+	
 	private volatile boolean isTaskRepositoryInitialized;
 	private final Repository<Task> taskRepository = new Repository<Task>();
 	private final Object isTaskRepositoryInitializingLock = new Object();
@@ -41,8 +42,9 @@ public class ApplicationService {
 		return retaskService.signIn(longOperationListener, email, password).then(new DonePipe<SessionDto, String, Exception, Void>() {
 			@Override
 			public Deferred<String, Exception, Void> pipeDone(SessionDto result) {
-				sessionToken = result.sessionToken;
-				return new DeferredObject<String, Exception, Void>().resolve(result.sessionToken);
+				String sessionToken = result.sessionToken;
+				applicationState.setSessionToken(sessionToken);
+				return new DeferredObject<String, Exception, Void>().resolve(sessionToken);
 			}
 		});		
 	}
@@ -81,7 +83,7 @@ public class ApplicationService {
 	public Promise<Task, Exception, Void> createTask(LongOperationListener longOperationListener, String taskDescription) {
 		TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
 		taskDescriptionDto.taskDescription = taskDescription;
-		return retaskService.createTask(longOperationListener, sessionToken, taskDescriptionDto).then(new DonePipe<TaskDto, Task, Exception, Void>() {
+		return retaskService.createTask(longOperationListener, applicationState.getSessionToken(), taskDescriptionDto).then(new DonePipe<TaskDto, Task, Exception, Void>() {
 			@Override
 			public Deferred<Task, Exception, Void> pipeDone(TaskDto result) {
 				Task task = taskFromTaskDto(result);
@@ -94,7 +96,7 @@ public class ApplicationService {
 	public Promise<Task, Exception, Void> updateTask(LongOperationListener longOperationListener, int taskId, String taskDescription) {
 		TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
 		taskDescriptionDto.taskDescription = taskDescription;
-		return retaskService.updateTask(longOperationListener, sessionToken, taskId, taskDescriptionDto).then(new DonePipe<TaskDto, Task, Exception, Void>() {
+		return retaskService.updateTask(longOperationListener, applicationState.getSessionToken(), taskId, taskDescriptionDto).then(new DonePipe<TaskDto, Task, Exception, Void>() {
 			@Override
 			public Deferred<Task, Exception, Void> pipeDone(TaskDto result) {
 				Task task = taskFromTaskDto(result);
@@ -105,7 +107,7 @@ public class ApplicationService {
 	}
 	
 	public Promise<Task, Exception, Void> progressTask(LongOperationListener longOperationListener, int taskId) {
-		return retaskService.progressTask(longOperationListener, sessionToken, taskId).then(new DonePipe<TaskDto, Task, Exception, Void>() {
+		return retaskService.progressTask(longOperationListener, applicationState.getSessionToken(), taskId).then(new DonePipe<TaskDto, Task, Exception, Void>() {
 			@Override
 			public Deferred<Task, Exception, Void> pipeDone(TaskDto result) {
 				Task task = taskFromTaskDto(result);
@@ -116,7 +118,7 @@ public class ApplicationService {
 	}
 	
 	public Promise<Task, Exception, Void> unprogressTask(LongOperationListener longOperationListener, int taskId) {
-		return retaskService.unprogressTask(longOperationListener, sessionToken, taskId).then(new DonePipe<TaskDto, Task, Exception, Void>() {
+		return retaskService.unprogressTask(longOperationListener, applicationState.getSessionToken(), taskId).then(new DonePipe<TaskDto, Task, Exception, Void>() {
 			@Override
 			public Deferred<Task, Exception, Void> pipeDone(TaskDto result) {
 				Task task = taskFromTaskDto(result);
@@ -127,7 +129,7 @@ public class ApplicationService {
 	}
 	
 	public Promise<Object, Exception, Void> deleteTask(LongOperationListener longOperationListener, final int taskId) {
-		return retaskService.deleteTask(longOperationListener, sessionToken, taskId).then(new DoneCallback<Object>() {
+		return retaskService.deleteTask(longOperationListener, applicationState.getSessionToken(), taskId).then(new DoneCallback<Object>() {
 			@Override
 			public void onDone(Object result) {
 				taskRepository.remove(taskId);				
@@ -151,7 +153,7 @@ public class ApplicationService {
 				isTaskRepositoryInitializing = true;
 			}
 			
-			retaskService.getWorkspace(longOperationListener, sessionToken).done(new DoneCallback<WorkspaceDto>() {
+			retaskService.getWorkspace(longOperationListener, applicationState.getSessionToken()).done(new DoneCallback<WorkspaceDto>() {
 				@Override
 				public void onDone(WorkspaceDto result) {
 					for(TaskDto taskDto : result.tasks) {

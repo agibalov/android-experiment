@@ -2,6 +2,8 @@ package me.loki2302.activities;
 
 import java.util.List;
 
+import roboguice.inject.ContentView;
+
 import me.loki2302.R;
 import me.loki2302.application.Task;
 import me.loki2302.dal.dto.TaskStatus;
@@ -18,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.google.inject.Inject;
 
+@ContentView(R.layout.home_view_alt)
 public class WorkspaceActivityAlt extends RetaskActivity {
 	@Inject
 	private ContextApplicationService applicationService;
@@ -25,8 +28,7 @@ public class WorkspaceActivityAlt extends RetaskActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.home_view_alt);
-		
+				
 		final SwimlaneView toDoSwimlaneView = new SwimlaneView(this);
 		final SwimlaneView inProgressSwimlaneView = new SwimlaneView(this);
 		final SwimlaneView doneSwimlaneView = new SwimlaneView(this);
@@ -39,23 +41,7 @@ public class WorkspaceActivityAlt extends RetaskActivity {
 			}
 
 			@Override
-			public Object instantiateItem(ViewGroup container, int position) {
-				/*LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				FrameLayout pageView = new FrameLayout(WorkspaceActivityAlt.this);
-				inflater.inflate(R.layout.page_view, pageView);
-								
-				TextView pageTitleTextView = (TextView)pageView.findViewById(R.id.pageTitle);
-				String title = String.format("Page #%d", position);
-				pageTitleTextView.setText(title);			
-				
-				TextView pageContentTextView = (TextView)pageView.findViewById(R.id.pageContent);
-				String content = String.format("Content #%d", position);
-				pageContentTextView.setText(content);
-				
-				container.addView(pageView);
-				
-				return pageView; // TODO: this shouldn't necessarily be a view*/
-				
+			public Object instantiateItem(ViewGroup container, int position) {			
 				View v = null;
 				if(position == 0) {
 					v = toDoSwimlaneView;
@@ -82,53 +68,6 @@ public class WorkspaceActivityAlt extends RetaskActivity {
 				return arg0.equals(arg1);
 			}			
 		});
-				
-		/*TabSpec toDoTabSpec = tabHost.newTabSpec("todo");		
-		WorkspaceTabView toDoTabView = new WorkspaceTabView(this);
-		final SwimlaneView toDoSwimlaneView = new SwimlaneView(this);
-		toDoTabView.setTabName("TO DO");
-		toDoTabSpec.setIndicator(toDoTabView);
-		toDoTabSpec.setContent(new TabContentFactory() {
-			@Override
-			public View createTabContent(String tag) {		
-				return toDoSwimlaneView;
-			}
-		});		
-		tabHost.addTab(toDoTabSpec);
-		
-		TabSpec inProgressTabSpec = tabHost.newTabSpec("inprogress");				
-		WorkspaceTabView inProgressTabView = new WorkspaceTabView(this);
-		final SwimlaneView inProgressSwimlaneView = new SwimlaneView(this);
-		inProgressTabView.setTabName("DOING");
-		inProgressTabSpec.setIndicator(inProgressTabView);
-		inProgressTabSpec.setContent(new TabContentFactory() {
-			@Override
-			public View createTabContent(String tag) {		
-				return inProgressSwimlaneView;
-			}
-		});
-		tabHost.addTab(inProgressTabSpec);
-		
-		TabSpec doneTabSpec = tabHost.newTabSpec("done");				
-		WorkspaceTabView doneTabView = new WorkspaceTabView(this);
-		final SwimlaneView doneSwimlaneView = new SwimlaneView(this);
-		doneTabView.setTabName("DONE");
-		doneTabSpec.setIndicator(doneTabView);
-		doneTabSpec.setContent(new TabContentFactory() {
-			@Override
-			public View createTabContent(String tag) {		
-				return doneSwimlaneView;
-			}
-		});
-		tabHost.addTab(doneTabSpec);
-		
-		createTaskButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				Intent intent = new Intent(WorkspaceActivityAlt.this, CreateTaskActivity.class);
-				startActivity(intent);
-			}
-		});*/
 		
 		applicationService.getTasksByStatus(TaskStatus.NotStarted).done(new UiDoneCallback<List<Task>>() {
 			@Override

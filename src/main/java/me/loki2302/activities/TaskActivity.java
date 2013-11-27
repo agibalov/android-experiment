@@ -1,8 +1,8 @@
 package me.loki2302.activities;
 
-
 import me.loki2302.R;
 import me.loki2302.application.Task;
+import roboguice.inject.ContentView;
 import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
 import android.content.Intent;
@@ -12,6 +12,7 @@ import android.webkit.WebView;
 import com.google.inject.Inject;
 import com.petebevin.markdown.MarkdownProcessor;
 
+@ContentView(R.layout.task_view)
 public class TaskActivity extends RetaskActivity {
 	private final static MarkdownProcessor markdownProcessor = new MarkdownProcessor();
 	
@@ -27,8 +28,7 @@ public class TaskActivity extends RetaskActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {			
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.task_view);		
-		
+				
 		Intent intent = getIntent();
 		int taskId = intent.getIntExtra("taskId", -1);
 		if(taskId == -1) {
@@ -43,6 +43,6 @@ public class TaskActivity extends RetaskActivity {
 				String html = String.format(markdownHtmlTemplate, taskDescriptionHtml);
 				taskDescriptionWebView.loadData(html, "text/html", null);				
 			}			
-		}).fail(new DefaultFailCallback());;	
+		}).fail(new DefaultFailCallback());	
 	}
 }

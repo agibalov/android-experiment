@@ -5,6 +5,7 @@ import me.loki2302.application.Task;
 
 import org.jdeferred.DoneCallback;
 
+import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.widget.EditText;
 
 import com.google.inject.Inject;
 
+@ContentView(R.layout.create_task_view)
 public class CreateTaskActivity extends RetaskActivity {
 	@Inject
 	private ContextApplicationService applicationService;
@@ -27,8 +29,7 @@ public class CreateTaskActivity extends RetaskActivity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {			
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.create_task_view);
+		super.onCreate(savedInstanceState);		
 		
 		doneButton.setOnClickListener(new OnClickListener() {
 			@Override

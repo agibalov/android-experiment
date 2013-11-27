@@ -59,11 +59,12 @@ public final class R {
         public static final int sign_in=0x7f050004;
     }
     public static final class style {
-        public static final int AppTheme=0x7f060005;
+        public static final int AppTheme=0x7f060006;
         public static final int DefaultButton=0x7f060000;
+        public static final int DefaultCheckBox=0x7f060003;
         public static final int DefaultEditText=0x7f060001;
         public static final int DefaultTextView=0x7f060002;
-        public static final int SwimlaneTab=0x7f060003;
-        public static final int SwimlaneTabText=0x7f060004;
+        public static final int SwimlaneTab=0x7f060004;
+        public static final int SwimlaneTabText=0x7f060005;
     }
 }

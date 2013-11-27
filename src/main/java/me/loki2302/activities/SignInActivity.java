@@ -1,11 +1,16 @@
 package me.loki2302.activities;
 
 import me.loki2302.R;
+import roboguice.activity.event.OnActivityResultEvent;
+import roboguice.event.Observes;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -21,6 +26,9 @@ public class SignInActivity extends RetaskActivity {
 	
 	@Inject
 	private PreferencesService preferencesService;
+	
+	@Inject
+	private ConnectivityService connectivityService;
 			
 	@InjectView(R.id.emailEditText)
 	private EditText emailEditText;
@@ -39,19 +47,47 @@ public class SignInActivity extends RetaskActivity {
 		super.onCreate(savedInstanceState);
 		
 		Credentials credentials = preferencesService.getCredentials();
+		rememberMeCheckBox.setChecked(true);
 		if(credentials != null) {
 			String email = credentials.getEmail();
 			String password = credentials.getPassword();
 			
 			emailEditText.setText(email);			
-			passwordEditText.setText(password);			
-			
-			signIn(email, password);
+			passwordEditText.setText(password);
 		}
 		
-		rememberMeCheckBox.setChecked(true);
-		
 		signInButton.setOnClickListener(onSignInClicked);
+		
+		// TODO: handle "is connecting"? (android.net.conn.CONNECTIVITY_CHANGE)
+		boolean isConnected = connectivityService.isConnected();
+		if(!isConnected) {			
+			new AlertDialog.Builder(this)
+				.setTitle("Network")
+				.setMessage("It looks like you're not connected to the Internet at the moment")
+				.setPositiveButton("Connect", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), 123);
+					}
+				})
+				.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						finish();						
+					}
+				}).show();
+		} else {
+			if(credentials != null) {
+				String email = credentials.getEmail();
+				String password = credentials.getPassword();
+				signIn(email, password);
+			}
+		}
+	}
+	
+	private void onActivityResult(@Observes OnActivityResultEvent e) {
+		Ln.i("GOT RESULT for request: %d", e.getRequestCode());
+		// TODO: handle "is connecting"?
 	}
 	
 	private void signIn(final String email, final String password) {

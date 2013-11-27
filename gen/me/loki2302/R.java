@@ -22,17 +22,19 @@ public final class R {
     }
     public static final class id {
         public static final int createTaskButton=0x7f080003;
-        public static final int createTaskMenuItem=0x7f08000c;
+        public static final int createTaskMenuItem=0x7f08000d;
         public static final int doneButton=0x7f080001;
         public static final int emailEditText=0x7f080005;
         public static final int passwordEditText=0x7f080006;
-        public static final int signInButton=0x7f080007;
+        public static final int rememberMeCheckBox=0x7f080007;
+        public static final int resetMenuItem=0x7f08000e;
+        public static final int signInButton=0x7f080008;
         public static final int tabHost=0x7f080002;
-        public static final int tabName=0x7f08000b;
+        public static final int tabName=0x7f08000c;
         public static final int taskDescriptionEditText=0x7f080000;
-        public static final int taskDescriptionWebView=0x7f08000a;
-        public static final int taskReprTextView=0x7f080009;
-        public static final int taskThumbailsListView=0x7f080008;
+        public static final int taskDescriptionWebView=0x7f08000b;
+        public static final int taskReprTextView=0x7f08000a;
+        public static final int taskThumbailsListView=0x7f080009;
         public static final int viewPager=0x7f080004;
     }
     public static final class layout {
@@ -51,9 +53,10 @@ public final class R {
     public static final class string {
         public static final int app_name=0x7f050000;
         public static final int email=0x7f050001;
-        public static final int markdown_html_template=0x7f050004;
+        public static final int markdown_html_template=0x7f050005;
         public static final int password=0x7f050002;
-        public static final int sign_in=0x7f050003;
+        public static final int remember_me=0x7f050003;
+        public static final int sign_in=0x7f050004;
     }
     public static final class style {
         public static final int AppTheme=0x7f060005;

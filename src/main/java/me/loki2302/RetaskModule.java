@@ -5,6 +5,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import roboguice.inject.SharedPreferencesName;
+
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Provides;
@@ -14,6 +16,7 @@ import com.google.inject.name.Names;
 public class RetaskModule implements Module {
 	@Override
 	public void configure(Binder binder) {
+		binder.bindConstant().annotatedWith(SharedPreferencesName.class).to("me.loki2302.retask_preferences");
 		binder.bindConstant().annotatedWith(Names.named("apiRootUrl")).to("http://retask.me/api");
 	}
 	

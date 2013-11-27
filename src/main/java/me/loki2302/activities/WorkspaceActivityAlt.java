@@ -21,7 +21,10 @@ import android.view.ViewGroup;
 import com.google.inject.Inject;
 
 @ContentView(R.layout.home_view_alt)
-public class WorkspaceActivityAlt extends RetaskActivity {
+public class WorkspaceActivityAlt extends RetaskActivity {	
+	@Inject
+	private PreferencesService preferencesService;
+	
 	@Inject
 	private ContextApplicationService applicationService;
 	
@@ -105,6 +108,9 @@ public class WorkspaceActivityAlt extends RetaskActivity {
 			Intent intent = new Intent(WorkspaceActivityAlt.this, CreateTaskActivity.class);
 			startActivity(intent);
 			return true;
+		} else if(itemId == R.id.resetMenuItem) {
+			preferencesService.unsetCredentials();
+			finish();
 		}
 		
 		return super.onMenuItemSelected(featureId, item);

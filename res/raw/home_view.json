@@ -1,0 +1,16 @@
+{
+	"type": "container",
+	"id": 23021,
+	"children": [
+		{
+			"type": "label",
+			"id": 23022,
+			"text": "my label"
+		},
+		{
+			"type": "button",
+			"id": 23023,
+			"text": "my button"
+		}
+	]
+}

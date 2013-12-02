@@ -3,110 +3,100 @@ package me.loki2302.activities;
 import java.util.List;
 
 import me.loki2302.R;
+import me.loki2302.application.Repository;
 import me.loki2302.application.Task;
+import me.loki2302.application.TaskStatusIsQuery;
+import me.loki2302.dal.ApplicationState;
+import me.loki2302.dal.apicalls.GetWorkspaceApiCall;
+import me.loki2302.dal.dto.TaskDto;
 import me.loki2302.dal.dto.TaskStatus;
+import me.loki2302.dal.dto.WorkspaceDto;
 import me.loki2302.views.OnTaskThumbnailClickedListener;
 import me.loki2302.views.SwimlaneView;
-import me.loki2302.views.WorkspaceTabView;
 import roboguice.inject.ContentView;
-import roboguice.inject.InjectView;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TabHost;
-import android.widget.TabHost.TabContentFactory;
-import android.widget.TabHost.TabSpec;
+import android.view.ViewGroup;
 
 import com.google.inject.Inject;
 
 @ContentView(R.layout.home_view)
-public class WorkspaceActivity extends RetaskActivity {
+public class WorkspaceActivity extends RetaskActivity {	
 	@Inject
-	private ContextApplicationService applicationService;
-	
-	@InjectView(R.id.createTaskButton)
-	private Button createTaskButton;
+	private PreferencesService preferencesService;
 		
-	@InjectView(R.id.tabHost)
-	private TabHost tabHost;
+	@Inject
+	private ApplicationState applicationState;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		tabHost.setup();
-		
-		TabSpec toDoTabSpec = tabHost.newTabSpec("todo");		
-		WorkspaceTabView toDoTabView = new WorkspaceTabView(this);
+				
 		final SwimlaneView toDoSwimlaneView = new SwimlaneView(this);
-		toDoTabView.setTabName("TO DO");
-		toDoTabSpec.setIndicator(toDoTabView);
-		toDoTabSpec.setContent(new TabContentFactory() {
-			@Override
-			public View createTabContent(String tag) {		
-				return toDoSwimlaneView;
-			}
-		});		
-		tabHost.addTab(toDoTabSpec);
-		
-		TabSpec inProgressTabSpec = tabHost.newTabSpec("inprogress");				
-		WorkspaceTabView inProgressTabView = new WorkspaceTabView(this);
 		final SwimlaneView inProgressSwimlaneView = new SwimlaneView(this);
-		inProgressTabView.setTabName("DOING");
-		inProgressTabSpec.setIndicator(inProgressTabView);
-		inProgressTabSpec.setContent(new TabContentFactory() {
-			@Override
-			public View createTabContent(String tag) {		
-				return inProgressSwimlaneView;
-			}
-		});
-		tabHost.addTab(inProgressTabSpec);
-		
-		TabSpec doneTabSpec = tabHost.newTabSpec("done");				
-		WorkspaceTabView doneTabView = new WorkspaceTabView(this);
 		final SwimlaneView doneSwimlaneView = new SwimlaneView(this);
-		doneTabView.setTabName("DONE");
-		doneTabSpec.setIndicator(doneTabView);
-		doneTabSpec.setContent(new TabContentFactory() {
+		
+		ViewPager viewPager = (ViewPager)findViewById(R.id.viewPager);
+		viewPager.setAdapter(new PagerAdapter() {
 			@Override
-			public View createTabContent(String tag) {		
-				return doneSwimlaneView;
+			public void destroyItem(ViewGroup container, int position, Object object) {
+				container.removeView((View)object);
 			}
-		});
-		tabHost.addTab(doneTabSpec);
-		
-		createTaskButton.setOnClickListener(new OnClickListener() {
+
 			@Override
-			public void onClick(View arg0) {
-				Intent intent = new Intent(WorkspaceActivity.this, CreateTaskActivity.class);
-				startActivity(intent);
+			public Object instantiateItem(ViewGroup container, int position) {			
+				View v = null;
+				if(position == 0) {
+					v = toDoSwimlaneView;
+				} else if(position == 1) {
+					v = inProgressSwimlaneView;
+				} else if(position == 2) {
+					v = doneSwimlaneView;
+				} else {
+					throw new RuntimeException();
+				}
+				
+				container.addView(v);
+				
+				return v;
 			}
+
+			@Override
+			public int getCount() {
+				return 3;
+			}
+
+			@Override
+			public boolean isViewFromObject(View arg0, Object arg1) {
+				return arg0.equals(arg1);
+			}			
 		});
 		
-		applicationService.getTasksByStatus(TaskStatus.NotStarted).done(new UiDoneCallback<List<Task>>() {
+		run(new GetWorkspaceApiCall(applicationState.getSessionToken())).done(new UiDoneCallback<WorkspaceDto>() {
 			@Override
-			protected void uiOnDone(final List<Task> result) {
-				toDoSwimlaneView.setModel(result, onTaskThumbnailClickedListener);
-			}			
-		}).fail(new DefaultFailCallback());
-		
-		applicationService.getTasksByStatus(TaskStatus.InProgress).done(new UiDoneCallback<List<Task>>() {
-			@Override
-			protected void uiOnDone(final List<Task> result) {
-				inProgressSwimlaneView.setModel(result, onTaskThumbnailClickedListener);
-			}			
-		}).fail(new DefaultFailCallback());
-		
-		applicationService.getTasksByStatus(TaskStatus.Done).done(new UiDoneCallback<List<Task>>() {
-			@Override
-			protected void uiOnDone(final List<Task> result) {
-				doneSwimlaneView.setModel(result, onTaskThumbnailClickedListener);
-			}			
+			protected void uiOnDone(WorkspaceDto result) {
+				Repository<Task> taskRepository = applicationState.getTaskRepository();
+				
+				for(TaskDto taskDto : result.tasks) {
+					Task task = taskFromTaskDto(taskDto);
+					taskRepository.add(task);
+				}
+								
+				List<Task> toDoTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.NotStarted));
+				toDoSwimlaneView.setModel(toDoTasks, onTaskThumbnailClickedListener);
+				
+				List<Task> inProgressTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.InProgress));
+				inProgressSwimlaneView.setModel(inProgressTasks, onTaskThumbnailClickedListener);				
+				
+				List<Task> doneTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.Done));
+				doneSwimlaneView.setModel(doneTasks, onTaskThumbnailClickedListener);
+			}
 		}).fail(new DefaultFailCallback());		
 	}
 	
@@ -124,6 +114,9 @@ public class WorkspaceActivity extends RetaskActivity {
 			Intent intent = new Intent(WorkspaceActivity.this, CreateTaskActivity.class);
 			startActivity(intent);
 			return true;
+		} else if(itemId == R.id.resetMenuItem) {
+			preferencesService.unsetCredentials();
+			finish();
 		}
 		
 		return super.onMenuItemSelected(featureId, item);
@@ -137,4 +130,12 @@ public class WorkspaceActivity extends RetaskActivity {
 			startActivity(intent);
 		}		
 	};
+	
+	private static Task taskFromTaskDto(TaskDto taskDto) {
+		Task task = new Task();
+		task.id = taskDto.taskId;
+		task.description = taskDto.taskDescription;
+		task.status = taskDto.taskStatus;
+		return task;
+	}
 }

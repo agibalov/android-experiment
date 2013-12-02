@@ -1,6 +1,9 @@
 package me.loki2302.activities;
 
 import me.loki2302.R;
+import me.loki2302.dal.ApplicationState;
+import me.loki2302.dal.apicalls.SignInApiCall;
+import me.loki2302.dal.dto.SessionDto;
 import roboguice.activity.event.OnActivityResultEvent;
 import roboguice.event.Observes;
 import roboguice.inject.ContentView;
@@ -20,15 +23,15 @@ import android.widget.EditText;
 import com.google.inject.Inject;
 
 @ContentView(R.layout.sign_in_view)
-public class SignInActivity extends RetaskActivity {
-	@Inject
-	private ContextApplicationService applicationService;
-	
+public class SignInActivity extends RetaskActivity {	
 	@Inject
 	private PreferencesService preferencesService;
 	
 	@Inject
 	private ConnectivityService connectivityService;
+	
+	@Inject
+	private ApplicationState applicationState;
 			
 	@InjectView(R.id.emailEditText)
 	private EditText emailEditText;
@@ -85,25 +88,29 @@ public class SignInActivity extends RetaskActivity {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private void onActivityResult(@Observes OnActivityResultEvent e) {
 		Ln.i("GOT RESULT for request: %d", e.getRequestCode());
 		// TODO: handle "is connecting"?
 	}
 	
 	private void signIn(final String email, final String password) {
-		applicationService.signIn(email, password).done(new UiDoneCallback<String>() {
+		run(new SignInApiCall(email, password)).done(new UiDoneCallback<SessionDto>() {
 			@Override
-			protected void uiOnDone(String result) {
-				Ln.i("Authenticated: %s", result);
+			protected void uiOnDone(SessionDto result) {
+				Ln.i("Authenticated: %s", result.sessionToken);
+				
+				applicationState.setSessionToken(result.sessionToken);				
+				
 				if(rememberMeCheckBox.isChecked()) {
 					Credentials credentials = new Credentials(email, password);
 					preferencesService.setCredentials(credentials);
 				}
 				
-				Intent intent = new Intent(SignInActivity.this, WorkspaceActivityAlt.class);
+				Intent intent = new Intent(SignInActivity.this, WorkspaceActivity.class);
 				startActivity(intent);
 				finish();
-			}				
+			}			
 		}).fail(new DefaultFailCallback());
 	}
 	

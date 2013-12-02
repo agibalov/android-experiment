@@ -2,6 +2,7 @@ package me.loki2302.activities;
 
 import me.loki2302.R;
 import me.loki2302.application.Task;
+import me.loki2302.dal.ApplicationState;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
@@ -17,7 +18,7 @@ public class TaskActivity extends RetaskActivity {
 	private final static MarkdownProcessor markdownProcessor = new MarkdownProcessor();
 	
 	@Inject
-	private ContextApplicationService applicationService;
+	private ApplicationState applicationState;
 			
 	@InjectView(R.id.taskDescriptionWebView)
 	private WebView taskDescriptionWebView;
@@ -35,14 +36,10 @@ public class TaskActivity extends RetaskActivity {
 			throw new IllegalStateException("Looks like taskId is missing in Intent");
 		}
 		
-		applicationService.getTask(taskId).done(new UiDoneCallback<Task>() {
-			@Override
-			protected void uiOnDone(Task result) {
-				String taskDescription = result.description;
-				String taskDescriptionHtml = markdownProcessor.markdown(taskDescription);
-				String html = String.format(markdownHtmlTemplate, taskDescriptionHtml);
-				taskDescriptionWebView.loadData(html, "text/html", null);				
-			}			
-		}).fail(new DefaultFailCallback());	
+		Task task = applicationState.getTaskRepository().getOne(taskId);
+		String taskDescription = task.description;
+		String taskDescriptionHtml = markdownProcessor.markdown(taskDescription);
+		String html = String.format(markdownHtmlTemplate, taskDescriptionHtml);
+		taskDescriptionWebView.loadData(html, "text/html", null);	
 	}
 }

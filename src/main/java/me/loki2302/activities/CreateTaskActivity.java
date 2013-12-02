@@ -1,9 +1,10 @@
 package me.loki2302.activities;
 
 import me.loki2302.R;
-import me.loki2302.application.Task;
-
-import org.jdeferred.DoneCallback;
+import me.loki2302.dal.ApplicationState;
+import me.loki2302.dal.apicalls.CreateTaskApiCall;
+import me.loki2302.dal.dto.TaskDescriptionDto;
+import me.loki2302.dal.dto.TaskDto;
 
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
@@ -19,7 +20,7 @@ import com.google.inject.Inject;
 @ContentView(R.layout.create_task_view)
 public class CreateTaskActivity extends RetaskActivity {
 	@Inject
-	private ContextApplicationService applicationService;
+	private ApplicationState applicationState;
 	
 	@InjectView(R.id.taskDescriptionEditText)
 	private EditText taskDescriptionEditText;
@@ -34,13 +35,16 @@ public class CreateTaskActivity extends RetaskActivity {
 		doneButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String taskDescription = taskDescriptionEditText.getText().toString();				
-				applicationService.createTask(taskDescription).done(new DoneCallback<Task>() {
+				String taskDescription = taskDescriptionEditText.getText().toString();
+				TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
+				taskDescriptionDto.taskDescription = taskDescription;
+				
+				run(new CreateTaskApiCall(applicationState.getSessionToken(), taskDescriptionDto)).done(new UiDoneCallback<TaskDto>() {
 					@Override
-					public void onDone(Task result) {
-						Ln.i("Created task with id %d", result.id);
+					protected void uiOnDone(TaskDto result) {
+						Ln.i("Created task with id %d", result.taskId);
 						finish();						
-					}					
+					}										
 				}).fail(new DefaultFailCallback());				
 			}			
 		});

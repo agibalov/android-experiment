@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.loki2302.dal.ApiCall;
-import me.loki2302.dal.TaskServiceResult;
 import me.loki2302.dal.dto.ServiceResultDto;
 import me.loki2302.dal.dto.TaskDescriptionDto;
 import me.loki2302.dal.dto.TaskDto;
+import me.loki2302.dal.dto.TaskServiceResult;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;

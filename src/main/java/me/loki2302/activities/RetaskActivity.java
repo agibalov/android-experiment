@@ -1,18 +1,45 @@
 package me.loki2302.activities;
 
+import me.loki2302.dal.ApiCall;
+import me.loki2302.dal.ApiCallProcessor;
+import me.loki2302.dal.LongOperationListener;
 import me.loki2302.dal.RetaskException;
 import me.loki2302.dal.dto.ServiceError;
 import me.loki2302.dal.dto.ServiceResultDto;
 
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
+import org.jdeferred.Promise;
+
+import com.google.inject.Inject;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 
 import roboguice.activity.RoboActivity;
 import roboguice.util.Ln;
 
-public abstract class RetaskActivity extends RoboActivity {
+public abstract class RetaskActivity extends RoboActivity implements LongOperationListener {
+	@Inject
+	private ApiCallProcessor apiCallProcessor;
+	
+	private ProgressDialog progressDialog;
+
+	@Override
+	public void onLongOperationStarted(String message) {		
+		progressDialog = ProgressDialog.show(this, "Working", message, true);
+	}
+
+	@Override
+	public void onLongOperationFinished() {
+		progressDialog.dismiss();
+		progressDialog = null;
+	}
+	
+	protected <TResult> Promise<TResult, Exception, Void> run(ApiCall<TResult> apiCall) {
+		return apiCallProcessor.process(this, apiCall);
+	}
+	
 	protected abstract class UiDoneCallback<D> implements DoneCallback<D> {			
 		@Override
 		public void onDone(final D result) {
@@ -143,5 +170,5 @@ public abstract class RetaskActivity extends RoboActivity {
 				.create()
 				.show();
 		}
-	}
+	}	
 }

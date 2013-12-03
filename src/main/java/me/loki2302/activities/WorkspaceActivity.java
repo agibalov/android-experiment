@@ -78,9 +78,9 @@ public class WorkspaceActivity extends RetaskActivity {
 			}			
 		});
 		
-		run(new GetWorkspaceApiCall(applicationState.getSessionToken())).done(new UiDoneCallback<WorkspaceDto>() {
+		run(new GetWorkspaceApiCall(applicationState.getSessionToken()), new DoneCallback<WorkspaceDto>() {
 			@Override
-			protected void uiOnDone(WorkspaceDto result) {
+			public void onDone(WorkspaceDto result) {
 				Repository<Task> taskRepository = applicationState.getTaskRepository();
 				
 				for(TaskDto taskDto : result.tasks) {
@@ -95,9 +95,9 @@ public class WorkspaceActivity extends RetaskActivity {
 				inProgressSwimlaneView.setModel(inProgressTasks, onTaskThumbnailClickedListener);				
 				
 				List<Task> doneTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.Done));
-				doneSwimlaneView.setModel(doneTasks, onTaskThumbnailClickedListener);
+				doneSwimlaneView.setModel(doneTasks, onTaskThumbnailClickedListener);				
 			}
-		}).fail(new DefaultFailCallback());		
+		});		
 	}
 	
 	@Override

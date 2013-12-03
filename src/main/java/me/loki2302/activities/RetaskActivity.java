@@ -1,82 +1,111 @@
 package me.loki2302.activities;
 
 import me.loki2302.dal.ApiCall;
-import me.loki2302.dal.ApiCallProcessor;
-import me.loki2302.dal.LongOperationListener;
 import me.loki2302.dal.RetaskException;
 import me.loki2302.dal.dto.ServiceError;
 import me.loki2302.dal.dto.ServiceResultDto;
 
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
-import org.jdeferred.Promise;
-
-import com.google.inject.Inject;
-
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import org.springframework.web.client.RestTemplate;
 
 import roboguice.activity.RoboActivity;
 import roboguice.util.Ln;
+import roboguice.util.RoboAsyncTask;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 
-public abstract class RetaskActivity extends RoboActivity implements LongOperationListener {
-	@Inject
-	private ApiCallProcessor apiCallProcessor;
-	
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+
+public abstract class RetaskActivity extends RoboActivity {	
 	private ProgressDialog progressDialog;
-
-	@Override
-	public void onLongOperationStarted(String message) {		
-		progressDialog = ProgressDialog.show(this, "Working", message, true);
-	}
-
-	@Override
-	public void onLongOperationFinished() {
-		progressDialog.dismiss();
-		progressDialog = null;
+	
+	@Inject
+	@Named("apiRootUrl")
+	private String apiRootUrl;
+	
+	@Inject	
+	private RestTemplate restTemplate;
+	
+	protected <TResult> void run(ApiCall<TResult> apiCall, DoneCallback<TResult> doneCallback) {			
+		run(apiCall, doneCallback, new DefaultFailCallback());
 	}
 	
-	protected <TResult> Promise<TResult, Exception, Void> run(ApiCall<TResult> apiCall) {
-		return apiCallProcessor.process(this, apiCall);
+	protected <TResult> void run(ApiCall<TResult> apiCall, DoneCallback<TResult> doneCallback, FailCallback failCallback) {			
+		new CallApiRoboAsyncTask<TResult>(
+				this,
+				doneCallback,
+				failCallback,
+				apiCall).execute();
 	}
 	
-	protected abstract class UiDoneCallback<D> implements DoneCallback<D> {			
-		@Override
-		public void onDone(final D result) {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					uiOnDone(result);					
-				}				
-			});
+	private final class CallApiRoboAsyncTask<TResult> extends RoboAsyncTask<ServiceResultDto<TResult>> {
+		private final DoneCallback<TResult> doneCallback;
+		private final FailCallback failCallback;
+		private final ApiCall<TResult> apiCall;
+
+		private CallApiRoboAsyncTask(
+				Context context,
+				DoneCallback<TResult> doneCallback,
+				FailCallback failCallback,
+				ApiCall<TResult> apiCall) {
+			
+			super(context);
+			this.doneCallback = doneCallback;
+			this.failCallback = failCallback;
+			this.apiCall = apiCall;
 		}
-		
-		protected abstract void uiOnDone(D result);
+
+		@Override
+		public ServiceResultDto<TResult> call() throws Exception {				
+			ServiceResultDto<TResult> result = apiCall.performApiCall(apiRootUrl, restTemplate);
+			Ln.i("api=%s, response ok=%b, error=%s", apiCall, result.ok, result.error);
+			return result;
+		}
+
+		@Override
+		protected void onPreExecute() throws Exception {
+			progressDialog = ProgressDialog.show(getContext(), "Working", apiCall.describe(), true);
+		}
+
+		@Override
+		protected void onSuccess(ServiceResultDto<TResult> result) throws Exception {			
+			if(result.ok) {
+				doneCallback.onDone(result.payload);
+			} else {						
+				failCallback.onFail(new RetaskException(result));
+			}
+		}
+
+		@Override
+		protected void onException(Exception e) throws RuntimeException {
+			failCallback.onFail(e);
+		}
+
+		@Override
+		protected void onFinally() throws RuntimeException {
+			progressDialog.dismiss();
+			progressDialog = null;
+		}
 	}
 	
-	protected abstract class UiFailCallback<F> implements FailCallback<F> {
-		@Override
-		public void onFail(final F result) {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					uiOnFail(result);					
-				}
-			});
-		}		
-		
-		protected abstract void uiOnFail(F result);
+	protected interface DoneCallback<TResult> {
+		void onDone(TResult result);		
 	}
 	
-	protected class DefaultFailCallback extends UiFailCallback<Exception> {
+	protected interface FailCallback {
+		void onFail(Exception e);
+	}
+	
+	protected class DefaultFailCallback implements FailCallback {
 		@Override
-		protected void uiOnFail(Exception result) {
-			if(!(result instanceof RetaskException)) {
-				handle(result);
+		public void onFail(Exception e) {			
+			if(!(e instanceof RetaskException)) {
+				handle(e);
 				return;				
 			}
 			
-			RetaskException retaskException = (RetaskException)result;
+			RetaskException retaskException = (RetaskException)e;
 			ServiceResultDto<?> serviceResult = retaskException.serviceResult;
 			ServiceError serviceError = serviceResult.error;			
 						
@@ -169,6 +198,6 @@ public abstract class RetaskActivity extends RoboActivity implements LongOperati
 				.setMessage(String.format("Service says something is wrong: %s", result.error))
 				.create()
 				.show();
-		}
+		}		
 	}	
 }

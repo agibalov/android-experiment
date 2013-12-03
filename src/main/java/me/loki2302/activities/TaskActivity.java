@@ -27,7 +27,7 @@ public class TaskActivity extends RetaskActivity {
 	private String markdownHtmlTemplate;
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {			
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 				
 		Intent intent = getIntent();

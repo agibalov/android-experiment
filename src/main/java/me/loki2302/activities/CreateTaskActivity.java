@@ -39,13 +39,13 @@ public class CreateTaskActivity extends RetaskActivity {
 				TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
 				taskDescriptionDto.taskDescription = taskDescription;
 				
-				run(new CreateTaskApiCall(applicationState.getSessionToken(), taskDescriptionDto)).done(new UiDoneCallback<TaskDto>() {
+				run(new CreateTaskApiCall(applicationState.getSessionToken(), taskDescriptionDto), new DoneCallback<TaskDto>() {
 					@Override
-					protected void uiOnDone(TaskDto result) {
+					public void onDone(TaskDto result) {
 						Ln.i("Created task with id %d", result.taskId);
 						finish();						
-					}										
-				}).fail(new DefaultFailCallback());				
+					}
+				});				
 			}			
 		});
 	}

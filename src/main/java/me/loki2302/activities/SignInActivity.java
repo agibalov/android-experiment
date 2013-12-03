@@ -95,9 +95,9 @@ public class SignInActivity extends RetaskActivity {
 	}
 	
 	private void signIn(final String email, final String password) {
-		run(new SignInApiCall(email, password)).done(new UiDoneCallback<SessionDto>() {
+		run(new SignInApiCall(email, password), new DoneCallback<SessionDto>() {
 			@Override
-			protected void uiOnDone(SessionDto result) {
+			public void onDone(SessionDto result) {
 				Ln.i("Authenticated: %s", result.sessionToken);
 				
 				applicationState.setSessionToken(result.sessionToken);				
@@ -109,9 +109,9 @@ public class SignInActivity extends RetaskActivity {
 				
 				Intent intent = new Intent(SignInActivity.this, WorkspaceActivity.class);
 				startActivity(intent);
-				finish();
-			}			
-		}).fail(new DefaultFailCallback());
+				finish();				
+			}
+		});
 	}
 	
 	private final OnClickListener onSignInClicked = new OnClickListener() {

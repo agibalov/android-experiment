@@ -27,7 +27,7 @@ public abstract class RetaskActivity extends RoboActivity {
 	@Inject	
 	private RestTemplate restTemplate;
 	
-	protected <TResult> void run(ApiCall<TResult> apiCall, DoneCallback<TResult> doneCallback) {			
+	public <TResult> void run(ApiCall<TResult> apiCall, DoneCallback<TResult> doneCallback) {			
 		run(apiCall, doneCallback, new DefaultFailCallback());
 	}
 	
@@ -89,7 +89,7 @@ public abstract class RetaskActivity extends RoboActivity {
 		}
 	}
 	
-	protected interface DoneCallback<TResult> {
+	public interface DoneCallback<TResult> {
 		void onDone(TResult result);		
 	}
 	

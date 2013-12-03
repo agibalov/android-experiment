@@ -13,12 +13,19 @@
         android:label="Retask"
         android:theme="@style/AppTheme">
         
-        <activity android:name="me.loki2302.activities.SignInActivity">
+        <activity android:name="me.loki2302.activities.alt.SignInActivity2">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <!-- <activity android:name="me.loki2302.activities.SignInActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity> -->
         
         <activity android:name="me.loki2302.activities.WorkspaceActivity" />
         <activity android:name="me.loki2302.activities.TaskActivity" />

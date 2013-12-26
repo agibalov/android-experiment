@@ -1,0 +1,45 @@
+package me.loki2302.activities;
+
+import me.loki2302.R;
+import me.loki2302.application.Task;
+import me.loki2302.dal.ApplicationState;
+import roboguice.inject.ContentView;
+import roboguice.inject.InjectResource;
+import roboguice.inject.InjectView;
+import android.content.Intent;
+import android.os.Bundle;
+import android.webkit.WebView;
+
+import com.google.inject.Inject;
+import com.petebevin.markdown.MarkdownProcessor;
+
+@ContentView(R.layout.task_view)
+public class TaskActivity extends RetaskActivity {
+	private final static MarkdownProcessor markdownProcessor = new MarkdownProcessor();
+	
+	@Inject
+	private ApplicationState applicationState;
+			
+	@InjectView(R.id.taskDescriptionWebView)
+	private WebView taskDescriptionWebView;
+	
+	@InjectResource(R.string.markdown_html_template)
+	private String markdownHtmlTemplate;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+				
+		Intent intent = getIntent();
+		int taskId = intent.getIntExtra("taskId", -1);
+		if(taskId == -1) {
+			throw new IllegalStateException("Looks like taskId is missing in Intent");
+		}
+		
+		Task task = applicationState.getTaskRepository().getOne(taskId);
+		String taskDescription = task.description;
+		String taskDescriptionHtml = markdownProcessor.markdown(taskDescription);
+		String html = String.format(markdownHtmlTemplate, taskDescriptionHtml);
+		taskDescriptionWebView.loadData(html, "text/html", null);	
+	}
+}

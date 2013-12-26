@@ -1,0 +1,50 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="DefaultButton" parent="@android:style/Widget.Button">
+        <item name="android:background">@drawable/default_button</item>
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">20sp</item>        
+    </style>
+    
+    <style name="DefaultEditText" parent="@android:style/Widget.EditText">
+        <item name="android:background">@drawable/default_edittext</item>
+        <item name="android:textColor">#555555</item>        
+        <item name="android:padding">10dip</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+        
+    <style name="DefaultTextView" parent="@android:style/Widget.TextView">
+        <item name="android:textColor">#333333</item>        
+        <item name="android:textSize">20sp</item>
+    </style>
+    
+    <style name="DefaultCheckBox" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:textColor">#333333</item>        
+        <item name="android:textSize">20sp</item>
+    </style>
+        
+    <style name="SwimlaneTab">
+        <item name="android:background">@drawable/workspace_tab_background</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingLeft">2dp</item>
+        <item name="android:paddingRight">2dp</item>
+    </style>
+    
+    <style name="SwimlaneTabText">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#ffffff</item>
+    </style>
+            
+    <style name="AppTheme" parent="android:Theme.Light">
+        <!-- <item name="android:windowBackground">#ffffff</item> -->
+    	<item name="android:colorBackground">#ffffff</item>
+    	<item name="android:windowNoTitle">true</item>
+    	<!-- <item name="android:windowFullscreen">true</item> -->
+    
+        <item name="android:buttonStyle">@style/DefaultButton</item>
+        <item name="android:editTextStyle">@style/DefaultEditText</item>
+        <item name="android:textViewStyle">@style/DefaultTextView</item>
+        <item name="android:checkboxStyle">@style/DefaultCheckBox</item>
+    </style>
+</resources>

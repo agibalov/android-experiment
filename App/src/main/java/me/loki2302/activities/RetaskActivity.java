@@ -1,15 +1,5 @@
 package me.loki2302.activities;
 
-import me.loki2302.dal.ApiCall;
-import me.loki2302.dal.RetaskException;
-import me.loki2302.dal.dto.ServiceError;
-import me.loki2302.dal.dto.ServiceResultDto;
-
-import org.springframework.web.client.RestTemplate;
-
-import roboguice.activity.RoboActivity;
-import roboguice.util.Ln;
-import roboguice.util.RoboAsyncTask;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -17,7 +7,16 @@ import android.content.Context;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-public abstract class RetaskActivity extends RoboActivity {	
+import org.springframework.web.client.RestTemplate;
+
+import me.loki2302.dal.ApiCall;
+import me.loki2302.dal.RetaskException;
+import me.loki2302.dal.dto.ServiceError;
+import me.loki2302.dal.dto.ServiceResultDto;
+import roboguice.util.Ln;
+import roboguice.util.RoboAsyncTask;
+
+public abstract class RetaskActivity extends RoboActionBarActivity {
 	private ProgressDialog progressDialog;
 	
 	@Inject
@@ -26,8 +25,8 @@ public abstract class RetaskActivity extends RoboActivity {
 	
 	@Inject	
 	private RestTemplate restTemplate;
-	
-	public <TResult> void run(ApiCall<TResult> apiCall, DoneCallback<TResult> doneCallback) {			
+
+    public <TResult> void run(ApiCall<TResult> apiCall, DoneCallback<TResult> doneCallback) {
 		run(apiCall, doneCallback, new DefaultFailCallback());
 	}
 	

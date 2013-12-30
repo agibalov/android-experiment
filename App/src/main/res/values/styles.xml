@@ -36,15 +36,14 @@
         <item name="android:textColor">#ffffff</item>
     </style>
             
-    <style name="AppTheme" parent="android:Theme.Light">
-        <!-- <item name="android:windowBackground">#ffffff</item> -->
-    	<item name="android:colorBackground">#ffffff</item>
+    <!--<style name="AppTheme" parent="android:Theme.Light">-->
+    <style name="AppTheme" parent="Theme.AppCompat">
+    	<!--<item name="android:colorBackground">#ffffff</item>
     	<item name="android:windowNoTitle">true</item>
-    	<!-- <item name="android:windowFullscreen">true</item> -->
     
         <item name="android:buttonStyle">@style/DefaultButton</item>
         <item name="android:editTextStyle">@style/DefaultEditText</item>
         <item name="android:textViewStyle">@style/DefaultTextView</item>
-        <item name="android:checkboxStyle">@style/DefaultCheckBox</item>
+        <item name="android:checkboxStyle">@style/DefaultCheckBox</item>-->
     </style>
 </resources>

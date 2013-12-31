@@ -16,9 +16,8 @@
         android:icon="@drawable/icon"
         android:label="Retask"
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
-        <!--android:theme="@style/AppTheme"-->
 
-        <activity android:name="me.loki2302.activities.alt.SignInActivity2">
+        <activity android:name="me.loki2302.activities.SignInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -1,14 +1,5 @@
 package me.loki2302.activities;
 
-import me.loki2302.R;
-import me.loki2302.dal.ApplicationState;
-import me.loki2302.dal.apicalls.SignInApiCall;
-import me.loki2302.dal.dto.SessionDto;
-import roboguice.activity.event.OnActivityResultEvent;
-import roboguice.event.Observes;
-import roboguice.inject.ContentView;
-import roboguice.inject.InjectView;
-import roboguice.util.Ln;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,8 +13,15 @@ import android.widget.EditText;
 
 import com.google.inject.Inject;
 
-@ContentView(R.layout.sign_in_view)
-public class SignInActivity extends RetaskActivity {	
+import me.loki2302.R;
+import me.loki2302.dal.ApplicationState;
+import me.loki2302.dal.apicalls.SignInApiCall;
+import me.loki2302.dal.dto.SessionDto;
+import roboguice.activity.event.OnActivityResultEvent;
+import roboguice.event.Observes;
+import roboguice.util.Ln;
+
+public class SignInActivity extends RetaskActivity {
 	@Inject
 	private PreferencesService preferencesService;
 	
@@ -33,21 +31,19 @@ public class SignInActivity extends RetaskActivity {
 	@Inject
 	private ApplicationState applicationState;
 			
-	@InjectView(R.id.emailEditText)
 	private EditText emailEditText;
-	
-	@InjectView(R.id.passwordEditText)
 	private EditText passwordEditText;
-	
-	@InjectView(R.id.rememberMeCheckBox)
 	private CheckBox rememberMeCheckBox;
-	
-	@InjectView(R.id.signInButton)
 	private Button signInButton;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        setContentView(R.layout.sign_in_view);
+        emailEditText = (EditText)findViewById(R.id.emailEditText);
+        passwordEditText = (EditText)findViewById(R.id.passwordEditText);
+        rememberMeCheckBox = (CheckBox)findViewById(R.id.rememberMeCheckBox);
+        signInButton = (Button)findViewById(R.id.signInButton);
 		
 		Credentials credentials = preferencesService.getCredentials();
 		rememberMeCheckBox.setChecked(true);
@@ -99,17 +95,17 @@ public class SignInActivity extends RetaskActivity {
 			@Override
 			public void onDone(SessionDto result) {
 				Ln.i("Authenticated: %s", result.sessionToken);
-				
-				applicationState.setSessionToken(result.sessionToken);				
-				
+
+				applicationState.setSessionToken(result.sessionToken);
+
 				if(rememberMeCheckBox.isChecked()) {
 					Credentials credentials = new Credentials(email, password);
 					preferencesService.setCredentials(credentials);
 				}
-				
+
 				Intent intent = new Intent(SignInActivity.this, WorkspaceActivity.class);
 				startActivity(intent);
-				finish();				
+				finish();
 			}
 		});
 	}
@@ -121,5 +117,5 @@ public class SignInActivity extends RetaskActivity {
 			String password = passwordEditText.getText().toString();
 			signIn(email, password);
 		}			
-	};	
+	};
 }

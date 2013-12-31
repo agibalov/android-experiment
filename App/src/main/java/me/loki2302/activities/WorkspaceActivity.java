@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.inject.Inject;
 
@@ -60,12 +61,15 @@ public class WorkspaceActivity extends RetaskActivity implements ActionBar.TabLi
         toDoSwimlaneFragment = SwimlaneFragment.newInstance("TO DO");
         inProgressSwimlaneFragment = SwimlaneFragment.newInstance("DOING");
         doneSwimlaneFragment = SwimlaneFragment.newInstance("DONE");
+        SwimlaneFragment[] swimlaneFragments = new SwimlaneFragment[] {
+                toDoSwimlaneFragment,
+                inProgressSwimlaneFragment,
+                doneSwimlaneFragment
+        };
 
         swimlanesPagesAdapter = new SwimlanesPagesAdapter(
                 getSupportFragmentManager(),
-                toDoSwimlaneFragment,
-                inProgressSwimlaneFragment,
-                doneSwimlaneFragment);
+                swimlaneFragments);
         swimlanesViewPager = (ViewPager)findViewById(R.id.swimlanesViewPager);
         swimlanesViewPager.setAdapter(swimlanesPagesAdapter);
 
@@ -96,7 +100,10 @@ public class WorkspaceActivity extends RetaskActivity implements ActionBar.TabLi
                 taskRepository.add(task);
             }
 
+            Ln.i("Got %d tasks", result.tasks.size());
+
             List<Task> toDoTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.NotStarted));
+            Ln.i("Setting model for %s", toDoSwimlaneFragment);
             toDoSwimlaneFragment.setModel(toDoTasks);
 
             List<Task> inProgressTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.InProgress));
@@ -152,47 +159,30 @@ public class WorkspaceActivity extends RetaskActivity implements ActionBar.TabLi
     }
 
     public class SwimlanesPagesAdapter extends FragmentPagerAdapter {
-        private final SwimlaneFragment toDoSwimlaneFragment;
-        private final SwimlaneFragment inProgressSwimlaneFragment;
-        private final SwimlaneFragment doneSwimlaneFragment;
+        // TODO: this adapter should be responsible for holding references to fragments - it's how this should be designed
+        private SwimlaneFragment[] swimlaneFragments;
 
         public SwimlanesPagesAdapter(
                 FragmentManager fragmentManager,
-                SwimlaneFragment toDoSwimlaneFragment,
-                SwimlaneFragment inProgressSwimlaneFragment,
-                SwimlaneFragment doneSwimlaneFragment) {
+                SwimlaneFragment[] swimlaneFragments) {
 
             super(fragmentManager);
-            this.toDoSwimlaneFragment = toDoSwimlaneFragment;
-            this.inProgressSwimlaneFragment = inProgressSwimlaneFragment;
-            this.doneSwimlaneFragment = doneSwimlaneFragment;
+            this.swimlaneFragments = swimlaneFragments;
         }
 
         @Override
         public Fragment getItem(int position) {
-            if(position == 0) {
-                return toDoSwimlaneFragment;
-            }
-
-            if(position == 1) {
-                return inProgressSwimlaneFragment;
-            }
-
-            if(position == 2) {
-                return doneSwimlaneFragment;
-            }
-
-            throw new RuntimeException();
+            return swimlaneFragments[position];
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return swimlaneFragments.length;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return ((SwimlaneFragment)getItem(position)).getSwimlaneName();
+            return swimlaneFragments[position].getSwimlaneName();
         }
     }
 
@@ -203,11 +193,12 @@ public class WorkspaceActivity extends RetaskActivity implements ActionBar.TabLi
 
         public static SwimlaneFragment newInstance(String swimlaneName) {
             SwimlaneFragment swimlaneFragment = new SwimlaneFragment();
+            swimlaneFragment.setRetainInstance(false);
             Bundle args = new Bundle();
             args.putString(ARG_SWIMLANE_NAME, swimlaneName);
             swimlaneFragment.setArguments(args);
 
-            Ln.i("CREATED INSTANCE: %s", swimlaneName);
+            Ln.i("[%s] CREATED INSTANCE: %s", swimlaneFragment, swimlaneName);
 
             return swimlaneFragment;
         }
@@ -218,12 +209,12 @@ public class WorkspaceActivity extends RetaskActivity implements ActionBar.TabLi
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.swimlane_view, container, false);
-            /*TextView textView = (TextView)rootView.findViewById(R.id.dummy);
-            textView.setText(getArguments().getString(ARG_SWIMLANE_NAME));*/
+            TextView textView = (TextView)rootView.findViewById(R.id.dummy);
+            textView.setText(getArguments().getString(ARG_SWIMLANE_NAME));
 
             taskThumbnailsListView = (ListView)rootView.findViewById(R.id.taskThumbailsListView);
 
-            Ln.i("ONCREATEVIEW: %s", getArguments().getString(ARG_SWIMLANE_NAME));
+            Ln.i("[%s] ONCREATEVIEW: %s (%s,%d)", this, getArguments().getString(ARG_SWIMLANE_NAME), getTag(), getId());
 
             if(listAdapter != null) {
                 taskThumbnailsListView.setAdapter(listAdapter);
@@ -237,6 +228,7 @@ public class WorkspaceActivity extends RetaskActivity implements ActionBar.TabLi
         }
 
         public void setModel(List<Task> tasks) {
+            Ln.i("[%s] - %d tasks", this, tasks.size());
             listAdapter = new ModelListAdapter<Task>(tasks, new ViewFactory<Task>() {
                 @Override
                 public View makeView(Task model) {
@@ -247,7 +239,10 @@ public class WorkspaceActivity extends RetaskActivity implements ActionBar.TabLi
             });
 
             if(taskThumbnailsListView != null) {
+                Ln.i("[%s] - view is not null", this);
                 taskThumbnailsListView.setAdapter(listAdapter);
+            } else {
+                Ln.i("[%s] - view is null", this);
             }
         }
     }

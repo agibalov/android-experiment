@@ -17,15 +17,15 @@
         android:label="Retask"
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
 
-        <activity android:name="me.loki2302.activities.WelcomeActivity">
+        <activity android:name=".activities.WelcomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="me.loki2302.activities.WorkspaceActivity" />
-        <activity android:name="me.loki2302.activities.TaskActivity" />
-        <activity android:name="me.loki2302.activities.CreateTaskActivity" />
+        <activity android:name=".activities.HomeActivity" />
+        <activity android:name=".activities.TaskActivity" />
+        <activity android:name=".activities.CreateTaskActivity" />
     </application>
 
 </manifest>

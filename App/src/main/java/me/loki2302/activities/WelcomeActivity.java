@@ -39,6 +39,8 @@ public class WelcomeActivity extends RetaskActivity implements SignInUi.SignInUi
 
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        actionBar.setTitle("Title here");
+        actionBar.setSubtitle("Subtitle here");
 
         viewPager = (ViewPager)findViewById(R.id.viewPager);
         LayoutInflater layoutInflater = getLayoutInflater();
@@ -83,7 +85,7 @@ public class WelcomeActivity extends RetaskActivity implements SignInUi.SignInUi
                     preferencesService.setCredentials(credentials);
                 }
 
-                Intent intent = new Intent(WelcomeActivity.this, WorkspaceActivity.class);
+                Intent intent = new Intent(WelcomeActivity.this, HomeActivity.class);
                 startActivity(intent);
                 finish();
             }

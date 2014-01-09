@@ -25,9 +25,10 @@ import me.loki2302.dal.apicalls.GetWorkspaceApiCall;
 import me.loki2302.dal.dto.TaskDto;
 import me.loki2302.dal.dto.TaskStatus;
 import me.loki2302.dal.dto.WorkspaceDto;
+import me.loki2302.views.OnTaskThumbnailClickedListener;
 import me.loki2302.views.SwimlaneView;
 
-public class WorkspaceActivity extends RetaskActivity implements ActionBar.TabListener {
+public class HomeActivity extends RetaskActivity implements ActionBar.TabListener, OnTaskThumbnailClickedListener {
     @Inject
     private PreferencesService preferencesService;
 
@@ -61,17 +62,21 @@ public class WorkspaceActivity extends RetaskActivity implements ActionBar.TabLi
             }
         });
 
-        for (int i = 0; i < swimlaneViews.length; i++) {
-            actionBar.addTab(actionBar
-                    .newTab()
-                    .setText(String.format("Page #%d", i + 1))
-                    .setTabListener(this));
-        }
+        actionBar.addTab(actionBar.newTab().setText("TO DO").setTabListener(this));
+        actionBar.addTab(actionBar.newTab().setText("DOING").setTabListener(this));
+        actionBar.addTab(actionBar.newTab().setText("DONE").setTabListener(this));
 
         run(new GetWorkspaceApiCall(applicationState.getSessionToken()), new OnWorkspaceDataAvailable(applicationState, swimlaneViews));
     }
 
-    private static class OnWorkspaceDataAvailable implements DoneCallback<WorkspaceDto> {
+    @Override
+    public void onTaskThumbnailClicked(Task model) {
+        Intent intent = new Intent(HomeActivity.this, TaskActivity.class);
+        intent.putExtra("taskId", model.id);
+        startActivity(intent);
+    }
+
+    private class OnWorkspaceDataAvailable implements DoneCallback<WorkspaceDto> {
         private final ApplicationState applicationState;
         private final SwimlaneView[] swimlaneViews;
 
@@ -89,13 +94,13 @@ public class WorkspaceActivity extends RetaskActivity implements ActionBar.TabLi
             }
 
             List<Task> toDoTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.NotStarted));
-            swimlaneViews[0].setModel(toDoTasks, null);
+            swimlaneViews[0].setModel(toDoTasks, HomeActivity.this);
 
             List<Task> inProgressTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.InProgress));
-            swimlaneViews[1].setModel(inProgressTasks, null);
+            swimlaneViews[1].setModel(inProgressTasks, HomeActivity.this);
 
             List<Task> doneTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.Done));
-            swimlaneViews[2].setModel(doneTasks, null);
+            swimlaneViews[2].setModel(doneTasks, HomeActivity.this);
         }
 
         private Task taskFromTaskDto(TaskDto taskDto) {
@@ -118,7 +123,7 @@ public class WorkspaceActivity extends RetaskActivity implements ActionBar.TabLi
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         if(itemId == R.id.createTaskMenuItem) {
-            Intent intent = new Intent(WorkspaceActivity.this, CreateTaskActivity.class);
+            Intent intent = new Intent(HomeActivity.this, CreateTaskActivity.class);
             startActivity(intent);
             return true;
         } else if(itemId == R.id.resetMenuItem) {

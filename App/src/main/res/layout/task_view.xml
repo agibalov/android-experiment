@@ -1,41 +1,5 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<WebView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/taskDescriptionWebView"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:padding="5dp">
-    
-    <LinearLayout 
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-            
-        <Button 
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="EDIT" />
-        
-	    <WebView
-		    android:id="@+id/taskDescriptionWebView"
-		    android:layout_width="fill_parent"
-		    android:layout_height="wrap_content" />
-	    
-	    <RelativeLayout 
-	        android:layout_width="fill_parent"
-        	android:layout_height="wrap_content">
-        	
-	        <Button 
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_alignParentLeft="true"
-	            android:text="POSTPONE" />	        
-	        
-	        <Button 
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_alignParentRight="true"
-	            android:text="DONE" />
-	        
-	    </RelativeLayout>
-    
-    </LinearLayout>
-
-</ScrollView>   
+    android:layout_margin="5dp" />

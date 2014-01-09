@@ -1,5 +1,6 @@
 package me.loki2302.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -11,6 +12,7 @@ import android.widget.EditText;
 import com.google.inject.Inject;
 
 import me.loki2302.R;
+import me.loki2302.application.Task;
 import me.loki2302.dal.ApplicationState;
 import me.loki2302.dal.apicalls.CreateTaskApiCall;
 import me.loki2302.dal.dto.TaskDescriptionDto;
@@ -54,7 +56,12 @@ public class CreateTaskActivity extends RetaskActivity {
     private final DoneCallback<TaskDto> onTaskCreated = new DoneCallback<TaskDto>() {
         @Override
         public void onDone(TaskDto taskDto) {
-            Ln.i("Created task with id %d", taskDto.taskId);
+            applicationState.getTaskRepository().add(Task.fromTaskDto(taskDto));
+
+            Intent intent = new Intent(CreateTaskActivity.this, ViewTaskActivity.class);
+            intent.putExtra("taskId", taskDto.taskId);
+            startActivity(intent);
+
             finish();
         }
     };

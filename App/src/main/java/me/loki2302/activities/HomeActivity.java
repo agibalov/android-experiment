@@ -36,6 +36,7 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
     private ApplicationState applicationState;
 
     private ViewPager swimlanesViewPager;
+    private SwimlaneView[] swimlaneViews;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +46,7 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        SwimlaneView[] swimlaneViews = new SwimlaneView[] {
+        swimlaneViews = new SwimlaneView[] {
                 new SwimlaneView(this),
                 new SwimlaneView(this),
                 new SwimlaneView(this)
@@ -65,7 +66,11 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
         actionBar.addTab(actionBar.newTab().setText("TO DO").setTabListener(this));
         actionBar.addTab(actionBar.newTab().setText("DOING").setTabListener(this));
         actionBar.addTab(actionBar.newTab().setText("DONE").setTabListener(this));
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
         run(new GetWorkspaceApiCall(applicationState.getSessionToken()), new OnWorkspaceDataAvailable(applicationState, swimlaneViews));
     }
 
@@ -89,7 +94,7 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
         public void onDone(WorkspaceDto workspaceDto) {
             Repository<Task> taskRepository = applicationState.getTaskRepository();
             for (TaskDto taskDto : workspaceDto.tasks) {
-                Task task = taskFromTaskDto(taskDto);
+                Task task = Task.fromTaskDto(taskDto);
                 taskRepository.add(task);
             }
 
@@ -101,14 +106,6 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
 
             List<Task> doneTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.Done));
             swimlaneViews[2].setModel(doneTasks, HomeActivity.this);
-        }
-
-        private Task taskFromTaskDto(TaskDto taskDto) {
-            Task task = new Task();
-            task.id = taskDto.taskId;
-            task.description = taskDto.taskDescription;
-            task.status = taskDto.taskStatus;
-            return task;
         }
     }
 

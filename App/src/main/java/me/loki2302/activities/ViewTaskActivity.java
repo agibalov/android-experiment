@@ -39,19 +39,24 @@ public class ViewTaskActivity extends RetaskActivity {
         setContentView(R.layout.task_view);
 
         taskDescriptionWebView = (WebView)findViewById(R.id.taskDescriptionWebView);
-
-		Intent intent = getIntent();
-		int taskId = intent.getIntExtra("taskId", -1);
-		if(taskId == -1) {
-			throw new IllegalStateException("Looks like taskId is missing in Intent");
-		}
-		
-		task = applicationState.getTaskRepository().getOne(taskId);
-		String taskDescription = task.description;
-		String taskDescriptionHtml = markdownProcessor.markdown(taskDescription);
-		String html = String.format(markdownHtmlTemplate, taskDescriptionHtml);
-		taskDescriptionWebView.loadData(html, "text/html", null);	
 	}
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Intent intent = getIntent();
+        int taskId = intent.getIntExtra("taskId", -1);
+        if(taskId == -1) {
+            throw new IllegalStateException("Looks like taskId is missing in Intent");
+        }
+
+        task = applicationState.getTaskRepository().getOne(taskId);
+        String taskDescription = task.description;
+        String taskDescriptionHtml = markdownProcessor.markdown(taskDescription);
+        String html = String.format(markdownHtmlTemplate, taskDescriptionHtml);
+        taskDescriptionWebView.loadData(html, "text/html", null);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -144,8 +149,12 @@ public class ViewTaskActivity extends RetaskActivity {
     private final DoneCallback<TaskDto> onTaskStatusChanged = new DoneCallback<TaskDto>() {
         @Override
         public void onDone(TaskDto taskDto) {
-            // TODO
-            Ln.i("Task %d is now %s", taskDto.taskId, taskDto.taskStatus);
+            applicationState.getTaskRepository().add(Task.fromTaskDto(taskDto));
+
+            Intent intent = new Intent(ViewTaskActivity.this, ViewTaskActivity.class);
+            intent.putExtra("taskId", taskDto.taskId);
+            startActivity(intent);
+            finish();
         }
     };
 }

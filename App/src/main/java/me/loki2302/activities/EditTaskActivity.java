@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.EditText;
 
 import com.google.inject.Inject;
 
@@ -22,6 +23,8 @@ public class EditTaskActivity extends RetaskActivity {
     @Inject
     private ApplicationState applicationState;
 
+    private EditText taskDescriptionEditText;
+
     private Task task;
 
     @Override
@@ -36,6 +39,9 @@ public class EditTaskActivity extends RetaskActivity {
         }
 
         task = applicationState.getTaskRepository().getOne(taskId);
+
+        taskDescriptionEditText = (EditText)findViewById(R.id.taskDescriptionEditText);
+        taskDescriptionEditText.setText(task.description);
     }
 
     @Override
@@ -50,7 +56,7 @@ public class EditTaskActivity extends RetaskActivity {
         int itemId = item.getItemId();
         if(itemId == R.id.updateTaskMenuItem) {
             TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
-            taskDescriptionDto.taskDescription = "Dummy " + new Date().toString();
+            taskDescriptionDto.taskDescription = taskDescriptionEditText.getText().toString();
             run(new UpdateTaskApiCall(applicationState.getSessionToken(), task.id, taskDescriptionDto), onTaskUpdated);
             return true;
         }
@@ -61,7 +67,8 @@ public class EditTaskActivity extends RetaskActivity {
     private final DoneCallback<TaskDto> onTaskUpdated = new DoneCallback<TaskDto>() {
         @Override
         public void onDone(TaskDto taskDto) {
-            Ln.i("Task %d updated", taskDto.taskId);
+            applicationState.getTaskRepository().add(Task.fromTaskDto(taskDto));
+            finish();
         }
     };
 }

@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/App/App.iml" filepath="$PROJECT_DIR$/App/App.iml" />
       <module fileurl="file://$PROJECT_DIR$/Retask.iml" filepath="$PROJECT_DIR$/Retask.iml" />
+      <module fileurl="file://$PROJECT_DIR$/retask-android-app.iml" filepath="$PROJECT_DIR$/retask-android-app.iml" />
     </modules>
   </component>
 </project>

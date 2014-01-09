@@ -1,5 +1,7 @@
 package me.loki2302;
 
+import android.app.Application;
+
 import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
@@ -12,6 +14,7 @@ import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
+import com.testflightapp.lib.TestFlight;
 
 public class RetaskModule implements Module {
 	@Override
@@ -34,4 +37,5 @@ public class RetaskModule implements Module {
 		
 		return restTemplate;
 	}
+
 }

@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="9"
+        android:minSdkVersion="7"
         android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -15,6 +15,7 @@
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="Retask"
+        android:name=".RetaskApplication"
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
 
         <activity android:name=".activities.WelcomeActivity">
@@ -24,8 +25,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.HomeActivity" />
-        <activity android:name=".activities.TaskActivity" />
+        <activity android:name=".activities.ViewTaskActivity" />
         <activity android:name=".activities.CreateTaskActivity" />
+        <activity android:name=".activities.EditTaskActivity" />
     </application>
 
 </manifest>

@@ -13,10 +13,14 @@ import com.petebevin.markdown.MarkdownProcessor;
 import me.loki2302.R;
 import me.loki2302.application.Task;
 import me.loki2302.dal.ApplicationState;
+import me.loki2302.dal.apicalls.ProgressTaskApiCall;
+import me.loki2302.dal.apicalls.UnprogressTaskApiCall;
+import me.loki2302.dal.dto.TaskDto;
 import me.loki2302.dal.dto.TaskStatus;
 import roboguice.inject.InjectResource;
+import roboguice.util.Ln;
 
-public class TaskActivity extends RetaskActivity {
+public class ViewTaskActivity extends RetaskActivity {
 	private final static MarkdownProcessor markdownProcessor = new MarkdownProcessor();
 	
 	@Inject
@@ -52,7 +56,7 @@ public class TaskActivity extends RetaskActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.task_menu, menu);
+        menuInflater.inflate(R.menu.view_task_menu, menu);
         return true;
     }
 
@@ -90,33 +94,58 @@ public class TaskActivity extends RetaskActivity {
         int itemId = item.getItemId();
 
         if(itemId == R.id.wontDoMenuItem) {
+            unprogressTask();
             return true;
         }
 
         if(itemId == R.id.startMenuItem) {
+            progressTask();
             return true;
         }
 
         if(itemId == R.id.postponeMenuItem) {
+            unprogressTask();
             return true;
         }
 
         if(itemId == R.id.doneMenuItem) {
+            progressTask();
             return true;
         }
 
         if(itemId == R.id.notDoneMenuItem) {
+            unprogressTask();
             return true;
         }
 
         if(itemId == R.id.completeMenuItem) {
+            progressTask();
             return true;
         }
 
         if(itemId == R.id.editMenuItem) {
+            Intent intent = new Intent(ViewTaskActivity.this, EditTaskActivity.class);
+            intent.putExtra("taskId", task.id);
+            startActivity(intent);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void progressTask() {
+        run(new ProgressTaskApiCall(applicationState.getSessionToken(), task.id), onTaskStatusChanged);
+    }
+
+    private void unprogressTask() {
+        run(new UnprogressTaskApiCall(applicationState.getSessionToken(), task.id), onTaskStatusChanged);
+    }
+
+    private final DoneCallback<TaskDto> onTaskStatusChanged = new DoneCallback<TaskDto>() {
+        @Override
+        public void onDone(TaskDto taskDto) {
+            // TODO
+            Ln.i("Task %d is now %s", taskDto.taskId, taskDto.taskStatus);
+        }
+    };
 }

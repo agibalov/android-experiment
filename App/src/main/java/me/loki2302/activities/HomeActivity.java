@@ -71,7 +71,7 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
 
     @Override
     public void onTaskThumbnailClicked(Task model) {
-        Intent intent = new Intent(HomeActivity.this, TaskActivity.class);
+        Intent intent = new Intent(HomeActivity.this, ViewTaskActivity.class);
         intent.putExtra("taskId", model.id);
         startActivity(intent);
     }

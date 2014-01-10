@@ -9,6 +9,7 @@
         android:layout_height="fill_parent"
         android:ems="10"
         android:inputType="textMultiLine"
-        android:hint="Task description" />
+        android:hint="Task description"
+        android:gravity="top" />
     
 </FrameLayout>

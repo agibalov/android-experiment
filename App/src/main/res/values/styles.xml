@@ -1,13 +1,24 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--<style name="RetaskActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid">
-        <item name="android:background">@drawable/action_bar_background</item>
-        <item name="background">@drawable/action_bar_background</item>
-        <item name="android:icon">@drawable/retasklogo</item>
-        <item name="icon">@drawable/retasklogo</item>
-    </style>-->
+    <style name="RetaskActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid">
+        <item name="android:background">@drawable/actionbar_background</item>
+        <item name="background">@drawable/actionbar_background</item>
+        <item name="android:backgroundStacked">@drawable/actionbar_background</item>
+        <item name="backgroundStacked">@drawable/actionbar_background</item>
+        <!--<item name="android:icon">@drawable/retasklogo</item>
+        <item name="icon">@drawable/retasklogo</item>-->
+    </style>
+
+    <style name="RetaskActionBarTabs" parent="@style/Widget.AppCompat.ActionBar.TabView">
+        <item name="android:background">@drawable/actionbar_tab_indicator</item>
+        <item name="background">@drawable/actionbar_tab_indicator</item>
+    </style>
 
     <style name="AppTheme" parent="Theme.AppCompat.Light">
-        <!--<item name="android:actionBarStyle">@style/RetaskActionBar</item>
-        <item name="actionBarStyle">@style/RetaskActionBar</item>-->
+        <item name="android:actionBarStyle">@style/RetaskActionBar</item>
+        <item name="actionBarStyle">@style/RetaskActionBar</item>
+        <item name="android:actionBarTabStyle">@style/RetaskActionBarTabs</item>
+        <item name="actionBarTabStyle">@style/RetaskActionBarTabs</item>
+        <item name="android:actionBarDivider">@drawable/actionbar_divider</item>
+        <item name="actionBarDivider">@drawable/actionbar_divider</item>
     </style>
 </resources>

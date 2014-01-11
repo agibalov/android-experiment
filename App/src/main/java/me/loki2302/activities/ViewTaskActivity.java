@@ -151,9 +151,12 @@ public class ViewTaskActivity extends RetaskActivity {
         public void onDone(TaskDto taskDto) {
             applicationState.getTaskRepository().add(Task.fromTaskDto(taskDto));
 
-            Intent intent = new Intent(ViewTaskActivity.this, ViewTaskActivity.class);
-            intent.putExtra("taskId", taskDto.taskId);
-            startActivity(intent);
+            if(!taskDto.taskStatus.equals(TaskStatus.Complete)) {
+                Intent intent = new Intent(ViewTaskActivity.this, ViewTaskActivity.class);
+                intent.putExtra("taskId", taskDto.taskId);
+                startActivity(intent);
+            }
+
             finish();
         }
     };

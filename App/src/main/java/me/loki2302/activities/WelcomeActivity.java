@@ -15,6 +15,7 @@ import com.google.inject.Inject;
 import me.loki2302.R;
 import me.loki2302.dal.ApplicationState;
 import me.loki2302.dal.apicalls.SignInApiCall;
+import me.loki2302.dal.apicalls.SignUpApiCall;
 import me.loki2302.dal.dto.SessionDto;
 import roboguice.util.Ln;
 
@@ -98,8 +99,25 @@ public class WelcomeActivity extends RetaskActivity implements SignInUi.SignInUi
 
     @Override
     public void onSignUpClicked() {
-        // TODO
-        Ln.i("Sign up clicked");
+        final String email = signUpUi.getEmail();
+        final String password = signUpUi.getPassword();
+
+        if(false) {
+            run(new SignUpApiCall(email, password), new DoneCallback<Object>() {
+                @Override
+                public void onDone(Object o) {
+                    Intent intent = new Intent(WelcomeActivity.this, SignedUpActivity.class);
+                    intent.putExtra("email", email);
+                    startActivity(intent);
+                    finish();
+                }
+            });
+        }
+
+        Intent intent = new Intent(WelcomeActivity.this, SignedUpActivity.class);
+        intent.putExtra("email", email);
+        startActivity(intent);
+        finish();
     }
 
     @Override

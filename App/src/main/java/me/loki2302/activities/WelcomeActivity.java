@@ -7,6 +7,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 
@@ -14,6 +15,7 @@ import me.loki2302.R;
 import me.loki2302.dal.ApplicationState;
 import me.loki2302.dal.apicalls.SignInApiCall;
 import me.loki2302.dal.apicalls.SignUpApiCall;
+import me.loki2302.dal.dto.ServiceResultDto;
 import me.loki2302.dal.dto.SessionDto;
 import me.loki2302.views.FixedViewsPagerAdapter;
 import roboguice.util.Ln;
@@ -77,23 +79,50 @@ public class WelcomeActivity extends RetaskActivity implements SignInUi.SignInUi
     public void onSignInClicked() {
         final String email = signInUi.getEmail();
         final String password = signInUi.getPassword();
-        run(new SignInApiCall(email, password), new DoneCallback<SessionDto>() {
-            @Override
-            public void onDone(SessionDto result) {
-                Ln.i("Authenticated: %s", result.sessionToken);
+        run(new SignInApiCall(email, password), new OnSignInDoneCallback(email, password), new OnSignInFailedCallback());
+    }
 
-                applicationState.setSessionToken(result.sessionToken);
+    private class OnSignInDoneCallback implements DoneCallback<SessionDto> {
+        private final String email;
+        private final String password;
 
-                if(signInUi.isRememberMeChecked()) {
-                    Credentials credentials = new Credentials(email, password);
-                    preferencesService.setCredentials(credentials);
-                }
+        public OnSignInDoneCallback(String email, String password) {
+            this.email = email;
+            this.password = password;
+        }
 
-                Intent intent = new Intent(WelcomeActivity.this, HomeActivity.class);
-                startActivity(intent);
-                finish();
+        @Override
+        public void onDone(SessionDto sessionDto) {
+            Ln.i("Authenticated: %s", sessionDto.sessionToken);
+
+            applicationState.setSessionToken(sessionDto.sessionToken);
+
+            if(signInUi.isRememberMeChecked()) {
+                Credentials credentials = new Credentials(email, password);
+                preferencesService.setCredentials(credentials);
             }
-        });
+
+            Intent intent = new Intent(WelcomeActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+
+    private class OnSignInFailedCallback extends DefaultFailCallback {
+        @Override
+        protected void onNoSuchUser(ServiceResultDto<?> serviceResult) {
+            Toast.makeText(WelcomeActivity.this, "No such user", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        protected void onInvalidPassword(ServiceResultDto<?> serviceResult) {
+            Toast.makeText(WelcomeActivity.this, "Invalid password", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        protected void onValidationError(ServiceResultDto<?> serviceResult) {
+            Toast.makeText(WelcomeActivity.this, "Validation error", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

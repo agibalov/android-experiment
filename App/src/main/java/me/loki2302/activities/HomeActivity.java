@@ -3,14 +3,11 @@ package me.loki2302.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.inject.Inject;
 
@@ -25,6 +22,7 @@ import me.loki2302.dal.apicalls.GetWorkspaceApiCall;
 import me.loki2302.dal.dto.TaskDto;
 import me.loki2302.dal.dto.TaskStatus;
 import me.loki2302.dal.dto.WorkspaceDto;
+import me.loki2302.views.FixedViewsPagerAdapter;
 import me.loki2302.views.OnTaskThumbnailClickedListener;
 import me.loki2302.views.SwimlaneView;
 
@@ -52,7 +50,7 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
                 new SwimlaneView(this)
         };
 
-        SwimlanePagerAdapter swimlanePagerAdapter = new SwimlanePagerAdapter(swimlaneViews);
+        FixedViewsPagerAdapter swimlanePagerAdapter = new FixedViewsPagerAdapter(swimlaneViews);
         swimlanesViewPager = (ViewPager)findViewById(R.id.swimlanesViewPager);
         swimlanesViewPager.setAdapter(swimlanePagerAdapter);
 
@@ -143,35 +141,5 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
-
-    public static class SwimlanePagerAdapter extends PagerAdapter {
-        private final SwimlaneView[] swimlaneViews;
-
-        public SwimlanePagerAdapter(SwimlaneView[] swimlaneViews) {
-            this.swimlaneViews = swimlaneViews;
-        }
-
-        @Override
-        public int getCount() {
-            return swimlaneViews.length;
-        }
-
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            SwimlaneView swimlaneView = swimlaneViews[position];
-            container.addView(swimlaneView);
-            return swimlaneView;
-        }
-
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((View)object);
-        }
-
-        @Override
-        public boolean isViewFromObject(View view, Object o) {
-            return view == o;
-        }
     }
 }

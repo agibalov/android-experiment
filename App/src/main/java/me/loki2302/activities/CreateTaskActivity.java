@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.EditText;
 
 import com.google.inject.Inject;
@@ -17,7 +15,6 @@ import me.loki2302.dal.ApplicationState;
 import me.loki2302.dal.apicalls.CreateTaskApiCall;
 import me.loki2302.dal.dto.TaskDescriptionDto;
 import me.loki2302.dal.dto.TaskDto;
-import roboguice.util.Ln;
 
 public class CreateTaskActivity extends RetaskActivity {
 	@Inject

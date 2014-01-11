@@ -77,9 +77,29 @@ public class WelcomeActivity extends RetaskActivity implements SignInUi.SignInUi
 
     @Override
     public void onSignInClicked() {
-        final String email = signInUi.getEmail();
-        final String password = signInUi.getPassword();
+        String email = signInUi.getEmail();
+        String password = signInUi.getPassword();
         run(new SignInApiCall(email, password), new OnSignInDoneCallback(email, password), new OnSignInFailedCallback());
+    }
+
+    @Override
+    public void onSignUpClicked() {
+        String email = signUpUi.getEmail();
+        String password = signUpUi.getPassword();
+        run(new SignUpApiCall(email, password), new OnSignUpDoneCallback(email), new OnSignUpFailedCallback());
+    }
+
+    @Override
+    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+        viewPager.setCurrentItem(tab.getPosition());
+    }
+
+    @Override
+    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    }
+
+    @Override
+    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
 
     private class OnSignInDoneCallback implements DoneCallback<SessionDto> {
@@ -111,53 +131,53 @@ public class WelcomeActivity extends RetaskActivity implements SignInUi.SignInUi
     private class OnSignInFailedCallback extends DefaultFailCallback {
         @Override
         protected void onNoSuchUser(ServiceResultDto<?> serviceResult) {
-            Toast.makeText(WelcomeActivity.this, "No such user", Toast.LENGTH_SHORT).show();
+            displaySignInError();
         }
 
         @Override
         protected void onInvalidPassword(ServiceResultDto<?> serviceResult) {
-            Toast.makeText(WelcomeActivity.this, "Invalid password", Toast.LENGTH_SHORT).show();
+            displaySignInError();
         }
 
         @Override
         protected void onValidationError(ServiceResultDto<?> serviceResult) {
-            Toast.makeText(WelcomeActivity.this, "Validation error", Toast.LENGTH_SHORT).show();
+            displaySignInError();
+        }
+
+        private void displaySignInError() {
+            Toast.makeText(WelcomeActivity.this, "Bad email or password", Toast.LENGTH_SHORT).show();
         }
     }
 
-    @Override
-    public void onSignUpClicked() {
-        final String email = signUpUi.getEmail();
-        final String password = signUpUi.getPassword();
+    private class OnSignUpDoneCallback implements DoneCallback<Object> {
+        private final String email;
 
-        if(false) {
-            run(new SignUpApiCall(email, password), new DoneCallback<Object>() {
-                @Override
-                public void onDone(Object o) {
-                    Intent intent = new Intent(WelcomeActivity.this, SignedUpActivity.class);
-                    intent.putExtra("email", email);
-                    startActivity(intent);
-                    finish();
-                }
-            });
+        public OnSignUpDoneCallback(String email) {
+            this.email = email;
         }
 
-        Intent intent = new Intent(WelcomeActivity.this, SignedUpActivity.class);
-        intent.putExtra("email", email);
-        startActivity(intent);
-        finish();
+        @Override
+        public void onDone(Object o) {
+            Intent intent = new Intent(WelcomeActivity.this, SignedUpActivity.class);
+            intent.putExtra("email", email);
+            startActivity(intent);
+            finish();
+        }
     }
 
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        viewPager.setCurrentItem(tab.getPosition());
-    }
+    private class OnSignUpFailedCallback extends DefaultFailCallback {
+        @Override
+        protected void onUserAlreadyRegistered(ServiceResultDto<?> serviceResult) {
+            displaySignUpError();
+        }
 
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
+        @Override
+        protected void onValidationError(ServiceResultDto<?> serviceResult) {
+            displaySignUpError();
+        }
 
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+        private void displaySignUpError() {
+            Toast.makeText(WelcomeActivity.this, "Bad email or password", Toast.LENGTH_SHORT).show();
+        }
     }
 }

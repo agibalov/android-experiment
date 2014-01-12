@@ -26,8 +26,8 @@ android {
     }
 
     signingConfigs {
-        release {
-            storeFile file(System.getenv("SIGN_STORE_FILE"))
+        production {
+            storeFile System.getenv("SIGN_STORE_FILE") != null ? file(System.getenv("SIGN_STORE_FILE")) : null
             storePassword System.getenv("SIGN_STORE_PASSWORD")
             keyAlias System.getenv("SIGN_KEY_ALIAS")
             keyPassword System.getenv("SIGN_KEY_PASSWORD")
@@ -35,10 +35,22 @@ android {
     }
 
     buildTypes {
+        debug {
+            runProguard false
+            proguardFile getDefaultProguardFile('proguard-android.txt')
+            signingConfig signingConfigs.debug
+        }
+
         release {
             runProguard false
             proguardFile getDefaultProguardFile('proguard-android.txt')
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
+        }
+
+        production {
+            runProguard false
+            proguardFile getDefaultProguardFile('proguard-android.txt')
+            signingConfig signingConfigs.production
         }
     }
 
@@ -78,7 +90,7 @@ testFlightConfig {
             testFlightNotifyDistroList = true
             testFlightBuildNotes = "Notes here"
             testFlightReplace = true
-            filePath = "${buildDir}/apk/App-defaultFlavor-release.apk"
+            filePath = "${buildDir}/apk/App-defaultFlavor-production.apk"
         }
     }
 }

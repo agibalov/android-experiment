@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 
@@ -13,6 +14,7 @@ import me.loki2302.R;
 import me.loki2302.application.Task;
 import me.loki2302.dal.ApplicationState;
 import me.loki2302.dal.apicalls.CreateTaskApiCall;
+import me.loki2302.dal.dto.ServiceResultDto;
 import me.loki2302.dal.dto.TaskDescriptionDto;
 import me.loki2302.dal.dto.TaskDto;
 
@@ -43,7 +45,7 @@ public class CreateTaskActivity extends RetaskActivity {
             String taskDescription = taskDescriptionEditText.getText().toString();
             TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
             taskDescriptionDto.taskDescription = taskDescription;
-            run(new CreateTaskApiCall(applicationState.getSessionToken(), taskDescriptionDto), onTaskCreated);
+            run(new CreateTaskApiCall(applicationState.getSessionToken(), taskDescriptionDto), onTaskCreated, onFailedToCreateTask);
             return true;
         }
 
@@ -60,6 +62,13 @@ public class CreateTaskActivity extends RetaskActivity {
             startActivity(intent);
 
             finish();
+        }
+    };
+
+    private final FailCallback onFailedToCreateTask = new DefaultFailCallback() {
+        @Override
+        protected void onValidationError(ServiceResultDto<?> serviceResult) {
+            Toast.makeText(CreateTaskActivity.this, "Description should not be empty", Toast.LENGTH_SHORT).show();
         }
     };
 }

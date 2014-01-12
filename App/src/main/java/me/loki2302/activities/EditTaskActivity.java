@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 
@@ -15,6 +16,7 @@ import me.loki2302.R;
 import me.loki2302.application.Task;
 import me.loki2302.dal.ApplicationState;
 import me.loki2302.dal.apicalls.UpdateTaskApiCall;
+import me.loki2302.dal.dto.ServiceResultDto;
 import me.loki2302.dal.dto.TaskDescriptionDto;
 import me.loki2302.dal.dto.TaskDto;
 import roboguice.util.Ln;
@@ -57,7 +59,7 @@ public class EditTaskActivity extends RetaskActivity {
         if(itemId == R.id.updateTaskMenuItem) {
             TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
             taskDescriptionDto.taskDescription = taskDescriptionEditText.getText().toString();
-            run(new UpdateTaskApiCall(applicationState.getSessionToken(), task.id, taskDescriptionDto), onTaskUpdated);
+            run(new UpdateTaskApiCall(applicationState.getSessionToken(), task.id, taskDescriptionDto), onTaskUpdated, onFailedToUpdateTask);
             return true;
         }
 
@@ -69,6 +71,13 @@ public class EditTaskActivity extends RetaskActivity {
         public void onDone(TaskDto taskDto) {
             applicationState.getTaskRepository().add(Task.fromTaskDto(taskDto));
             finish();
+        }
+    };
+
+    private final FailCallback onFailedToUpdateTask = new DefaultFailCallback() {
+        @Override
+        protected void onValidationError(ServiceResultDto<?> serviceResult) {
+            Toast.makeText(EditTaskActivity.this, "Description should not be empty", Toast.LENGTH_SHORT).show();
         }
     };
 }

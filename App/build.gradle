@@ -2,11 +2,15 @@ buildscript {
     repositories {
         mavenCentral()
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:0.7.+'
+        classpath 'com.willowtreeapps.gradle.plugins:gradle-testflight-plugin:0.3.4'
     }
 }
+
 apply plugin: 'android'
+apply plugin: 'testFlight'
 
 repositories {
     mavenCentral()
@@ -61,4 +65,20 @@ dependencies {
     compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
     compile 'org.markdownj:markdownj:0.3.0-1.0.2b4'
     compile files('libs/TestFlightLib.jar')
+}
+
+testFlightConfig {
+    currentTarget = "publish"
+
+    targets {
+        publish {
+            testFlightApiToken = System.getenv("TESTFLIGHT_API_TOKEN")
+            testFlightTeamToken = System.getenv("TESTFLIGHT_TEAM_TOKEN")
+            testFlightDistroList = System.getenv("TESTFLIGHT_DISTRO_LIST")
+            testFlightNotifyDistroList = true
+            testFlightBuildNotes = "Notes here"
+            testFlightReplace = true
+            filePath = "${buildDir}/apk/App-defaultFlavor-release.apk"
+        }
+    }
 }

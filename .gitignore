@@ -3,3 +3,4 @@
 /.idea/workspace.xml
 .DS_Store
 make-release.cmd
+make-testflight.cmd

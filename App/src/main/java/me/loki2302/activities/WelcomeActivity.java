@@ -145,7 +145,7 @@ public class WelcomeActivity extends RetaskActivity implements SignInUi.SignInUi
         }
 
         private void displaySignInError() {
-            Toast.makeText(WelcomeActivity.this, "Bad email or password", Toast.LENGTH_SHORT).show();
+            Toast.makeText(WelcomeActivity.this, "Bad email or password!", Toast.LENGTH_SHORT).show();
         }
     }
 

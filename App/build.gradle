@@ -20,12 +20,24 @@ android {
         minSdkVersion 7
         targetSdkVersion 19
     }
+
+    signingConfigs {
+        release {
+            storeFile file(System.getenv("SIGN_STORE_FILE"))
+            storePassword System.getenv("SIGN_STORE_PASSWORD")
+            keyAlias System.getenv("SIGN_KEY_ALIAS")
+            keyPassword System.getenv("SIGN_KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
             runProguard false
             proguardFile getDefaultProguardFile('proguard-android.txt')
+            signingConfig signingConfigs.release
         }
     }
+
     productFlavors {
         defaultFlavor {
             proguardFile 'proguard-rules.txt'

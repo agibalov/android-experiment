@@ -13,6 +13,7 @@ import com.petebevin.markdown.MarkdownProcessor;
 import me.loki2302.R;
 import me.loki2302.application.Task;
 import me.loki2302.dal.ApplicationState;
+import me.loki2302.dal.apicalls.DeleteTaskApiCall;
 import me.loki2302.dal.apicalls.ProgressTaskApiCall;
 import me.loki2302.dal.apicalls.UnprogressTaskApiCall;
 import me.loki2302.dal.dto.TaskDto;
@@ -100,7 +101,7 @@ public class ViewTaskActivity extends RetaskActivity {
         int itemId = item.getItemId();
 
         if(itemId == R.id.wontDoMenuItem) {
-            unprogressTask();
+            deleteTask();
             return true;
         }
 
@@ -147,6 +148,10 @@ public class ViewTaskActivity extends RetaskActivity {
         run(new UnprogressTaskApiCall(applicationState.getSessionToken(), task.id), onTaskStatusChanged);
     }
 
+    private void deleteTask() {
+        run(new DeleteTaskApiCall(applicationState.getSessionToken(), task.id), new OnTaskDeletedCallback(task.id));
+    }
+
     private final DoneCallback<TaskDto> onTaskStatusChanged = new DoneCallback<TaskDto>() {
         @Override
         public void onDone(TaskDto taskDto) {
@@ -158,6 +163,20 @@ public class ViewTaskActivity extends RetaskActivity {
                 startActivity(intent);
             }
 
+            finish();
+        }
+    };
+
+    private class OnTaskDeletedCallback implements DoneCallback<Object> {
+        private final int taskId;
+
+        public OnTaskDeletedCallback(int taskId) {
+            this.taskId = taskId;
+        }
+
+        @Override
+        public void onDone(Object o) {
+            applicationState.getTaskRepository().remove(taskId);
             finish();
         }
     };

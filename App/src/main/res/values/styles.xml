@@ -4,8 +4,6 @@
         <item name="background">@drawable/actionbar_background</item>
         <item name="android:backgroundStacked">@drawable/actionbar_background</item>
         <item name="backgroundStacked">@drawable/actionbar_background</item>
-        <!--<item name="android:icon">@drawable/retasklogo</item>
-        <item name="icon">@drawable/retasklogo</item>-->
     </style>
 
     <style name="RetaskActionBarTabs" parent="@style/Widget.AppCompat.ActionBar.TabView">

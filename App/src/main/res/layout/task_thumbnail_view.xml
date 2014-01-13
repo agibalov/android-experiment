@@ -2,22 +2,15 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <FrameLayout
+    <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingTop="5dp">
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:padding="10dp"
-            android:id="@+id/taskReprTextView"
-            android:text="Dummy text"
-            android:background="@drawable/task_thumbnail_bg" />
-    </FrameLayout>
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:padding="10dp"
+        android:id="@+id/taskReprTextView"
+        android:text="Dummy text"
+        android:textColor="@drawable/task_thumbnail_text"
+        android:background="@drawable/task_thumbnail_bg" />
 
 </merge>

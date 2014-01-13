@@ -56,7 +56,7 @@ public class ViewTaskActivity extends RetaskActivity {
         String taskDescription = task.description;
         String taskDescriptionHtml = markdownProcessor.markdown(taskDescription);
         String html = String.format(markdownHtmlTemplate, taskDescriptionHtml);
-        taskDescriptionWebView.loadData(html, "text/html", null);
+        taskDescriptionWebView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
     }
 
     @Override

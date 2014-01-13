@@ -29,7 +29,7 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="RetaskProgressDialog">
+    <style name="RetaskProgressDialog" parent="@android:style/Theme.Dialog">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowTitleStyle">@null</item>
         <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>

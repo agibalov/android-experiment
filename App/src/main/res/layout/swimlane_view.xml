@@ -2,8 +2,7 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#eeeeee"
-    android:padding="5dp">
+    style="@style/RetaskRootLayout">
 
     <ListView 
         android:id="@+id/taskThumbailsListView"

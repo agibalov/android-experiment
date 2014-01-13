@@ -41,10 +41,5 @@ public class GetWorkspaceApiCall implements ApiCall<WorkspaceDto> {
 						WorkspaceServiceResult.class);
 		
 		return result.getBody();
-	}		
-	
-	@Override
-	public String describe() {
-		return "Retrieving tasks...";
 	}
 }

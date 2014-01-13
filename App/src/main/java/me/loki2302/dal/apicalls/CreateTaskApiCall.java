@@ -26,11 +26,6 @@ public class CreateTaskApiCall implements ApiCall<TaskDto> {
 	}
 
 	@Override
-	public String describe() {
-		return "Creating task...";
-	}
-
-	@Override
 	public ServiceResultDto<TaskDto> performApiCall(String apiRootUrl, RestTemplate restTemplate) {
 		Map<String, String> uriVariables = new HashMap<String, String>();
 		uriVariables.put("sessionToken", sessionToken);

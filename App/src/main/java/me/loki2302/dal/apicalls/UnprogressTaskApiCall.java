@@ -24,11 +24,6 @@ public class UnprogressTaskApiCall implements ApiCall<TaskDto> {
 	}
 
 	@Override
-	public String describe() {
-		return "Unprogressing task...";
-	}
-
-	@Override
 	public ServiceResultDto<TaskDto> performApiCall(String apiRootUrl, RestTemplate restTemplate) {
 		Map<String, Object> uriVariables = new HashMap<String, Object>();
 		uriVariables.put("sessionToken", sessionToken);

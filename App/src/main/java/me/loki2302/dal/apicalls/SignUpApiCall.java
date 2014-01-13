@@ -44,9 +44,4 @@ public class SignUpApiCall implements ApiCall<Object> {
 		
 		return result.getBody();
 	}
-	
-	@Override
-	public String describe() {
-		return "Signing up...";
-	}
 }

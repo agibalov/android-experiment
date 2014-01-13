@@ -23,11 +23,6 @@ public class DeleteTaskApiCall implements ApiCall<Object> {
 	}
 
 	@Override
-	public String describe() {
-		return "Deleting task...";
-	}
-
-	@Override
 	public ServiceResultDto<Object> performApiCall(String apiRootUrl, RestTemplate restTemplate) {
 		Map<String, Object> uriVariables = new HashMap<String, Object>();
 		uriVariables.put("sessionToken", sessionToken);

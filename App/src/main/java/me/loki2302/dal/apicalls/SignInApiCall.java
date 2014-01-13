@@ -45,9 +45,4 @@ public class SignInApiCall implements ApiCall<SessionDto> {
 		
 		return result.getBody();
 	}
-
-	@Override
-	public String describe() {
-		return "Signing in...";
-	}
 }

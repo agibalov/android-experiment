@@ -1,7 +1,7 @@
 package me.loki2302.activities;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import android.app.Dialog;
 import android.content.Context;
 
 import com.google.inject.Inject;
@@ -9,6 +9,7 @@ import com.google.inject.name.Named;
 
 import org.springframework.web.client.RestTemplate;
 
+import me.loki2302.R;
 import me.loki2302.dal.ApiCall;
 import me.loki2302.dal.RetaskException;
 import me.loki2302.dal.dto.ServiceError;
@@ -17,7 +18,7 @@ import roboguice.util.Ln;
 import roboguice.util.RoboAsyncTask;
 
 public abstract class RetaskActivity extends RoboActionBarActivity {
-	private ProgressDialog progressDialog;
+	private Dialog progressDialog;
 	
 	@Inject
 	@Named("apiRootUrl")
@@ -59,12 +60,15 @@ public abstract class RetaskActivity extends RoboActionBarActivity {
 		public ServiceResultDto<TResult> call() throws Exception {				
 			ServiceResultDto<TResult> result = apiCall.performApiCall(apiRootUrl, restTemplate);
 			Ln.i("api=%s, response ok=%b, error=%s", apiCall, result.ok, result.error);
+            Thread.sleep(2000);
 			return result;
 		}
 
 		@Override
 		protected void onPreExecute() throws Exception {
-			progressDialog = ProgressDialog.show(getContext(), "Working", apiCall.describe(), true);
+            progressDialog = new Dialog(context, R.style.RetaskProgressDialog);
+            progressDialog.setContentView(R.layout.spinner_view);
+            progressDialog.show();
 		}
 
 		@Override

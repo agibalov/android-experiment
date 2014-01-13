@@ -19,6 +19,7 @@ import me.loki2302.dal.apicalls.UnprogressTaskApiCall;
 import me.loki2302.dal.dto.TaskDto;
 import me.loki2302.dal.dto.TaskStatus;
 import roboguice.inject.InjectResource;
+import roboguice.util.Ln;
 
 public class ViewTaskActivity extends RetaskActivity {
 	private final static MarkdownProcessor markdownProcessor = new MarkdownProcessor();

@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="me.loki2302.activities.HomeActivity">
+    tools:context="me.retask.activities.HomeActivity">
     <item android:id="@+id/createTaskMenuItem"
         android:title="New Task"
         app:showAsAction="always" />

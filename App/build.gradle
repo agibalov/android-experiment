@@ -89,7 +89,7 @@ testFlightConfig {
             testFlightDistroList = System.getenv("TESTFLIGHT_DISTRO_LIST")
             testFlightNotifyDistroList = true
             testFlightBuildNotes = "Notes here"
-            testFlightReplace = true
+            testFlightReplace = false
             filePath = "${buildDir}/apk/App-defaultFlavor-production.apk"
         }
     }

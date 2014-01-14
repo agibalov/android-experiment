@@ -1,0 +1,145 @@
+package me.retask.activities;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+
+import com.google.inject.Inject;
+
+import java.util.List;
+
+import me.retask.R;
+import me.retask.application.Repository;
+import me.retask.application.Task;
+import me.retask.application.TaskStatusIsQuery;
+import me.retask.dal.ApplicationState;
+import me.retask.dal.apicalls.GetWorkspaceApiCall;
+import me.retask.dal.dto.TaskDto;
+import me.retask.dal.dto.TaskStatus;
+import me.retask.dal.dto.WorkspaceDto;
+import me.retask.views.FixedViewsPagerAdapter;
+import me.retask.views.OnTaskThumbnailClickedListener;
+import me.retask.views.SwimlaneView;
+
+public class HomeActivity extends RetaskActivity implements ActionBar.TabListener, OnTaskThumbnailClickedListener {
+    @Inject
+    private PreferencesService preferencesService;
+
+    @Inject
+    private ApplicationState applicationState;
+
+    private ViewPager swimlanesViewPager;
+    private SwimlaneView[] swimlaneViews;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.home_view);
+
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        swimlaneViews = new SwimlaneView[] {
+                new SwimlaneView(this),
+                new SwimlaneView(this),
+                new SwimlaneView(this)
+        };
+
+        FixedViewsPagerAdapter swimlanePagerAdapter = new FixedViewsPagerAdapter(swimlaneViews);
+        swimlanesViewPager = (ViewPager)findViewById(R.id.swimlanesViewPager);
+        swimlanesViewPager.setAdapter(swimlanePagerAdapter);
+
+        swimlanesViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                actionBar.setSelectedNavigationItem(position);
+            }
+        });
+
+        actionBar.addTab(actionBar.newTab().setText("TO DO").setTabListener(this));
+        actionBar.addTab(actionBar.newTab().setText("DOING").setTabListener(this));
+        actionBar.addTab(actionBar.newTab().setText("DONE").setTabListener(this));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        run(new GetWorkspaceApiCall(applicationState.getSessionToken()), new OnWorkspaceDataAvailable(applicationState, swimlaneViews));
+    }
+
+    @Override
+    public void onTaskThumbnailClicked(Task model) {
+        Intent intent = new Intent(HomeActivity.this, ViewTaskActivity.class);
+        intent.putExtra("taskId", model.id);
+        startActivity(intent);
+    }
+
+    private class OnWorkspaceDataAvailable implements DoneCallback<WorkspaceDto> {
+        private final ApplicationState applicationState;
+        private final SwimlaneView[] swimlaneViews;
+
+        public OnWorkspaceDataAvailable(ApplicationState applicationState, SwimlaneView[] swimlaneViews) {
+            this.applicationState = applicationState;
+            this.swimlaneViews = swimlaneViews;
+        }
+
+        @Override
+        public void onDone(WorkspaceDto workspaceDto) {
+            Repository<Task> taskRepository = applicationState.getTaskRepository();
+            for (TaskDto taskDto : workspaceDto.tasks) {
+                Task task = Task.fromTaskDto(taskDto);
+                taskRepository.add(task);
+            }
+
+            List<Task> toDoTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.NotStarted));
+            swimlaneViews[0].setModel(toDoTasks, HomeActivity.this);
+
+            List<Task> inProgressTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.InProgress));
+            swimlaneViews[1].setModel(inProgressTasks, HomeActivity.this);
+
+            List<Task> doneTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.Done));
+            swimlaneViews[2].setModel(doneTasks, HomeActivity.this);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.workspace_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if(itemId == R.id.createTaskMenuItem) {
+            Intent intent = new Intent(HomeActivity.this, CreateTaskActivity.class);
+            startActivity(intent);
+            return true;
+        } else if(itemId == R.id.resetMenuItem) {
+            preferencesService.unsetCredentials();
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+        swimlanesViewPager.setCurrentItem(tab.getPosition());
+    }
+
+    @Override
+    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    }
+
+    @Override
+    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    }
+}

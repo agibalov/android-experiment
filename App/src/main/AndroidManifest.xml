@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="me.loki2302"
+    package="me.retask"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -18,20 +18,20 @@
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="Retask"
-        android:name=".RetaskApplication"
+        android:name="me.retask.RetaskApplication"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".activities.WelcomeActivity">
+        <activity android:name="me.retask.activities.WelcomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.SignedUpActivity" />
-        <activity android:name=".activities.HomeActivity" />
-        <activity android:name=".activities.ViewTaskActivity" />
-        <activity android:name=".activities.CreateTaskActivity" />
-        <activity android:name=".activities.EditTaskActivity" />
+        <activity android:name="me.retask.activities.SignedUpActivity" />
+        <activity android:name="me.retask.activities.HomeActivity" />
+        <activity android:name="me.retask.activities.ViewTaskActivity" />
+        <activity android:name="me.retask.activities.CreateTaskActivity" />
+        <activity android:name="me.retask.activities.EditTaskActivity" />
     </application>
 
 </manifest>

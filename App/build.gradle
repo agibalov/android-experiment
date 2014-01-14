@@ -23,6 +23,8 @@ android {
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 19
+        versionCode = retaskVersionCode
+        versionName = retaskVersionName
     }
 
     signingConfigs {

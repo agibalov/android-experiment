@@ -78,7 +78,6 @@ dependencies {
     compile 'org.springframework.android:spring-android-rest-template:1.0.1.RELEASE'
     compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
     compile 'org.markdownj:markdownj:0.3.0-1.0.2b4'
-    compile files('libs/TestFlightLib.jar')
 }
 
 testFlightConfig {

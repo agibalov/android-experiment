@@ -110,7 +110,7 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.workspace_menu, menu);
+        menuInflater.inflate(R.menu.home_menu, menu);
         return true;
     }
 
@@ -121,8 +121,10 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
             Intent intent = new Intent(HomeActivity.this, CreateTaskActivity.class);
             startActivity(intent);
             return true;
-        } else if(itemId == R.id.resetMenuItem) {
+        } else if(itemId == R.id.signOutMenuItem) {
             preferencesService.unsetCredentials();
+            Intent intent = new Intent(HomeActivity.this, WelcomeActivity.class);
+            startActivity(intent);
             finish();
             return true;
         }

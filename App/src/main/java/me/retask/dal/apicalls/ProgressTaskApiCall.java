@@ -1,5 +1,7 @@
 package me.retask.dal.apicalls;
 
+import android.content.ContentResolver;
+
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;

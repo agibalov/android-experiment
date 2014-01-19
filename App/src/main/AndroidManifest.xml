@@ -25,10 +25,14 @@
             </intent-filter>
         </activity>
         <activity android:name="me.retask.activities.SignedUpActivity" />
-        <activity android:name="me.retask.activities.HomeActivity" />
+        <activity android:name=".activities.HomeActivity" />
         <activity android:name="me.retask.activities.ViewTaskActivity" />
         <activity android:name="me.retask.activities.CreateTaskActivity" />
         <activity android:name="me.retask.activities.EditTaskActivity" />
+
+        <provider
+            android:authorities="me.retask.tasks"
+            android:name=".v2.RetaskContentProvider" />
     </application>
 
 </manifest>

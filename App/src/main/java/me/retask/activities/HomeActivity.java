@@ -11,30 +11,15 @@ import android.view.MenuItem;
 
 import com.google.inject.Inject;
 
-import java.util.List;
-
 import me.retask.R;
-import me.retask.application.Repository;
-import me.retask.application.Task;
-import me.retask.application.TaskStatusIsQuery;
-import me.retask.dal.ApplicationState;
-import me.retask.dal.apicalls.GetWorkspaceApiCall;
-import me.retask.dal.dto.TaskDto;
-import me.retask.dal.dto.TaskStatus;
-import me.retask.dal.dto.WorkspaceDto;
-import me.retask.views.FixedViewsPagerAdapter;
-import me.retask.views.OnTaskThumbnailClickedListener;
-import me.retask.views.SwimlaneView;
+import me.retask.v2.RetaskContract;
+import roboguice.util.Ln;
 
-public class HomeActivity extends RetaskActivity implements ActionBar.TabListener, OnTaskThumbnailClickedListener {
+public class HomeActivity extends RetaskActivity implements ActionBar.TabListener, SwimlaneFragment.OnTaskThumbnailClickListener {
     @Inject
     private PreferencesService preferencesService;
 
-    @Inject
-    private ApplicationState applicationState;
-
-    private ViewPager swimlanesViewPager;
-    private SwimlaneView[] swimlaneViews;
+    private ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,17 +29,21 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        swimlaneViews = new SwimlaneView[] {
-                new SwimlaneView(this),
-                new SwimlaneView(this),
-                new SwimlaneView(this)
-        };
+        Bundle todoBundle = new Bundle();
+        todoBundle.putInt("status", RetaskContract.Task.TASK_STATUS_TODO);
 
-        FixedViewsPagerAdapter swimlanePagerAdapter = new FixedViewsPagerAdapter(swimlaneViews);
-        swimlanesViewPager = (ViewPager)findViewById(R.id.swimlanesViewPager);
-        swimlanesViewPager.setAdapter(swimlanePagerAdapter);
+        Bundle inProgressBundle = new Bundle();
+        inProgressBundle.putInt("status", RetaskContract.Task.TASK_STATUS_IN_PROGRESS);
 
-        swimlanesViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+        Bundle doneBundle = new Bundle();
+        doneBundle.putInt("status", RetaskContract.Task.TASK_STATUS_DONE);
+
+        Bundle[] bundles = new Bundle[] { todoBundle, inProgressBundle, doneBundle };
+        SwimlanesAdapter swimlanesAdapter = new SwimlanesAdapter(getSupportFragmentManager(), bundles);
+
+        viewPager = (ViewPager)findViewById(R.id.swimlanesViewPager);
+        viewPager.setAdapter(swimlanesAdapter);
+        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 actionBar.setSelectedNavigationItem(position);
@@ -64,47 +53,6 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
         actionBar.addTab(actionBar.newTab().setText("TO DO").setTabListener(this));
         actionBar.addTab(actionBar.newTab().setText("DOING").setTabListener(this));
         actionBar.addTab(actionBar.newTab().setText("DONE").setTabListener(this));
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        run(new GetWorkspaceApiCall(applicationState.getSessionToken()), new OnWorkspaceDataAvailable(applicationState, swimlaneViews));
-    }
-
-    @Override
-    public void onTaskThumbnailClicked(Task model) {
-        Intent intent = new Intent(HomeActivity.this, ViewTaskActivity.class);
-        intent.putExtra("taskId", model.id);
-        startActivity(intent);
-    }
-
-    private class OnWorkspaceDataAvailable implements DoneCallback<WorkspaceDto> {
-        private final ApplicationState applicationState;
-        private final SwimlaneView[] swimlaneViews;
-
-        public OnWorkspaceDataAvailable(ApplicationState applicationState, SwimlaneView[] swimlaneViews) {
-            this.applicationState = applicationState;
-            this.swimlaneViews = swimlaneViews;
-        }
-
-        @Override
-        public void onDone(WorkspaceDto workspaceDto) {
-            Repository<Task> taskRepository = applicationState.getTaskRepository();
-            for (TaskDto taskDto : workspaceDto.tasks) {
-                Task task = Task.fromTaskDto(taskDto);
-                taskRepository.add(task);
-            }
-
-            List<Task> toDoTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.NotStarted));
-            swimlaneViews[0].setModel(toDoTasks, HomeActivity.this);
-
-            List<Task> inProgressTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.InProgress));
-            swimlaneViews[1].setModel(inProgressTasks, HomeActivity.this);
-
-            List<Task> doneTasks = taskRepository.getWhere(new TaskStatusIsQuery(TaskStatus.Done));
-            swimlaneViews[2].setModel(doneTasks, HomeActivity.this);
-        }
     }
 
     @Override
@@ -134,7 +82,7 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
 
     @Override
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        swimlanesViewPager.setCurrentItem(tab.getPosition());
+        viewPager.setCurrentItem(tab.getPosition());
     }
 
     @Override
@@ -143,5 +91,10 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    }
+
+    @Override
+    public void onTaskThumbnailClick(long taskId) {
+        Ln.i("Task clicked: %d", taskId);
     }
 }

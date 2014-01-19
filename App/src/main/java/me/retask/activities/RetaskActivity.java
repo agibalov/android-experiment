@@ -90,11 +90,11 @@ public abstract class RetaskActivity extends RoboActionBarActivity {
 		}
 	}
 	
-	public interface DoneCallback<TResult> {
+	public static interface DoneCallback<TResult> {
 		void onDone(TResult result);		
 	}
 	
-	protected interface FailCallback {
+	public static interface FailCallback {
 		void onFail(Exception e);
 	}
 	

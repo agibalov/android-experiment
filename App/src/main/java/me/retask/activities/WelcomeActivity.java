@@ -1,5 +1,7 @@
 package me.retask.activities;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -13,10 +15,14 @@ import com.google.inject.Inject;
 
 import me.retask.R;
 import me.retask.dal.ApplicationState;
+import me.retask.dal.apicalls.GetWorkspaceApiCall;
 import me.retask.dal.apicalls.SignInApiCall;
 import me.retask.dal.apicalls.SignUpApiCall;
 import me.retask.dal.dto.ServiceResultDto;
 import me.retask.dal.dto.SessionDto;
+import me.retask.dal.dto.TaskDto;
+import me.retask.dal.dto.WorkspaceDto;
+import me.retask.v2.RetaskContract;
 import me.retask.views.FixedViewsPagerAdapter;
 import roboguice.util.Ln;
 
@@ -115,6 +121,11 @@ public class WelcomeActivity extends RetaskActivity implements SignInUi.SignInUi
         public void onDone(SessionDto sessionDto) {
             Ln.i("Authenticated: %s", sessionDto.sessionToken);
 
+            //
+            ContentResolver contentResolver = getContentResolver();
+            contentResolver.delete(RetaskContract.Task.CONTENT_URI, null, null);
+            //
+
             applicationState.setSessionToken(sessionDto.sessionToken);
 
             if(signInUi.isRememberMeChecked()) {
@@ -122,11 +133,31 @@ public class WelcomeActivity extends RetaskActivity implements SignInUi.SignInUi
                 preferencesService.setCredentials(credentials);
             }
 
-            Intent intent = new Intent(WelcomeActivity.this, HomeActivity.class);
-            startActivity(intent);
-            overridePendingTransition(0, 0);
-            finish();
-            overridePendingTransition(0, 0);
+            run(new GetWorkspaceApiCall(applicationState.getSessionToken()), new DoneCallback<WorkspaceDto>() {
+                @Override
+                public void onDone(WorkspaceDto workspaceDto) {
+                    ContentResolver contentResolver = getContentResolver();
+
+                    //
+                    contentResolver.delete(RetaskContract.Task.CONTENT_URI, null, null);
+                    //
+
+                    for(TaskDto taskDto : workspaceDto.tasks) {
+                        ContentValues contentValues = new ContentValues();
+                        contentValues.put(RetaskContract.Task.REMOTE_ID, taskDto.taskId);
+                        contentValues.put(RetaskContract.Task.STATUS, taskDto.taskStatus.ordinal());
+                        contentValues.put(RetaskContract.Task.DESCRIPTION, taskDto.taskDescription);
+
+                        contentResolver.insert(RetaskContract.Task.CONTENT_URI, contentValues);
+                    }
+
+                    Intent intent = new Intent(WelcomeActivity.this, HomeActivity.class);
+                    startActivity(intent);
+                    overridePendingTransition(0, 0);
+                    finish();
+                    overridePendingTransition(0, 0);
+                }
+            });
         }
     }
 

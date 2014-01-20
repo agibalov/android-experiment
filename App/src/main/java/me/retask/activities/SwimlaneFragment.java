@@ -15,9 +15,11 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import me.retask.R;
-import me.retask.v2.RetaskContract;
+import me.retask.dal.RetaskContract;
 
 public class SwimlaneFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    public final static String ARG_STATUS = "status";
+
     private OnTaskThumbnailClickListener onTaskThumbnailClickListener;
     private SimpleCursorAdapter cursorAdapter;
 
@@ -64,7 +66,7 @@ public class SwimlaneFragment extends Fragment implements LoaderManager.LoaderCa
                 RetaskContract.Task.CONTENT_URI,
                 new String[] { RetaskContract.Task._ID, RetaskContract.Task.DESCRIPTION },
                 RetaskContract.Task.STATUS + "=?",
-                new String[] { Integer.toString(getArguments().getInt("status")) },
+                new String[] { Integer.toString(getArguments().getInt(ARG_STATUS)) },
                 null);
     }
 

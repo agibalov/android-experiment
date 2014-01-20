@@ -18,21 +18,23 @@
         android:label="Retask"
         android:theme="@style/AppTheme">
 
-        <activity android:name="me.retask.activities.WelcomeActivity">
+        <activity android:name=".activities.WelcomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="me.retask.activities.SignedUpActivity" />
+        <activity android:name=".activities.SignedUpActivity" />
         <activity android:name=".activities.HomeActivity" />
-        <activity android:name="me.retask.activities.ViewTaskActivity" />
-        <activity android:name="me.retask.activities.CreateTaskActivity" />
-        <activity android:name="me.retask.activities.EditTaskActivity" />
+        <activity android:name=".activities.ViewTaskActivity" />
+        <activity android:name=".activities.CreateTaskActivity" />
+        <activity android:name=".activities.EditTaskActivity" />
 
         <provider
             android:authorities="me.retask.tasks"
-            android:name=".v2.RetaskContentProvider" />
+            android:name=".dal.RetaskContentProvider" />
+
+        <service android:name=".service.RetaskService"/>
     </application>
 
 </manifest>

@@ -34,5 +34,4 @@ public class RetaskModule implements Module {
 		
 		return restTemplate;
 	}
-
 }

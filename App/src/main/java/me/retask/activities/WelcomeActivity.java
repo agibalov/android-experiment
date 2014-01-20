@@ -1,7 +1,5 @@
 package me.retask.activities;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -9,29 +7,20 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.inject.Inject;
 
 import me.retask.R;
+import me.retask.application.Credentials;
+import me.retask.application.PreferencesService;
 import me.retask.dal.ApplicationState;
-import me.retask.dal.apicalls.GetWorkspaceApiCall;
-import me.retask.dal.apicalls.SignInApiCall;
-import me.retask.dal.apicalls.SignUpApiCall;
-import me.retask.dal.dto.ServiceResultDto;
-import me.retask.dal.dto.SessionDto;
-import me.retask.dal.dto.TaskDto;
-import me.retask.dal.dto.WorkspaceDto;
-import me.retask.v2.RetaskContract;
+import me.retask.service.requests.SignInRetaskServiceRequest;
+import me.retask.service.requests.SignUpRetaskServiceRequest;
 import me.retask.views.FixedViewsPagerAdapter;
-import roboguice.util.Ln;
 
 public class WelcomeActivity extends RetaskActivity implements SignInUi.SignInUiListener, SignUpUi.SignUpUiListener, ActionBar.TabListener {
     @Inject
     private PreferencesService preferencesService;
-
-    @Inject
-    private ConnectivityService connectivityService;
 
     @Inject
     private ApplicationState applicationState;
@@ -61,8 +50,8 @@ public class WelcomeActivity extends RetaskActivity implements SignInUi.SignInUi
         signInUi.setListener(this);
         Credentials credentials = preferencesService.getCredentials();
         if(credentials != null) {
-            signInUi.setEmail(credentials.email);
-            signInUi.setPassword(credentials.password);
+            signInUi.setEmail(credentials.getEmail());
+            signInUi.setPassword(credentials.getPassword());
             signInUi.setRememberMeChecked(true);
         }
 
@@ -85,14 +74,20 @@ public class WelcomeActivity extends RetaskActivity implements SignInUi.SignInUi
     public void onSignInClicked() {
         String email = signInUi.getEmail();
         String password = signInUi.getPassword();
-        run(new SignInApiCall(email, password), new OnSignInDoneCallback(email, password), new OnSignInFailedCallback());
+        run(new SignInRetaskServiceRequest(email, password));
+
+        Intent intent = new Intent(WelcomeActivity.this, HomeActivity.class);
+        startActivity(intent);
+        overridePendingTransition(0, 0);
+        finish();
+        overridePendingTransition(0, 0);
     }
 
     @Override
     public void onSignUpClicked() {
         String email = signUpUi.getEmail();
         String password = signUpUi.getPassword();
-        run(new SignUpApiCall(email, password), new OnSignUpDoneCallback(email), new OnSignUpFailedCallback());
+        run(new SignUpRetaskServiceRequest(email, password));
     }
 
     @Override
@@ -106,111 +101,5 @@ public class WelcomeActivity extends RetaskActivity implements SignInUi.SignInUi
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
-
-    private class OnSignInDoneCallback implements DoneCallback<SessionDto> {
-        private final String email;
-        private final String password;
-
-        public OnSignInDoneCallback(String email, String password) {
-            this.email = email;
-            this.password = password;
-        }
-
-        @Override
-        public void onDone(SessionDto sessionDto) {
-            Ln.i("Authenticated: %s", sessionDto.sessionToken);
-
-            //
-            ContentResolver contentResolver = getContentResolver();
-            contentResolver.delete(RetaskContract.Task.CONTENT_URI, null, null);
-            //
-
-            applicationState.setSessionToken(sessionDto.sessionToken);
-
-            if(signInUi.isRememberMeChecked()) {
-                Credentials credentials = new Credentials(email, password);
-                preferencesService.setCredentials(credentials);
-            }
-
-            run(new GetWorkspaceApiCall(applicationState.getSessionToken()), new DoneCallback<WorkspaceDto>() {
-                @Override
-                public void onDone(WorkspaceDto workspaceDto) {
-                    ContentResolver contentResolver = getContentResolver();
-
-                    //
-                    contentResolver.delete(RetaskContract.Task.CONTENT_URI, null, null);
-                    //
-
-                    for(TaskDto taskDto : workspaceDto.tasks) {
-                        ContentValues contentValues = new ContentValues();
-                        contentValues.put(RetaskContract.Task.REMOTE_ID, taskDto.taskId);
-                        contentValues.put(RetaskContract.Task.STATUS, taskDto.taskStatus.ordinal());
-                        contentValues.put(RetaskContract.Task.DESCRIPTION, taskDto.taskDescription);
-
-                        contentResolver.insert(RetaskContract.Task.CONTENT_URI, contentValues);
-                    }
-
-                    Intent intent = new Intent(WelcomeActivity.this, HomeActivity.class);
-                    startActivity(intent);
-                    overridePendingTransition(0, 0);
-                    finish();
-                    overridePendingTransition(0, 0);
-                }
-            });
-        }
-    }
-
-    private class OnSignInFailedCallback extends DefaultFailCallback {
-        @Override
-        protected void onNoSuchUser(ServiceResultDto<?> serviceResult) {
-            displaySignInError();
-        }
-
-        @Override
-        protected void onInvalidPassword(ServiceResultDto<?> serviceResult) {
-            displaySignInError();
-        }
-
-        @Override
-        protected void onValidationError(ServiceResultDto<?> serviceResult) {
-            displaySignInError();
-        }
-
-        private void displaySignInError() {
-            Toast.makeText(WelcomeActivity.this, "Bad email or password!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private class OnSignUpDoneCallback implements DoneCallback<Object> {
-        private final String email;
-
-        public OnSignUpDoneCallback(String email) {
-            this.email = email;
-        }
-
-        @Override
-        public void onDone(Object o) {
-            Intent intent = new Intent(WelcomeActivity.this, SignedUpActivity.class);
-            intent.putExtra("email", email);
-            startActivity(intent);
-            finish();
-        }
-    }
-
-    private class OnSignUpFailedCallback extends DefaultFailCallback {
-        @Override
-        protected void onUserAlreadyRegistered(ServiceResultDto<?> serviceResult) {
-            displaySignUpError();
-        }
-
-        @Override
-        protected void onValidationError(ServiceResultDto<?> serviceResult) {
-            displaySignUpError();
-        }
-
-        private void displaySignUpError() {
-            Toast.makeText(WelcomeActivity.this, "Bad email or password", Toast.LENGTH_SHORT).show();
-        }
     }
 }

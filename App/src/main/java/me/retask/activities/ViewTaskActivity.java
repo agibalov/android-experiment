@@ -1,7 +1,13 @@
 package me.retask.activities;
 
+import android.content.ContentUris;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -11,16 +17,14 @@ import com.google.inject.Inject;
 import com.petebevin.markdown.MarkdownProcessor;
 
 import me.retask.R;
-import me.retask.application.Task;
 import me.retask.dal.ApplicationState;
-import me.retask.dal.apicalls.DeleteTaskApiCall;
-import me.retask.dal.apicalls.ProgressTaskApiCall;
-import me.retask.dal.apicalls.UnprogressTaskApiCall;
-import me.retask.dal.dto.TaskDto;
-import me.retask.dal.dto.TaskStatus;
+import me.retask.service.requests.DeleteTaskRetaskServiceRequest;
+import me.retask.service.requests.ProgressTaskRetaskServiceRequest;
+import me.retask.service.requests.UnprogressTaskRetaskServiceRequest;
+import me.retask.dal.RetaskContract;
 import roboguice.inject.InjectResource;
 
-public class ViewTaskActivity extends RetaskActivity {
+public class ViewTaskActivity extends RetaskActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	private final static MarkdownProcessor markdownProcessor = new MarkdownProcessor();
 	
 	@Inject
@@ -31,32 +35,24 @@ public class ViewTaskActivity extends RetaskActivity {
 	@InjectResource(R.string.markdown_html_template)
 	private String markdownHtmlTemplate;
 
-    private Task task;
-	
+    private long taskId;
+    private Integer taskStatus;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.task_view);
 
         taskDescriptionWebView = (WebView)findViewById(R.id.taskDescriptionWebView);
-	}
-
-    @Override
-    protected void onResume() {
-        super.onResume();
 
         Intent intent = getIntent();
-        int taskId = intent.getIntExtra("taskId", -1);
+        taskId = intent.getLongExtra("taskId", -1);
         if(taskId == -1) {
             throw new IllegalStateException("Looks like taskId is missing in Intent");
         }
 
-        task = applicationState.getTaskRepository().getOne(taskId);
-        String taskDescription = task.description;
-        String taskDescriptionHtml = markdownProcessor.markdown(taskDescription);
-        String html = String.format(markdownHtmlTemplate, taskDescriptionHtml);
-        taskDescriptionWebView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
-    }
+        getSupportLoaderManager().initLoader(0, null, this);
+	}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -67,22 +63,25 @@ public class ViewTaskActivity extends RetaskActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        TaskStatus taskStatus = task.status;
-        if(taskStatus.equals(TaskStatus.NotStarted)) {
+        if(taskStatus == null) {
+            return true;
+        }
+
+        if(taskStatus.equals(RetaskContract.Task.TASK_STATUS_TODO)) {
             menu.findItem(R.id.wontDoMenuItem).setVisible(true);
             menu.findItem(R.id.startMenuItem).setVisible(true);
             menu.findItem(R.id.postponeMenuItem).setVisible(false);
             menu.findItem(R.id.doneMenuItem).setVisible(false);
             menu.findItem(R.id.notDoneMenuItem).setVisible(false);
             menu.findItem(R.id.completeMenuItem).setVisible(false);
-        } else if(taskStatus.equals(TaskStatus.InProgress)) {
+        } else if(taskStatus.equals(RetaskContract.Task.TASK_STATUS_IN_PROGRESS)) {
             menu.findItem(R.id.wontDoMenuItem).setVisible(false);
             menu.findItem(R.id.startMenuItem).setVisible(false);
             menu.findItem(R.id.postponeMenuItem).setVisible(true);
             menu.findItem(R.id.doneMenuItem).setVisible(true);
             menu.findItem(R.id.notDoneMenuItem).setVisible(false);
             menu.findItem(R.id.completeMenuItem).setVisible(false);
-        } else if(taskStatus.equals(TaskStatus.Done)) {
+        } else if(taskStatus.equals(RetaskContract.Task.TASK_STATUS_DONE)) {
             menu.findItem(R.id.wontDoMenuItem).setVisible(false);
             menu.findItem(R.id.startMenuItem).setVisible(false);
             menu.findItem(R.id.postponeMenuItem).setVisible(false);
@@ -132,7 +131,7 @@ public class ViewTaskActivity extends RetaskActivity {
 
         if(itemId == R.id.editMenuItem) {
             Intent intent = new Intent(ViewTaskActivity.this, EditTaskActivity.class);
-            intent.putExtra("taskId", task.id);
+            intent.putExtra("taskId", taskId);
             startActivity(intent);
             return true;
         }
@@ -141,43 +140,54 @@ public class ViewTaskActivity extends RetaskActivity {
     }
 
     private void progressTask() {
-        run(new ProgressTaskApiCall(applicationState.getSessionToken(), task.id), onTaskStatusChanged);
+        run(new ProgressTaskRetaskServiceRequest(applicationState.getSessionToken(), taskId));
     }
 
     private void unprogressTask() {
-        run(new UnprogressTaskApiCall(applicationState.getSessionToken(), task.id), onTaskStatusChanged);
+        run(new UnprogressTaskRetaskServiceRequest(applicationState.getSessionToken(), taskId));
     }
 
     private void deleteTask() {
-        run(new DeleteTaskApiCall(applicationState.getSessionToken(), task.id), new OnTaskDeletedCallback(task.id));
+        run(new DeleteTaskRetaskServiceRequest(applicationState.getSessionToken(), taskId));
+        finish();
     }
 
-    private final DoneCallback<TaskDto> onTaskStatusChanged = new DoneCallback<TaskDto>() {
-        @Override
-        public void onDone(TaskDto taskDto) {
-            applicationState.getTaskRepository().add(Task.fromTaskDto(taskDto));
+    @Override
+    public Loader onCreateLoader(int id, Bundle bundle) {
+        Uri taskUri = ContentUris.withAppendedId(RetaskContract.Task.CONTENT_URI, taskId);
+        CursorLoader cursorLoader = new CursorLoader(
+                this,
+                taskUri,
+                new String[] {
+                        RetaskContract.Task._ID,
+                        RetaskContract.Task.DESCRIPTION,
+                        RetaskContract.Task.STATUS
+                },
+                null, null, null);
 
-            if(!taskDto.taskStatus.equals(TaskStatus.Complete)) {
-                Intent intent = new Intent(ViewTaskActivity.this, ViewTaskActivity.class);
-                intent.putExtra("taskId", taskDto.taskId);
-                startActivity(intent);
-            }
+        return cursorLoader;
+    }
 
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if(!cursor.moveToFirst()) {
+            return;
+        }
+
+        String taskDescription = cursor.getString(cursor.getColumnIndex(RetaskContract.Task.DESCRIPTION));
+        taskStatus = cursor.getInt(cursor.getColumnIndex(RetaskContract.Task.STATUS));
+
+        if(taskStatus == RetaskContract.Task.TASK_STATUS_COMPLETE) {
             finish();
         }
-    };
 
-    private class OnTaskDeletedCallback implements DoneCallback<Object> {
-        private final int taskId;
+        String taskDescriptionHtml = markdownProcessor.markdown(taskDescription);
+        String html = String.format(markdownHtmlTemplate, taskDescriptionHtml);
+        taskDescriptionWebView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
+        supportInvalidateOptionsMenu();
+    }
 
-        public OnTaskDeletedCallback(int taskId) {
-            this.taskId = taskId;
-        }
-
-        @Override
-        public void onDone(Object o) {
-            applicationState.getTaskRepository().remove(taskId);
-            finish();
-        }
-    };
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+    }
 }

@@ -1,22 +1,16 @@
 package me.retask.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.inject.Inject;
 
 import me.retask.R;
-import me.retask.application.Task;
 import me.retask.dal.ApplicationState;
-import me.retask.dal.apicalls.CreateTaskApiCall;
-import me.retask.dal.dto.ServiceResultDto;
-import me.retask.dal.dto.TaskDescriptionDto;
-import me.retask.dal.dto.TaskDto;
+import me.retask.service.requests.CreateTaskRetaskServiceRequest;
 
 public class CreateTaskActivity extends RetaskActivity {
 	@Inject
@@ -43,32 +37,11 @@ public class CreateTaskActivity extends RetaskActivity {
         int itemId = item.getItemId();
         if(itemId == R.id.createTaskMenuItem) {
             String taskDescription = taskDescriptionEditText.getText().toString();
-            TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
-            taskDescriptionDto.taskDescription = taskDescription;
-            run(new CreateTaskApiCall(applicationState.getSessionToken(), taskDescriptionDto), onTaskCreated, onFailedToCreateTask);
+            run(new CreateTaskRetaskServiceRequest(applicationState.getSessionToken(), taskDescription));
+            finish();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
-
-    private final DoneCallback<TaskDto> onTaskCreated = new DoneCallback<TaskDto>() {
-        @Override
-        public void onDone(TaskDto taskDto) {
-            applicationState.getTaskRepository().add(Task.fromTaskDto(taskDto));
-
-            Intent intent = new Intent(CreateTaskActivity.this, ViewTaskActivity.class);
-            intent.putExtra("taskId", taskDto.taskId);
-            startActivity(intent);
-
-            finish();
-        }
-    };
-
-    private final FailCallback onFailedToCreateTask = new DefaultFailCallback() {
-        @Override
-        protected void onValidationError(ServiceResultDto<?> serviceResult) {
-            Toast.makeText(CreateTaskActivity.this, "Description should not be empty", Toast.LENGTH_SHORT).show();
-        }
-    };
 }

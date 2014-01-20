@@ -1,46 +1,47 @@
 package me.retask.activities;
 
+import android.content.ContentUris;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.inject.Inject;
 
 import me.retask.R;
-import me.retask.application.Task;
 import me.retask.dal.ApplicationState;
-import me.retask.dal.apicalls.UpdateTaskApiCall;
-import me.retask.dal.dto.ServiceResultDto;
-import me.retask.dal.dto.TaskDescriptionDto;
-import me.retask.dal.dto.TaskDto;
+import me.retask.dal.RetaskContract;
+import me.retask.service.requests.UpdateTaskRetaskServiceRequest;
 
-public class EditTaskActivity extends RetaskActivity {
+public class EditTaskActivity extends RetaskActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     @Inject
     private ApplicationState applicationState;
 
     private EditText taskDescriptionEditText;
 
-    private Task task;
+    private long taskId;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_task_view);
 
+        taskDescriptionEditText = (EditText)findViewById(R.id.taskDescriptionEditText);
+
         Intent intent = getIntent();
-        int taskId = intent.getIntExtra("taskId", -1);
+        taskId = intent.getIntExtra("taskId", -1);
         if(taskId == -1) {
             throw new IllegalStateException("Looks like taskId is missing in Intent");
         }
 
-        task = applicationState.getTaskRepository().getOne(taskId);
-
-        taskDescriptionEditText = (EditText)findViewById(R.id.taskDescriptionEditText);
-        taskDescriptionEditText.setText(task.description);
+        getSupportLoaderManager().initLoader(0, null, this);
     }
 
     @Override
@@ -54,27 +55,42 @@ public class EditTaskActivity extends RetaskActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         if(itemId == R.id.updateTaskMenuItem) {
-            TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
-            taskDescriptionDto.taskDescription = taskDescriptionEditText.getText().toString();
-            run(new UpdateTaskApiCall(applicationState.getSessionToken(), task.id, taskDescriptionDto), onTaskUpdated, onFailedToUpdateTask);
+            String taskDescription = taskDescriptionEditText.getText().toString();
+            run(new UpdateTaskRetaskServiceRequest(applicationState.getSessionToken(), taskId, taskDescription));
+            finish();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private final DoneCallback<TaskDto> onTaskUpdated = new DoneCallback<TaskDto>() {
-        @Override
-        public void onDone(TaskDto taskDto) {
-            applicationState.getTaskRepository().add(Task.fromTaskDto(taskDto));
-            finish();
-        }
-    };
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        Uri taskUri = ContentUris.withAppendedId(RetaskContract.Task.CONTENT_URI, taskId);
+        CursorLoader cursorLoader = new CursorLoader(
+                this,
+                taskUri,
+                new String[] {
+                        RetaskContract.Task._ID,
+                        RetaskContract.Task.DESCRIPTION,
+                        RetaskContract.Task.STATUS
+                },
+                null, null, null);
 
-    private final FailCallback onFailedToUpdateTask = new DefaultFailCallback() {
-        @Override
-        protected void onValidationError(ServiceResultDto<?> serviceResult) {
-            Toast.makeText(EditTaskActivity.this, "Description should not be empty", Toast.LENGTH_SHORT).show();
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        if(!cursor.moveToFirst()) {
+            return;
         }
-    };
+
+        String taskDescription = cursor.getString(cursor.getColumnIndex(RetaskContract.Task.DESCRIPTION));
+        taskDescriptionEditText.setText(taskDescription);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+    }
 }

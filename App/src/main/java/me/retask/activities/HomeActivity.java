@@ -12,7 +12,8 @@ import android.view.MenuItem;
 import com.google.inject.Inject;
 
 import me.retask.R;
-import me.retask.v2.RetaskContract;
+import me.retask.application.PreferencesService;
+import me.retask.dal.RetaskContract;
 import roboguice.util.Ln;
 
 public class HomeActivity extends RetaskActivity implements ActionBar.TabListener, SwimlaneFragment.OnTaskThumbnailClickListener {
@@ -30,13 +31,13 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         Bundle todoBundle = new Bundle();
-        todoBundle.putInt("status", RetaskContract.Task.TASK_STATUS_TODO);
+        todoBundle.putInt(SwimlaneFragment.ARG_STATUS, RetaskContract.Task.TASK_STATUS_TODO);
 
         Bundle inProgressBundle = new Bundle();
-        inProgressBundle.putInt("status", RetaskContract.Task.TASK_STATUS_IN_PROGRESS);
+        inProgressBundle.putInt(SwimlaneFragment.ARG_STATUS, RetaskContract.Task.TASK_STATUS_IN_PROGRESS);
 
         Bundle doneBundle = new Bundle();
-        doneBundle.putInt("status", RetaskContract.Task.TASK_STATUS_DONE);
+        doneBundle.putInt(SwimlaneFragment.ARG_STATUS, RetaskContract.Task.TASK_STATUS_DONE);
 
         Bundle[] bundles = new Bundle[] { todoBundle, inProgressBundle, doneBundle };
         SwimlanesAdapter swimlanesAdapter = new SwimlanesAdapter(getSupportFragmentManager(), bundles);
@@ -96,5 +97,8 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
     @Override
     public void onTaskThumbnailClick(long taskId) {
         Ln.i("Task clicked: %d", taskId);
+        Intent intent = new Intent(this, ViewTaskActivity.class);
+        intent.putExtra("taskId", taskId);
+        startActivity(intent);
     }
 }

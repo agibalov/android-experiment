@@ -39,6 +39,9 @@ public class RetaskService extends RoboIntentService {
     @Inject
     private RestTemplate restTemplate;
 
+    @Inject
+    private RequestExecutor requestExecutor;
+
     public RetaskService() {
         super("RetaskService");
 
@@ -65,5 +68,8 @@ public class RetaskService extends RoboIntentService {
         RetaskServiceRequestHandler handler = handlersMap.get(command);
         ContentResolver contentResolver = getContentResolver();
         handler.process(intent, contentResolver, apiRootUrl, restTemplate);
+
+        String requestToken = intent.getStringExtra("requestToken");
+        requestExecutor.notifyRequestDone(requestToken);
     }
 }

@@ -2,7 +2,7 @@ package me.retask.service.requests;
 
 import android.content.ContentResolver;
 
-import me.retask.dal.ApplicationState;
+import me.retask.service.ApplicationState;
 import me.retask.dal.RetaskContentResolverUtils;
 import me.retask.webapi.ApiCallProcessor;
 import me.retask.webapi.apicalls.GetWorkspaceApiCall;
@@ -13,10 +13,12 @@ import me.retask.webapi.dto.WorkspaceDto;
 public class SignInRequest implements ServiceRequest<String> {
     private final String email;
     private final String password;
+    private final boolean rememberMe;
 
-    public SignInRequest(String email, String password) {
+    public SignInRequest(String email, String password, boolean rememberMe) {
         this.email = email;
         this.password = password;
+        this.rememberMe = rememberMe;
     }
 
     @Override
@@ -35,6 +37,9 @@ public class SignInRequest implements ServiceRequest<String> {
         RetaskContentResolverUtils.addTasks(contentResolver, workspaceDto.tasks);
 
         // Done
+        applicationState.setEmail(email);
+        applicationState.setPassword(password);
+        applicationState.setRememberMe(rememberMe);
         applicationState.setSessionToken(sessionToken);
 
         return String.format("[session=%s, tasks=%d]", sessionToken, workspaceDto.tasks.size());

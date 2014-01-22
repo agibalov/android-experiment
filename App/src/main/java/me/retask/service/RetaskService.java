@@ -12,7 +12,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import me.retask.dal.ApplicationState;
 import me.retask.service.requests.ServiceRequest;
 import me.retask.webapi.ApiCallProcessor;
 

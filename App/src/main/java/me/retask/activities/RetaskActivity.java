@@ -3,6 +3,8 @@ package me.retask.activities;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import com.google.inject.Inject;
 
@@ -57,6 +59,8 @@ public abstract class RetaskActivity extends RoboActionBarActivity implements Re
             Dialog progressDialog = new Dialog(getActivity(), R.style.RetaskProgressDialog);
             progressDialog.setCancelable(false);
             progressDialog.setContentView(R.layout.spinner_view);
+            Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.spinner);
+            progressDialog.findViewById(R.id.spinner).setAnimation(animation);
             return progressDialog;
         }
     }

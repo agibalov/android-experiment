@@ -2,7 +2,7 @@ package me.retask.service.requests;
 
 import android.content.ContentResolver;
 
-import me.retask.dal.ApplicationState;
+import me.retask.service.ApplicationState;
 import me.retask.dal.RetaskContentResolverUtils;
 import me.retask.webapi.ApiCallProcessor;
 import me.retask.webapi.apicalls.ProgressTaskApiCall;
@@ -18,7 +18,7 @@ public class ProgressTaskRequest implements ServiceRequest<Void> {
     @Override
     public Void run(ApiCallProcessor apiCallProcessor, ApplicationState applicationState, ContentResolver contentResolver) {
         int taskRemoteId = RetaskContentResolverUtils.getTaskRemoteId(contentResolver, taskId);
-        ProgressTaskApiCall progressTaskApiCall = new ProgressTaskApiCall(applicationState.getSessionToken(), taskRemoteId);
+        ProgressTaskApiCall progressTaskApiCall = new ProgressTaskApiCall(applicationState.getAndUpdateSessionToken(), taskRemoteId);
         TaskDto taskDto = apiCallProcessor.processApiCall(progressTaskApiCall);
         RetaskContentResolverUtils.updateTask(contentResolver, taskId, taskDto);
         return null;

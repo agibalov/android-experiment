@@ -12,6 +12,7 @@ import android.widget.EditText;
 import com.google.inject.Inject;
 
 import me.retask.R;
+import me.retask.service.ApplicationState;
 import me.retask.service.RetaskService;
 import me.retask.service.RetaskServiceRequestListener;
 import me.retask.service.requests.SignInRequest;
@@ -21,6 +22,9 @@ import roboguice.util.Ln;
 public class SignInFragment extends RoboFragment implements View.OnClickListener, RetaskServiceRequestListener<String> {
     @Inject
     private RetaskService retaskService;
+
+    @Inject
+    private ApplicationState applicationState;
 
     private EditText emailEditText;
     private EditText passwordEditText;
@@ -54,6 +58,13 @@ public class SignInFragment extends RoboFragment implements View.OnClickListener
         rememberMeCheckBox = (CheckBox)view.findViewById(R.id.rememberMeCheckBox);
         signInButton = (Button)view.findViewById(R.id.signInButton);
         signInButton.setOnClickListener(this);
+
+        if(applicationState.getRememberMe()) {
+            emailEditText.setText(applicationState.getEmail());
+            passwordEditText.setText(applicationState.getPassword());
+            rememberMeCheckBox.setChecked(true);
+        }
+
         return view;
     }
 
@@ -63,6 +74,10 @@ public class SignInFragment extends RoboFragment implements View.OnClickListener
 
         if(pendingRequestToken != null) {
             retaskService.setRequestListener(pendingRequestToken, this);
+        }
+
+        if(applicationState.getRememberMe()) {
+            signIn();
         }
     }
 
@@ -77,10 +92,7 @@ public class SignInFragment extends RoboFragment implements View.OnClickListener
 
     @Override
     public void onClick(View view) {
-        String email = emailEditText.getText().toString();
-        String password = passwordEditText.getText().toString();
-        pendingRequestToken = retaskService.submit(new SignInRequest(email, password));
-        retaskService.setRequestListener(pendingRequestToken, this);
+        signIn();
     }
 
     @Override
@@ -95,6 +107,14 @@ public class SignInFragment extends RoboFragment implements View.OnClickListener
     public void onError(String requestToken, RuntimeException exception) {
         pendingRequestToken = null;
         Ln.i("*** SIGN IN FRAGMENT: error for %s, error is %s", requestToken, exception);
+    }
+
+    private void signIn() {
+        String email = emailEditText.getText().toString();
+        String password = passwordEditText.getText().toString();
+        boolean rememberMe = rememberMeCheckBox.isChecked();
+        pendingRequestToken = retaskService.submit(new SignInRequest(email, password, rememberMe));
+        retaskService.setRequestListener(pendingRequestToken, this);
     }
 
     public static interface SignInListener {

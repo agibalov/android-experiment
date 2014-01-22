@@ -2,7 +2,7 @@ package me.retask.service.requests;
 
 import android.content.ContentResolver;
 
-import me.retask.dal.ApplicationState;
+import me.retask.service.ApplicationState;
 import me.retask.dal.RetaskContentResolverUtils;
 import me.retask.webapi.ApiCallProcessor;
 import me.retask.webapi.apicalls.UpdateTaskApiCall;
@@ -24,7 +24,7 @@ public class UpdateTaskRequest implements ServiceRequest<Void> {
 
         TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
         taskDescriptionDto.taskDescription = taskDescription;
-        UpdateTaskApiCall updateTaskApiCall = new UpdateTaskApiCall(applicationState.getSessionToken(), taskRemoteId, taskDescriptionDto);
+        UpdateTaskApiCall updateTaskApiCall = new UpdateTaskApiCall(applicationState.getAndUpdateSessionToken(), taskRemoteId, taskDescriptionDto);
         TaskDto taskDto = apiCallProcessor.processApiCall(updateTaskApiCall);
 
         RetaskContentResolverUtils.updateTask(contentResolver, taskId, taskDto);

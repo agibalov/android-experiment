@@ -2,7 +2,7 @@ package me.retask.service.requests;
 
 import android.content.ContentResolver;
 
-import me.retask.dal.ApplicationState;
+import me.retask.service.ApplicationState;
 import me.retask.webapi.ApiCallProcessor;
 
 public interface ServiceRequest<TResult> {

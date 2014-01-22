@@ -2,7 +2,7 @@ package me.retask.service.requests;
 
 import android.content.ContentResolver;
 
-import me.retask.dal.ApplicationState;
+import me.retask.service.ApplicationState;
 import me.retask.dal.RetaskContentResolverUtils;
 import me.retask.webapi.ApiCallProcessor;
 import me.retask.webapi.apicalls.CreateTaskApiCall;
@@ -20,7 +20,7 @@ public class CreateTaskRequest implements ServiceRequest<Void> {
     public Void run(ApiCallProcessor apiCallProcessor, ApplicationState applicationState, ContentResolver contentResolver) {
         TaskDescriptionDto taskDescriptionDto = new TaskDescriptionDto();
         taskDescriptionDto.taskDescription = taskDescription;
-        CreateTaskApiCall createTaskApiCall = new CreateTaskApiCall(applicationState.getSessionToken(), taskDescriptionDto);
+        CreateTaskApiCall createTaskApiCall = new CreateTaskApiCall(applicationState.getAndUpdateSessionToken(), taskDescriptionDto);
         TaskDto taskDto = apiCallProcessor.processApiCall(createTaskApiCall);
         RetaskContentResolverUtils.addTask(contentResolver, taskDto);
 

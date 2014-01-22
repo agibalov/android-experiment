@@ -12,13 +12,13 @@ import android.view.MenuItem;
 import com.google.inject.Inject;
 
 import me.retask.R;
-import me.retask.application.PreferencesService;
+import me.retask.service.ApplicationState;
 import me.retask.dal.RetaskContract;
 import roboguice.util.Ln;
 
 public class HomeActivity extends RetaskActivity implements ActionBar.TabListener, SwimlaneFragment.OnTaskThumbnailClickListener {
     @Inject
-    private PreferencesService preferencesService;
+    private ApplicationState applicationState;
 
     private ViewPager viewPager;
 
@@ -73,7 +73,10 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
         }
 
         if(itemId == R.id.signOutMenuItem) {
-            preferencesService.unsetCredentials();
+            applicationState.setEmail(null);
+            applicationState.setPassword(null);
+            applicationState.setRememberMe(false);
+            applicationState.setSessionToken(null);
             Intent intent = new Intent(HomeActivity.this, WelcomeActivity.class);
             startActivity(intent);
             finish();

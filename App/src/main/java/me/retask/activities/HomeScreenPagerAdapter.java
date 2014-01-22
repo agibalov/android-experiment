@@ -5,10 +5,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-public class SwimlanesAdapter extends FragmentPagerAdapter {
+public class HomeScreenPagerAdapter extends FragmentPagerAdapter {
     private final Bundle[] bundles;
 
-    public SwimlanesAdapter(FragmentManager fragmentManager, Bundle[] bundles) {
+    public HomeScreenPagerAdapter(FragmentManager fragmentManager, Bundle[] bundles) {
         super(fragmentManager);
         this.bundles = bundles;
     }

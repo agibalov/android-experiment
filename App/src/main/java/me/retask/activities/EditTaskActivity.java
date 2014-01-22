@@ -13,17 +13,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
 
-import com.google.inject.Inject;
-
 import me.retask.R;
-import me.retask.dal.ApplicationState;
 import me.retask.dal.RetaskContract;
-import me.retask.service.requests.UpdateTaskRetaskServiceRequest;
+import me.retask.service.requests.UpdateTaskRequest;
 
 public class EditTaskActivity extends RetaskActivity implements LoaderManager.LoaderCallbacks<Cursor> {
-    @Inject
-    private ApplicationState applicationState;
-
     private EditText taskDescriptionEditText;
 
     private long taskId;
@@ -36,7 +30,7 @@ public class EditTaskActivity extends RetaskActivity implements LoaderManager.Lo
         taskDescriptionEditText = (EditText)findViewById(R.id.taskDescriptionEditText);
 
         Intent intent = getIntent();
-        taskId = intent.getIntExtra("taskId", -1);
+        taskId = intent.getLongExtra("taskId", -1);
         if(taskId == -1) {
             throw new IllegalStateException("Looks like taskId is missing in Intent");
         }
@@ -56,8 +50,13 @@ public class EditTaskActivity extends RetaskActivity implements LoaderManager.Lo
         int itemId = item.getItemId();
         if(itemId == R.id.updateTaskMenuItem) {
             String taskDescription = taskDescriptionEditText.getText().toString();
-            run(new UpdateTaskRetaskServiceRequest(applicationState.getSessionToken(), taskId, taskDescription));
-            finish();
+            if(taskDescription == null || taskDescription.equals("")) {
+                return true;
+            }
+
+            run(new UpdateTaskRequest(taskId, taskDescription));
+            finish(); // TODO: only finish when request is completed
+
             return true;
         }
 

@@ -6,16 +6,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
 
-import com.google.inject.Inject;
-
 import me.retask.R;
-import me.retask.dal.ApplicationState;
-import me.retask.service.requests.CreateTaskRetaskServiceRequest;
+import me.retask.service.requests.CreateTaskRequest;
 
 public class CreateTaskActivity extends RetaskActivity {
-	@Inject
-	private ApplicationState applicationState;
-
     private EditText taskDescriptionEditText;
 
     @Override
@@ -37,8 +31,13 @@ public class CreateTaskActivity extends RetaskActivity {
         int itemId = item.getItemId();
         if(itemId == R.id.createTaskMenuItem) {
             String taskDescription = taskDescriptionEditText.getText().toString();
-            run(new CreateTaskRetaskServiceRequest(applicationState.getSessionToken(), taskDescription));
-            finish();
+            if(taskDescription == null || taskDescription.equals("")) {
+                return true;
+            }
+
+            run(new CreateTaskRequest(taskDescription));
+            finish(); // TODO: only finish when request is completed
+
             return true;
         }
 

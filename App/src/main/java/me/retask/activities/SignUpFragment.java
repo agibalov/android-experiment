@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import me.retask.R;
 import roboguice.fragment.RoboFragment;
 
+// TODO
 public class SignUpFragment extends RoboFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {

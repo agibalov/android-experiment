@@ -13,23 +13,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.webkit.WebView;
 
-import com.google.inject.Inject;
 import com.petebevin.markdown.MarkdownProcessor;
 
 import me.retask.R;
-import me.retask.dal.ApplicationState;
-import me.retask.service.requests.DeleteTaskRetaskServiceRequest;
-import me.retask.service.requests.ProgressTaskRetaskServiceRequest;
-import me.retask.service.requests.UnprogressTaskRetaskServiceRequest;
 import me.retask.dal.RetaskContract;
+import me.retask.service.requests.DeleteTaskRequest;
+import me.retask.service.requests.ProgressTaskRequest;
+import me.retask.service.requests.UnprogressTaskRequest;
 import roboguice.inject.InjectResource;
 
 public class ViewTaskActivity extends RetaskActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	private final static MarkdownProcessor markdownProcessor = new MarkdownProcessor();
-	
-	@Inject
-	private ApplicationState applicationState;
-			
+
 	private WebView taskDescriptionWebView;
 	
 	@InjectResource(R.string.markdown_html_template)
@@ -140,16 +135,16 @@ public class ViewTaskActivity extends RetaskActivity implements LoaderManager.Lo
     }
 
     private void progressTask() {
-        run(new ProgressTaskRetaskServiceRequest(applicationState.getSessionToken(), taskId));
+        run(new ProgressTaskRequest(taskId));
     }
 
     private void unprogressTask() {
-        run(new UnprogressTaskRetaskServiceRequest(applicationState.getSessionToken(), taskId));
+        run(new UnprogressTaskRequest(taskId));
     }
 
     private void deleteTask() {
-        run(new DeleteTaskRetaskServiceRequest(applicationState.getSessionToken(), taskId));
-        finish();
+        run(new DeleteTaskRequest(taskId));
+        // finish(); // TODO: only finish when request is done
     }
 
     @Override
@@ -171,6 +166,8 @@ public class ViewTaskActivity extends RetaskActivity implements LoaderManager.Lo
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if(!cursor.moveToFirst()) {
+            // if there's no such record, this record is considered deleted
+            finish();
             return;
         }
 

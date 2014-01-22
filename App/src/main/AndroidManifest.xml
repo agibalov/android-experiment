@@ -34,7 +34,6 @@
             android:authorities="me.retask.tasks"
             android:name=".dal.RetaskContentProvider" />
 
-        <service android:name=".service.RetaskService"/>
     </application>
 
 </manifest>

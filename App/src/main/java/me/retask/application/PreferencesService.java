@@ -6,8 +6,6 @@ import android.content.SharedPreferences.Editor;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import me.retask.application.Credentials;
-
 @Singleton
 public class PreferencesService {
 	private final static String REMEMBER_ME_PREFERENCE_NAME = "remember";

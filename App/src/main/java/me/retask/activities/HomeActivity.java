@@ -40,10 +40,10 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
         doneBundle.putInt(SwimlaneFragment.ARG_STATUS, RetaskContract.Task.TASK_STATUS_DONE);
 
         Bundle[] bundles = new Bundle[] { todoBundle, inProgressBundle, doneBundle };
-        SwimlanesAdapter swimlanesAdapter = new SwimlanesAdapter(getSupportFragmentManager(), bundles);
+        HomeScreenPagerAdapter homeScreenPagerAdapter = new HomeScreenPagerAdapter(getSupportFragmentManager(), bundles);
 
         viewPager = (ViewPager)findViewById(R.id.swimlanesViewPager);
-        viewPager.setAdapter(swimlanesAdapter);
+        viewPager.setAdapter(homeScreenPagerAdapter);
         viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
@@ -70,7 +70,9 @@ public class HomeActivity extends RetaskActivity implements ActionBar.TabListene
             Intent intent = new Intent(HomeActivity.this, CreateTaskActivity.class);
             startActivity(intent);
             return true;
-        } else if(itemId == R.id.signOutMenuItem) {
+        }
+
+        if(itemId == R.id.signOutMenuItem) {
             preferencesService.unsetCredentials();
             Intent intent = new Intent(HomeActivity.this, WelcomeActivity.class);
             startActivity(intent);

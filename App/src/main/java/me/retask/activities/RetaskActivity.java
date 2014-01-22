@@ -1,43 +1,63 @@
 package me.retask.activities;
 
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
 import com.google.inject.Inject;
 
-import me.retask.service.RequestExecutor;
-import me.retask.service.requests.RetaskServiceRequest;
+import me.retask.R;
+import me.retask.service.RetaskService;
+import me.retask.service.requests.ServiceRequest;
 
-public abstract class RetaskActivity extends RoboActionBarActivity implements ProgressDialogSupport {
+public abstract class RetaskActivity extends RoboActionBarActivity implements RetaskService.ProgressListener {
     @Inject
-    protected RequestExecutor requestExecutor;
+    private RetaskService retaskService;
 
-    protected String run(RetaskServiceRequest retaskServiceRequest) {
-        return requestExecutor.run(this, retaskServiceRequest);
+    protected <T> String run(ServiceRequest<T> serviceRequest) {
+        return retaskService.submit(serviceRequest);
     }
 
     @Override
-    public void showProgressDialog() {
-        ProgressDialogFragment progressDialogFragment = new ProgressDialogFragment();
-        progressDialogFragment.show(getSupportFragmentManager(), "progressDialogFragment");
-    }
-
-    @Override
-    public void hideProgressDialog() {
+    public void onShouldDisplayProgress() {
         ProgressDialogFragment progressDialogFragment = (ProgressDialogFragment)getSupportFragmentManager().findFragmentByTag("progressDialogFragment");
-        progressDialogFragment.dismiss();
+        if(progressDialogFragment == null) {
+            progressDialogFragment = new ProgressDialogFragment();
+        }
+
+        if(!progressDialogFragment.isVisible()) {
+            progressDialogFragment.show(getSupportFragmentManager(), "progressDialogFragment");
+        }
+    }
+
+    @Override
+    public void onShouldNotDisplayProgress() {
+        ProgressDialogFragment progressDialogFragment = (ProgressDialogFragment)getSupportFragmentManager().findFragmentByTag("progressDialogFragment");
+        if(progressDialogFragment != null) {
+            progressDialogFragment.dismiss();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        retaskService.setProgressListener(null);
+        onShouldNotDisplayProgress();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        retaskService.setProgressListener(this);
     }
 
     public static class ProgressDialogFragment extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            ProgressDialog progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setIndeterminate(true);
-            progressDialog.setMessage("Working...");
+            Dialog progressDialog = new Dialog(getActivity(), R.style.RetaskProgressDialog);
+            progressDialog.setCancelable(false);
+            progressDialog.setContentView(R.layout.spinner_view);
             return progressDialog;
         }
     }
-
 }

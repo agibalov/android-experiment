@@ -1,75 +1,176 @@
 package me.retask.service;
 
+import android.app.Application;
 import android.content.ContentResolver;
-import android.content.Intent;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
-
-import org.springframework.web.client.RestTemplate;
+import com.google.inject.Singleton;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import me.retask.service.handlers.CreateTaskRetaskServiceRequestHandler;
-import me.retask.service.handlers.DeleteTaskRetaskServiceRequestHandler;
-import me.retask.service.handlers.ProgressTaskRetaskServiceRequestHandler;
-import me.retask.service.handlers.RetaskServiceRequestHandler;
-import me.retask.service.handlers.SignInRetaskServiceRequestHandler;
-import me.retask.service.handlers.SignUpRetaskServiceRequestHandler;
-import me.retask.service.handlers.UnprogressTaskRetaskServiceRequestHandler;
-import me.retask.service.handlers.UpdateTaskRetaskServiceRequestHandler;
-import me.retask.service.requests.CreateTaskRetaskServiceRequest;
-import me.retask.service.requests.DeleteTaskRetaskServiceRequest;
-import me.retask.service.requests.ProgressTaskRetaskServiceRequest;
-import me.retask.service.requests.RetaskServiceRequest;
-import me.retask.service.requests.SignInRetaskServiceRequest;
-import me.retask.service.requests.SignUpRetaskServiceRequest;
-import me.retask.service.requests.UnprogressTaskRetaskServiceRequest;
-import me.retask.service.requests.UpdateTaskRetaskServiceRequest;
-import roboguice.service.RoboIntentService;
+import me.retask.dal.ApplicationState;
+import me.retask.service.requests.ServiceRequest;
+import me.retask.webapi.ApiCallProcessor;
 
-public class RetaskService extends RoboIntentService {
-    public final Map<String, RetaskServiceRequestHandler> handlersMap = new HashMap<String, RetaskServiceRequestHandler>();
+@Singleton
+public class RetaskService {
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final Map<String, RequestInfo> requestInfoMap = new HashMap<String, RequestInfo>();
+    private ProgressListener progressListener;
 
     @Inject
-    @Named("apiRootUrl")
-    private String apiRootUrl;
+    private ApiCallProcessor apiCallProcessor;
 
     @Inject
-    private RestTemplate restTemplate;
+    private ApplicationState applicationState;
 
     @Inject
-    private RequestExecutor requestExecutor;
+    private Application application;
 
-    public RetaskService() {
-        super("RetaskService");
+    public synchronized <TResult> String submit(ServiceRequest<TResult> request) {
+        String requestToken = UUID.randomUUID().toString();
 
-        handlersMap.put(SignInRetaskServiceRequest.COMMAND, new SignInRetaskServiceRequestHandler());
-        handlersMap.put(SignUpRetaskServiceRequest.COMMAND, new SignUpRetaskServiceRequestHandler());
-        handlersMap.put(CreateTaskRetaskServiceRequest.COMMAND, new CreateTaskRetaskServiceRequestHandler());
-        handlersMap.put(UpdateTaskRetaskServiceRequest.COMMAND, new UpdateTaskRetaskServiceRequestHandler());
-        handlersMap.put(ProgressTaskRetaskServiceRequest.COMMAND, new ProgressTaskRetaskServiceRequestHandler());
-        handlersMap.put(UnprogressTaskRetaskServiceRequest.COMMAND, new UnprogressTaskRetaskServiceRequestHandler());
-        handlersMap.put(DeleteTaskRetaskServiceRequest.COMMAND, new DeleteTaskRetaskServiceRequestHandler());
+        RequestInfo requestInfo = new RequestInfo();
+        requestInfo.requestToken = requestToken;
+        requestInfo.listener = null;
+        requestInfo.pending = true;
+        requestInfo.ok = false;
+        requestInfo.result = null;
+        requestInfo.exception = null;
+        requestInfoMap.put(requestToken, requestInfo);
+
+        ServiceRunnable serviceRunnable = new ServiceRunnable(
+                requestToken,
+                apiCallProcessor,
+                application.getContentResolver(),
+                request);
+
+        executorService.submit(serviceRunnable);
+
+        return requestToken;
     }
 
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        String command = intent.getStringExtra(RetaskServiceRequest.EXTRA_COMMAND);
-        if(command == null || command.equals("")) {
-            throw new IllegalArgumentException("Command has not been provided");
+    public synchronized void setRequestListener(String requestToken, RetaskServiceRequestListener listener) {
+        RequestInfo requestInfo = requestInfoMap.get(requestToken);
+        requestInfo.listener = listener;
+
+        if(listener != null && !requestInfo.pending) {
+            if(requestInfo.ok) {
+                requestInfo.listener.onSuccess(requestToken, requestInfo.result);
+            } else {
+                requestInfo.listener.onError(requestToken, requestInfo.exception);
+            }
+
+            requestInfoMap.remove(requestToken);
+        }
+    }
+
+    public synchronized void setProgressListener(ProgressListener progressListener) {
+        this.progressListener = progressListener;
+        notifyProgressListener();
+    }
+
+    private synchronized void notifyProgressListener() {
+        if(progressListener == null) {
+            return;
         }
 
-        if(!handlersMap.containsKey(command)) {
-            throw new IllegalStateException("Unknown command " + command);
+        for(RequestInfo requestInfo : requestInfoMap.values()) {
+            if(requestInfo.pending) {
+                progressListener.onShouldDisplayProgress();
+                return;
+            }
         }
 
-        RetaskServiceRequestHandler handler = handlersMap.get(command);
-        ContentResolver contentResolver = getContentResolver();
-        handler.process(intent, contentResolver, apiRootUrl, restTemplate);
+        progressListener.onShouldNotDisplayProgress();
+    }
 
-        String requestToken = intent.getStringExtra("requestToken");
-        requestExecutor.notifyRequestDone(requestToken);
+    private synchronized void notifyRequestStarted(String requestToken) {
+        RequestInfo requestInfo = requestInfoMap.get(requestToken);
+        requestInfo.pending = true;
+    }
+
+    private synchronized void notifyRequestSuccess(String requestToken, Object result) {
+        RequestInfo requestInfo = requestInfoMap.get(requestToken);
+        requestInfo.pending = false;
+        requestInfo.ok = true;
+        requestInfo.result = result;
+
+        if(requestInfo.listener != null) {
+            requestInfo.listener.onSuccess(requestToken, result);
+            requestInfoMap.remove(requestToken);
+        }
+    }
+
+    private synchronized void notifyRequestFailure(String requestToken, RuntimeException exception) {
+        RequestInfo requestInfo = requestInfoMap.get(requestToken);
+        requestInfo.pending = false;
+        requestInfo.ok = false;
+        requestInfo.exception = exception;
+
+        if(requestInfo.listener != null) {
+            requestInfo.listener.onError(requestToken, exception);
+            requestInfoMap.remove(requestToken);
+        }
+    }
+
+    private class ServiceRunnable implements Runnable {
+        private final String requestToken;
+        private final ApiCallProcessor apiCallProcessor;
+        private final ContentResolver contentResolver;
+        private final ServiceRequest retaskServiceRequest;
+
+        public ServiceRunnable(
+                String requestToken,
+                ApiCallProcessor apiCallProcessor,
+                ContentResolver contentResolver,
+                ServiceRequest retaskServiceRequest) {
+
+            this.requestToken = requestToken;
+            this.apiCallProcessor = apiCallProcessor;
+            this.contentResolver = contentResolver;
+            this.retaskServiceRequest = retaskServiceRequest;
+        }
+
+        @Override
+        public void run() {
+            notifyRequestStarted(requestToken);
+            notifyProgressListener();
+
+            //
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            //
+
+            try {
+                Object result = retaskServiceRequest.run(apiCallProcessor, applicationState, contentResolver);
+                notifyRequestSuccess(requestToken, result);
+            } catch(RuntimeException e) {
+                notifyRequestFailure(requestToken, e);
+            } finally {
+                notifyProgressListener();
+            }
+        }
+    }
+
+    private static class RequestInfo {
+        public String requestToken;
+        public RetaskServiceRequestListener listener;
+        public boolean pending;
+        public boolean ok;
+        public Object result;
+        public RuntimeException exception;
+    }
+
+    public static interface ProgressListener {
+        void onShouldDisplayProgress();
+        void onShouldNotDisplayProgress();
     }
 }

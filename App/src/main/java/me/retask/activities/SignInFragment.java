@@ -12,20 +12,21 @@ import android.widget.EditText;
 import com.google.inject.Inject;
 
 import me.retask.R;
-import me.retask.service.RequestExecutor;
-import me.retask.service.requests.SignInRetaskServiceRequest;
+import me.retask.service.RetaskService;
+import me.retask.service.RetaskServiceRequestListener;
+import me.retask.service.requests.SignInRequest;
 import roboguice.fragment.RoboFragment;
+import roboguice.util.Ln;
 
-public class SignInFragment extends RoboFragment implements View.OnClickListener, RequestExecutor.RequestListener {
+public class SignInFragment extends RoboFragment implements View.OnClickListener, RetaskServiceRequestListener<String> {
     @Inject
-    private RequestExecutor requestExecutor;
+    private RetaskService retaskService;
 
     private EditText emailEditText;
     private EditText passwordEditText;
     private CheckBox rememberMeCheckBox;
     private Button signInButton;
     private SignInListener signInListener;
-    private ProgressDialogSupport progressDialogSupport;
     private String pendingRequestToken;
 
     @Override
@@ -36,12 +37,7 @@ public class SignInFragment extends RoboFragment implements View.OnClickListener
             throw new ClassCastException("Hosting activity supposed to implement SignInListener");
         }
 
-        if(!(activity instanceof ProgressDialogSupport)) {
-            throw new ClassCastException("Hosting activity supposed to implement ProgressDialogSupport");
-        }
-
         signInListener = (SignInListener)activity;
-        progressDialogSupport = (ProgressDialogSupport)activity;
     }
 
     @Override
@@ -66,7 +62,7 @@ public class SignInFragment extends RoboFragment implements View.OnClickListener
         super.onResume();
 
         if(pendingRequestToken != null) {
-            requestExecutor.setRequestListener(pendingRequestToken, this);
+            retaskService.setRequestListener(pendingRequestToken, this);
         }
     }
 
@@ -75,26 +71,30 @@ public class SignInFragment extends RoboFragment implements View.OnClickListener
         super.onPause();
 
         if(pendingRequestToken != null) {
-            requestExecutor.setRequestListener(pendingRequestToken, null);
+            retaskService.setRequestListener(pendingRequestToken, null);
         }
     }
 
     @Override
     public void onClick(View view) {
-        progressDialogSupport.showProgressDialog();
-
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
-        pendingRequestToken = requestExecutor.run(getActivity(), new SignInRetaskServiceRequest(email, password));
-        requestExecutor.setRequestListener(pendingRequestToken, this);
+        pendingRequestToken = retaskService.submit(new SignInRequest(email, password));
+        retaskService.setRequestListener(pendingRequestToken, this);
     }
 
     @Override
-    public boolean onRequestComplete(String requestToken) {
-        progressDialogSupport.hideProgressDialog();
+    public void onSuccess(String requestToken, String result) {
         pendingRequestToken = null;
+        Ln.i("*** SIGN IN FRAGMENT: success for %s, result is %s", requestToken, result);
+
         signInListener.onSignedIn();
-        return true;
+    }
+
+    @Override
+    public void onError(String requestToken, RuntimeException exception) {
+        pendingRequestToken = null;
+        Ln.i("*** SIGN IN FRAGMENT: error for %s, error is %s", requestToken, exception);
     }
 
     public static interface SignInListener {

@@ -19,6 +19,7 @@ import me.retask.R;
 import me.retask.dal.RetaskContract;
 import me.retask.service.requests.DeleteTaskRequest;
 import me.retask.service.requests.ProgressTaskRequest;
+import me.retask.service.requests.ServiceRequest;
 import me.retask.service.requests.UnprogressTaskRequest;
 import roboguice.inject.InjectResource;
 
@@ -83,6 +84,8 @@ public class ViewTaskActivity extends RetaskActivity implements LoaderManager.Lo
             menu.findItem(R.id.doneMenuItem).setVisible(false);
             menu.findItem(R.id.notDoneMenuItem).setVisible(true);
             menu.findItem(R.id.completeMenuItem).setVisible(true);
+        } else if(taskStatus.equals(RetaskContract.Task.TASK_STATUS_COMPLETE)) {
+            // TODO: better way to handle this case
         } else {
             throw new RuntimeException("Should never get here");
         }
@@ -144,7 +147,6 @@ public class ViewTaskActivity extends RetaskActivity implements LoaderManager.Lo
 
     private void deleteTask() {
         run(new DeleteTaskRequest(taskId));
-        // finish(); // TODO: only finish when request is done
     }
 
     @Override
@@ -166,17 +168,11 @@ public class ViewTaskActivity extends RetaskActivity implements LoaderManager.Lo
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if(!cursor.moveToFirst()) {
-            // if there's no such record, this record is considered deleted
-            finish();
             return;
         }
 
         String taskDescription = cursor.getString(cursor.getColumnIndex(RetaskContract.Task.DESCRIPTION));
         taskStatus = cursor.getInt(cursor.getColumnIndex(RetaskContract.Task.STATUS));
-
-        if(taskStatus == RetaskContract.Task.TASK_STATUS_COMPLETE) {
-            finish();
-        }
 
         String taskDescriptionHtml = markdownProcessor.markdown(taskDescription);
         String html = String.format(markdownHtmlTemplate, taskDescriptionHtml);
@@ -186,5 +182,29 @@ public class ViewTaskActivity extends RetaskActivity implements LoaderManager.Lo
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+    }
+
+    @Override
+    public void onSuccess(String requestToken, ServiceRequest<?> request, Object result) {
+        super.onSuccess(requestToken, request, result);
+
+        if(request instanceof ProgressTaskRequest) {
+            int taskStatus = (Integer)result;
+            if(taskStatus == RetaskContract.Task.TASK_STATUS_COMPLETE) {
+                finish();
+            }
+            return;
+        }
+
+        if(request instanceof UnprogressTaskRequest) {
+            return;
+        }
+
+        if(request instanceof DeleteTaskRequest) {
+            finish();
+            return;
+        }
+
+        throw new IllegalStateException("Didn't expect this request here");
     }
 }

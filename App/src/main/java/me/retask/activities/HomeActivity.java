@@ -14,6 +14,8 @@ import com.google.inject.Inject;
 import me.retask.R;
 import me.retask.service.ApplicationState;
 import me.retask.dal.RetaskContract;
+import me.retask.service.requests.ServiceRequest;
+import me.retask.service.requests.SignInRequest;
 import roboguice.util.Ln;
 
 public class HomeActivity extends RetaskActivity implements ActionBar.TabListener, SwimlaneFragment.OnTaskThumbnailClickListener {

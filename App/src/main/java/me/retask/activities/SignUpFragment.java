@@ -11,17 +11,7 @@ import roboguice.fragment.RoboFragment;
 // TODO
 public class SignUpFragment extends RoboFragment {
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.sign_up_view, container, false);
-    }
-
-    public static interface SignUpListener {
-        void onSignedUp();
     }
 }

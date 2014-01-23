@@ -8,7 +8,7 @@ import me.retask.webapi.ApiCallProcessor;
 import me.retask.webapi.apicalls.ProgressTaskApiCall;
 import me.retask.webapi.dto.TaskDto;
 
-public class ProgressTaskRequest implements ServiceRequest<Void> {
+public class ProgressTaskRequest implements ServiceRequest<Integer> {
     private final long taskId;
 
     public ProgressTaskRequest(long taskId) {
@@ -16,11 +16,11 @@ public class ProgressTaskRequest implements ServiceRequest<Void> {
     }
 
     @Override
-    public Void run(ApiCallProcessor apiCallProcessor, ApplicationState applicationState, ContentResolver contentResolver) {
+    public Integer run(ApiCallProcessor apiCallProcessor, ApplicationState applicationState, ContentResolver contentResolver) {
         int taskRemoteId = RetaskContentResolverUtils.getTaskRemoteId(contentResolver, taskId);
         ProgressTaskApiCall progressTaskApiCall = new ProgressTaskApiCall(applicationState.getAndUpdateSessionToken(), taskRemoteId);
         TaskDto taskDto = apiCallProcessor.processApiCall(progressTaskApiCall);
         RetaskContentResolverUtils.updateTask(contentResolver, taskId, taskDto);
-        return null;
+        return taskDto.taskStatus;
     }
 }

@@ -6,7 +6,6 @@ import com.google.inject.name.Named;
 
 import org.springframework.web.client.RestTemplate;
 
-import me.retask.webapi.ApiCall;
 import me.retask.webapi.dto.ServiceResultDto;
 
 @Singleton
@@ -24,6 +23,6 @@ public class ApiCallProcessor {
             return serviceResultDto.payload;
         }
 
-        throw new RuntimeException("API call failed");
+        throw new RuntimeException(String.format("API call failed: %d", serviceResultDto.error));
     }
 }

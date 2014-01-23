@@ -8,6 +8,7 @@ import android.widget.EditText;
 
 import me.retask.R;
 import me.retask.service.requests.CreateTaskRequest;
+import me.retask.service.requests.ServiceRequest;
 
 public class CreateTaskActivity extends RetaskActivity {
     private EditText taskDescriptionEditText;
@@ -36,11 +37,22 @@ public class CreateTaskActivity extends RetaskActivity {
             }
 
             run(new CreateTaskRequest(taskDescription));
-            finish(); // TODO: only finish when request is completed
 
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSuccess(String requestToken, ServiceRequest<?> request, Object result) {
+        super.onSuccess(requestToken, request, result);
+
+        if(request instanceof CreateTaskRequest) {
+            finish();
+            return;
+        }
+
+        throw new IllegalStateException("Didn't expect this request here");
     }
 }

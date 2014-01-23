@@ -1,6 +1,5 @@
 package me.retask.activities;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,12 +13,10 @@ import com.google.inject.Inject;
 import me.retask.R;
 import me.retask.service.ApplicationState;
 import me.retask.service.RetaskService;
-import me.retask.service.RetaskServiceRequestListener;
 import me.retask.service.requests.SignInRequest;
 import roboguice.fragment.RoboFragment;
-import roboguice.util.Ln;
 
-public class SignInFragment extends RoboFragment implements View.OnClickListener, RetaskServiceRequestListener<String> {
+public class SignInFragment extends RoboFragment implements View.OnClickListener {
     @Inject
     private RetaskService retaskService;
 
@@ -30,25 +27,6 @@ public class SignInFragment extends RoboFragment implements View.OnClickListener
     private EditText passwordEditText;
     private CheckBox rememberMeCheckBox;
     private Button signInButton;
-    private SignInListener signInListener;
-    private String pendingRequestToken;
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        if(!(activity instanceof SignInListener)) {
-            throw new ClassCastException("Hosting activity supposed to implement SignInListener");
-        }
-
-        signInListener = (SignInListener)activity;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -72,21 +50,8 @@ public class SignInFragment extends RoboFragment implements View.OnClickListener
     public void onResume() {
         super.onResume();
 
-        if(pendingRequestToken != null) {
-            retaskService.setRequestListener(pendingRequestToken, this);
-        }
-
         if(applicationState.getRememberMe()) {
             signIn();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if(pendingRequestToken != null) {
-            retaskService.setRequestListener(pendingRequestToken, null);
         }
     }
 
@@ -95,29 +60,10 @@ public class SignInFragment extends RoboFragment implements View.OnClickListener
         signIn();
     }
 
-    @Override
-    public void onSuccess(String requestToken, String result) {
-        pendingRequestToken = null;
-        Ln.i("*** SIGN IN FRAGMENT: success for %s, result is %s", requestToken, result);
-
-        signInListener.onSignedIn();
-    }
-
-    @Override
-    public void onError(String requestToken, RuntimeException exception) {
-        pendingRequestToken = null;
-        Ln.i("*** SIGN IN FRAGMENT: error for %s, error is %s", requestToken, exception);
-    }
-
     private void signIn() {
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
         boolean rememberMe = rememberMeCheckBox.isChecked();
-        pendingRequestToken = retaskService.submit(new SignInRequest(email, password, rememberMe));
-        retaskService.setRequestListener(pendingRequestToken, this);
-    }
-
-    public static interface SignInListener {
-        void onSignedIn();
+        retaskService.submit(new SignInRequest(email, password, rememberMe));
     }
 }

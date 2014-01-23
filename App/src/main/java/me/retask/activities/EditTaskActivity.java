@@ -15,6 +15,7 @@ import android.widget.EditText;
 
 import me.retask.R;
 import me.retask.dal.RetaskContract;
+import me.retask.service.requests.ServiceRequest;
 import me.retask.service.requests.UpdateTaskRequest;
 
 public class EditTaskActivity extends RetaskActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -55,7 +56,6 @@ public class EditTaskActivity extends RetaskActivity implements LoaderManager.Lo
             }
 
             run(new UpdateTaskRequest(taskId, taskDescription));
-            finish(); // TODO: only finish when request is completed
 
             return true;
         }
@@ -91,5 +91,17 @@ public class EditTaskActivity extends RetaskActivity implements LoaderManager.Lo
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
+    }
+
+    @Override
+    public void onSuccess(String requestToken, ServiceRequest<?> request, Object result) {
+        super.onSuccess(requestToken, request, result);
+
+        if(request instanceof UpdateTaskRequest) {
+            finish();
+            return;
+        }
+
+        throw new IllegalStateException("Didn't expect this request here");
     }
 }

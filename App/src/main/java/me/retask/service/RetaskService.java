@@ -20,6 +20,7 @@ public class RetaskService {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Map<String, RequestInfo> requestInfoMap = new HashMap<String, RequestInfo>();
     private ProgressListener progressListener;
+    private ResponseListener responseListener;
 
     @Inject
     private ApiCallProcessor apiCallProcessor;
@@ -35,7 +36,7 @@ public class RetaskService {
 
         RequestInfo requestInfo = new RequestInfo();
         requestInfo.requestToken = requestToken;
-        requestInfo.listener = null;
+        requestInfo.serviceRequest = request;
         requestInfo.pending = true;
         requestInfo.ok = false;
         requestInfo.result = null;
@@ -53,18 +54,24 @@ public class RetaskService {
         return requestToken;
     }
 
-    public synchronized void setRequestListener(String requestToken, RetaskServiceRequestListener listener) {
-        RequestInfo requestInfo = requestInfoMap.get(requestToken);
-        requestInfo.listener = listener;
+    public synchronized void setRequestListener(ResponseListener listener) {
+        responseListener = listener;
 
-        if(listener != null && !requestInfo.pending) {
-            if(requestInfo.ok) {
-                requestInfo.listener.onSuccess(requestToken, requestInfo.result);
-            } else {
-                requestInfo.listener.onError(requestToken, requestInfo.exception);
+        if(responseListener != null) {
+            for(String requestToken : requestInfoMap.keySet()) {
+                RequestInfo requestInfo = requestInfoMap.get(requestToken);
+                if(requestInfo.pending) {
+                    continue;
+                }
+
+                if(requestInfo.ok) {
+                    responseListener.onSuccess(requestToken, requestInfo.serviceRequest, requestInfo.result);
+                } else {
+                    responseListener.onError(requestToken, requestInfo.serviceRequest, requestInfo.exception);
+                }
+
+                requestInfoMap.remove(requestToken);
             }
-
-            requestInfoMap.remove(requestToken);
         }
     }
 
@@ -99,8 +106,8 @@ public class RetaskService {
         requestInfo.ok = true;
         requestInfo.result = result;
 
-        if(requestInfo.listener != null) {
-            requestInfo.listener.onSuccess(requestToken, result);
+        if(responseListener != null) {
+            responseListener.onSuccess(requestToken, requestInfo.serviceRequest, result);
             requestInfoMap.remove(requestToken);
         }
     }
@@ -111,8 +118,8 @@ public class RetaskService {
         requestInfo.ok = false;
         requestInfo.exception = exception;
 
-        if(requestInfo.listener != null) {
-            requestInfo.listener.onError(requestToken, exception);
+        if(responseListener != null) {
+            responseListener.onError(requestToken, requestInfo.serviceRequest, exception);
             requestInfoMap.remove(requestToken);
         }
     }
@@ -161,7 +168,7 @@ public class RetaskService {
 
     private static class RequestInfo {
         public String requestToken;
-        public RetaskServiceRequestListener listener;
+        public ServiceRequest<?> serviceRequest;
         public boolean pending;
         public boolean ok;
         public Object result;

@@ -7,9 +7,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 
 import me.retask.R;
+import me.retask.service.requests.ServiceRequest;
+import me.retask.service.requests.SignInRequest;
+import me.retask.service.requests.SignUpRequest;
 import roboguice.util.Ln;
 
-public class WelcomeActivity extends RetaskActivity implements ActionBar.TabListener, SignInFragment.SignInListener, SignUpFragment.SignUpListener {
+public class WelcomeActivity extends RetaskActivity implements ActionBar.TabListener {
     private ViewPager viewPager;
 
     @Override
@@ -49,16 +52,22 @@ public class WelcomeActivity extends RetaskActivity implements ActionBar.TabList
     }
 
     @Override
-    public void onSignedIn() {
-        Ln.i("Signed in");
-        Intent intent = new Intent(this, HomeActivity.class);
-        startActivity(intent);
-        finish();
-    }
+    public void onSuccess(String requestToken, ServiceRequest<?> request, Object result) {
+        super.onSuccess(requestToken, request, result);
 
-    @Override
-    public void onSignedUp() {
-        Ln.i("Signed up");
-        // TODO
+        if(request instanceof SignInRequest) {
+            Ln.i("Signed in");
+            Intent intent = new Intent(this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        if(request instanceof SignUpRequest) {
+            Ln.i("Signed up");
+            return;
+        }
+
+        throw new IllegalStateException("Didn't expect this request here");
     }
 }

@@ -9,10 +9,12 @@ import android.view.animation.AnimationUtils;
 import com.google.inject.Inject;
 
 import me.retask.R;
+import me.retask.service.ResponseListener;
 import me.retask.service.RetaskService;
 import me.retask.service.requests.ServiceRequest;
+import roboguice.util.Ln;
 
-public abstract class RetaskActivity extends RoboActionBarActivity implements RetaskService.ProgressListener {
+public abstract class RetaskActivity extends RoboActionBarActivity implements RetaskService.ProgressListener, ResponseListener {
     @Inject
     private RetaskService retaskService;
 
@@ -44,6 +46,7 @@ public abstract class RetaskActivity extends RoboActionBarActivity implements Re
     protected void onPause() {
         super.onPause();
         retaskService.setProgressListener(null);
+        retaskService.setRequestListener(null);
         onShouldNotDisplayProgress();
     }
 
@@ -51,6 +54,17 @@ public abstract class RetaskActivity extends RoboActionBarActivity implements Re
     protected void onResume() {
         super.onResume();
         retaskService.setProgressListener(this);
+        retaskService.setRequestListener(this);
+    }
+
+    @Override
+    public void onSuccess(String requestToken, ServiceRequest<?> request, Object result) {
+        Ln.i("Success: %s", result);
+    }
+
+    @Override
+    public void onError(String requestToken, ServiceRequest<?> request, RuntimeException exception) {
+        Ln.i("Error: %s", exception);
     }
 
     public static class ProgressDialogFragment extends DialogFragment {

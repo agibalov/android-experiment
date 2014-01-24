@@ -10,6 +10,7 @@ import com.google.inject.name.Named;
 import org.springframework.web.client.RestTemplate;
 
 import me.retask.webapi.dto.ServiceResultDto;
+import roboguice.util.Ln;
 
 @Singleton
 public class ApiCallProcessor {
@@ -31,6 +32,7 @@ public class ApiCallProcessor {
         try {
             serviceResultDto = apiCall.performApiCall(apiRootUrl, restTemplate);
         } catch(RuntimeException e) {
+            Ln.i("API call error: %s", e);
             throw new NetworkException();
         }
 

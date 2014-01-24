@@ -129,7 +129,7 @@ public abstract class RetaskActivity extends RoboActionBarActivity implements Re
         displayErrorMessage("Looks like there's no internet connectivity");
     }
 
-    protected void handleNetworkException(ServiceRequest<?> reuqest, NetworkException exception) {
+    protected void handleNetworkException(ServiceRequest<?> request, NetworkException exception) {
         displayErrorMessage("A sort of network error");
     }
 

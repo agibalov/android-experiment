@@ -10,7 +10,7 @@ import me.retask.webapi.apicalls.SignInApiCall;
 import me.retask.webapi.dto.SessionDto;
 import me.retask.webapi.dto.WorkspaceDto;
 
-public class SignInRequest implements ServiceRequest<String> {
+public class SignInRequest implements ServiceRequest<Void> {
     private final String email;
     private final String password;
     private final boolean rememberMe;
@@ -22,7 +22,7 @@ public class SignInRequest implements ServiceRequest<String> {
     }
 
     @Override
-    public String run(ApiCallProcessor apiCallProcessor, ApplicationState applicationState, ContentResolver contentResolver) {
+    public Void run(ApiCallProcessor apiCallProcessor, ApplicationState applicationState, ContentResolver contentResolver) {
         // Authenticate
         SignInApiCall signInApiCall = new SignInApiCall(email, password);
         SessionDto sessionDto = apiCallProcessor.processApiCall(signInApiCall);
@@ -42,6 +42,6 @@ public class SignInRequest implements ServiceRequest<String> {
         applicationState.setRememberMe(rememberMe);
         applicationState.setSessionToken(sessionToken);
 
-        return String.format("[session=%s, tasks=%d]", sessionToken, workspaceDto.tasks.size());
+        return null;
     }
 }

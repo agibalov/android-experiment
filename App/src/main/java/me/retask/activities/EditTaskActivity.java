@@ -94,9 +94,7 @@ public class EditTaskActivity extends RetaskActivity implements LoaderManager.Lo
     }
 
     @Override
-    public void onSuccess(ServiceRequest<?> request, Object result) {
-        super.onSuccess(request, result);
-
+    protected void handleSuccessOnUiThread(ServiceRequest<?> request, Object result) {
         if(request instanceof UpdateTaskRequest) {
             finish();
             return;

@@ -58,13 +58,33 @@ public abstract class RetaskActivity extends RoboActionBarActivity implements Re
     }
 
     @Override
-    public void onSuccess(ServiceRequest<?> request, Object result) {
-        Ln.i("Success: %s", result);
+    public final void onSuccess(final ServiceRequest<?> request, final Object result) {
+        Ln.i("Success: %s [request was: %s]", result, request);
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                handleSuccessOnUiThread(request, result);
+            }
+        });
     }
 
     @Override
-    public void onError(ServiceRequest<?> request, RuntimeException exception) {
-        Ln.i("Error: %s", exception);
+    public final void onError(final ServiceRequest<?> request, final RuntimeException exception) {
+        Ln.i("Error: %s [request was: %s]", exception, request);
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                handleErrorOnUiThread(request, exception);
+            }
+        });
+    }
+
+    protected void handleSuccessOnUiThread(ServiceRequest<?> request, Object result) {
+    }
+
+    protected void handleErrorOnUiThread(ServiceRequest<?> request, RuntimeException exception) {
     }
 
     public static class ProgressDialogFragment extends DialogFragment {

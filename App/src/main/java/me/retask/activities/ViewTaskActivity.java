@@ -185,9 +185,7 @@ public class ViewTaskActivity extends RetaskActivity implements LoaderManager.Lo
     }
 
     @Override
-    public void onSuccess(ServiceRequest<?> request, Object result) {
-        super.onSuccess(request, result);
-
+    protected void handleSuccessOnUiThread(ServiceRequest<?> request, Object result) {
         if(request instanceof ProgressTaskRequest) {
             int taskStatus = (Integer)result;
             if(taskStatus == RetaskContract.Task.TASK_STATUS_COMPLETE) {

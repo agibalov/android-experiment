@@ -18,11 +18,18 @@ public class ApiCallProcessor {
     private RestTemplate restTemplate;
 
     public <TResult> TResult processApiCall(ApiCall<TResult> apiCall) {
-        ServiceResultDto<TResult> serviceResultDto = apiCall.performApiCall(apiRootUrl, restTemplate);
-        if(serviceResultDto.ok) {
-            return serviceResultDto.payload;
+        ServiceResultDto<TResult> serviceResultDto;
+
+        try {
+            serviceResultDto = apiCall.performApiCall(apiRootUrl, restTemplate);
+        } catch(RuntimeException e) {
+            throw new NetworkException();
         }
 
-        throw new RuntimeException(String.format("API call failed: %d", serviceResultDto.error));
+        if(!serviceResultDto.ok) {
+            throw new RetaskServiceException(serviceResultDto.error, serviceResultDto.fieldsInError);
+        }
+
+        return serviceResultDto.payload;
     }
 }

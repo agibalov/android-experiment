@@ -5,11 +5,14 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.widget.Toast;
 
 import me.retask.R;
 import me.retask.service.requests.ServiceRequest;
 import me.retask.service.requests.SignInRequest;
 import me.retask.service.requests.SignUpRequest;
+import me.retask.webapi.RetaskServiceException;
+import me.retask.webapi.dto.ServiceResultDto;
 import roboguice.util.Ln;
 
 public class WelcomeActivity extends RetaskActivity implements ActionBar.TabListener {
@@ -51,10 +54,7 @@ public class WelcomeActivity extends RetaskActivity implements ActionBar.TabList
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
 
-    @Override
-    public void onSuccess(ServiceRequest<?> request, Object result) {
-        super.onSuccess(request, result);
-
+    protected void handleSuccessOnUiThread(ServiceRequest<?> request, Object result) {
         if(request instanceof SignInRequest) {
             Ln.i("Signed in");
             Intent intent = new Intent(this, HomeActivity.class);
@@ -69,5 +69,20 @@ public class WelcomeActivity extends RetaskActivity implements ActionBar.TabList
         }
 
         throw new IllegalStateException("Didn't expect this request here");
+    }
+
+    protected void handleErrorOnUiThread(ServiceRequest<?> request, RuntimeException exception) {
+        if (request instanceof SignInRequest) {
+            if (exception instanceof RetaskServiceException) {
+                RetaskServiceException e = (RetaskServiceException) exception;
+                if (e.errorCode == ServiceResultDto.RETASK_RESULT_VALIDATION_ERROR) {
+                    Toast.makeText(WelcomeActivity.this, "Validation error", Toast.LENGTH_SHORT).show();
+                } else if (e.errorCode == ServiceResultDto.RETASK_RESULT_NO_SUCH_USER) {
+                    Toast.makeText(WelcomeActivity.this, "No such user", Toast.LENGTH_SHORT).show();
+                } else if (e.errorCode == ServiceResultDto.RETASK_RESULT_INVALID_PASSWORD) {
+                    Toast.makeText(WelcomeActivity.this, "Bad password", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 }

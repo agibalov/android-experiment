@@ -32,14 +32,18 @@ public abstract class RetaskContentResolverUtils {
     public static int getTaskRemoteId(ContentResolver contentResolver, long taskId) {
         Uri taskUri = ContentUris.withAppendedId(RetaskContract.Task.CONTENT_URI, taskId);
         Cursor cursor = contentResolver.query(taskUri, null, null, null, null);
-        if(!cursor.moveToFirst()) {
-            throw new IllegalStateException("There's no task with given id");
+        try {
+            if(!cursor.moveToFirst()) {
+                throw new IllegalStateException("There's no task with given id");
+            }
+
+            int taskRemoteIdColumnIndex = cursor.getColumnIndex(RetaskContract.Task.REMOTE_ID);
+            int taskRemoteId = cursor.getInt(taskRemoteIdColumnIndex);
+
+            return taskRemoteId;
+        } finally {
+            cursor.close();
         }
-
-        int taskRemoteIdColumnIndex = cursor.getColumnIndex(RetaskContract.Task.REMOTE_ID);
-        int taskRemoteId = cursor.getInt(taskRemoteIdColumnIndex);
-
-        return taskRemoteId;
     }
 
     public static void updateTask(ContentResolver contentResolver, long taskId, TaskDto task) {

@@ -45,8 +45,8 @@ public class CreateTaskActivity extends RetaskActivity {
     }
 
     @Override
-    public void onSuccess(String requestToken, ServiceRequest<?> request, Object result) {
-        super.onSuccess(requestToken, request, result);
+    public void onSuccess(ServiceRequest<?> request, Object result) {
+        super.onSuccess(request, result);
 
         if(request instanceof CreateTaskRequest) {
             finish();

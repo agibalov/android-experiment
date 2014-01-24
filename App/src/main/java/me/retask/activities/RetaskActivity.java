@@ -18,8 +18,8 @@ public abstract class RetaskActivity extends RoboActionBarActivity implements Re
     @Inject
     private RetaskService retaskService;
 
-    protected <T> String run(ServiceRequest<T> serviceRequest) {
-        return retaskService.submit(serviceRequest);
+    protected <T> void run(ServiceRequest<T> serviceRequest) {
+        retaskService.submit(serviceRequest);
     }
 
     @Override
@@ -58,12 +58,12 @@ public abstract class RetaskActivity extends RoboActionBarActivity implements Re
     }
 
     @Override
-    public void onSuccess(String requestToken, ServiceRequest<?> request, Object result) {
+    public void onSuccess(ServiceRequest<?> request, Object result) {
         Ln.i("Success: %s", result);
     }
 
     @Override
-    public void onError(String requestToken, ServiceRequest<?> request, RuntimeException exception) {
+    public void onError(ServiceRequest<?> request, RuntimeException exception) {
         Ln.i("Error: %s", exception);
     }
 

@@ -7,6 +7,9 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.widget.Toast;
 
+import java.util.List;
+import java.util.Map;
+
 import me.retask.R;
 import me.retask.service.requests.ServiceRequest;
 import me.retask.service.requests.SignInRequest;
@@ -71,18 +74,27 @@ public class WelcomeActivity extends RetaskActivity implements ActionBar.TabList
         throw new IllegalStateException("Didn't expect this request here");
     }
 
-    protected void handleErrorOnUiThread(ServiceRequest<?> request, RuntimeException exception) {
-        if (request instanceof SignInRequest) {
-            if (exception instanceof RetaskServiceException) {
-                RetaskServiceException e = (RetaskServiceException) exception;
-                if (e.errorCode == ServiceResultDto.RETASK_RESULT_VALIDATION_ERROR) {
-                    Toast.makeText(WelcomeActivity.this, "Validation error", Toast.LENGTH_SHORT).show();
-                } else if (e.errorCode == ServiceResultDto.RETASK_RESULT_NO_SUCH_USER) {
-                    Toast.makeText(WelcomeActivity.this, "No such user", Toast.LENGTH_SHORT).show();
-                } else if (e.errorCode == ServiceResultDto.RETASK_RESULT_INVALID_PASSWORD) {
-                    Toast.makeText(WelcomeActivity.this, "Bad password", Toast.LENGTH_SHORT).show();
-                }
-            }
+    @Override
+    protected void handleRetaskValidationError(ServiceRequest<?> request, Map<String, List<String>> fieldsInError) {
+        StringBuilder sb = new StringBuilder();
+        for(String key : fieldsInError.keySet()) {
+            sb.append(key);
+            sb.append(": ");
+            sb.append(fieldsInError.get(key).get(0));
+            sb.append("\n");
         }
+        String message = sb.toString().trim();
+
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void handleRetaskNoSuchUserError(ServiceRequest<?> request) {
+        Toast.makeText(this, "No such user", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void handleRetaskInvalidPasswordError(ServiceRequest<?> request) {
+        Toast.makeText(this, "Bad password", Toast.LENGTH_SHORT).show();
     }
 }

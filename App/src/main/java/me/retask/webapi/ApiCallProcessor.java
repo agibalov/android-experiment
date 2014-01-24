@@ -1,5 +1,8 @@
 package me.retask.webapi;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
@@ -15,9 +18,14 @@ public class ApiCallProcessor {
     private String apiRootUrl;
 
     @Inject
+    private ConnectivityManager connectivityManager;
+
+    @Inject
     private RestTemplate restTemplate;
 
     public <TResult> TResult processApiCall(ApiCall<TResult> apiCall) {
+        throwIfNoConnectivity();
+
         ServiceResultDto<TResult> serviceResultDto;
 
         try {
@@ -31,5 +39,20 @@ public class ApiCallProcessor {
         }
 
         return serviceResultDto.payload;
+    }
+
+    private void throwIfNoConnectivity() {
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo == null) {
+            throw new ConnectivityException();
+        }
+
+        if(!networkInfo.isAvailable()) {
+            throw new ConnectivityException();
+        }
+
+        if(!networkInfo.isConnected()) {
+            throw new ConnectivityException();
+        }
     }
 }

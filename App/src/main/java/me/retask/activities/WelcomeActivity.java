@@ -14,8 +14,6 @@ import me.retask.R;
 import me.retask.service.requests.ServiceRequest;
 import me.retask.service.requests.SignInRequest;
 import me.retask.service.requests.SignUpRequest;
-import me.retask.webapi.RetaskServiceException;
-import me.retask.webapi.dto.ServiceResultDto;
 import roboguice.util.Ln;
 
 public class WelcomeActivity extends RetaskActivity implements ActionBar.TabListener {

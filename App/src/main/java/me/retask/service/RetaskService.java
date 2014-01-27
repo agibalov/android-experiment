@@ -147,14 +147,6 @@ public class RetaskService {
         public void run() {
             notifyProgressListener();
 
-            //
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            //
-
             try {
                 Object result = serviceRequest.run(apiCallProcessor, applicationState, contentResolver);
                 notifyRequestSuccess(serviceRequest, result);

@@ -1,20 +1,23 @@
 package me.retask;
 
+import android.app.Application;
+
 import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequest;
-import org.springframework.http.client.ClientHttpRequestExecution;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import me.retask.service.ApplicationState;
+import me.retask.service.RetaskService;
+import me.retask.service.requests.SignInRequest;
+import roboguice.RoboGuice;
 import roboguice.inject.SharedPreferencesName;
 
 import com.google.inject.Binder;
+import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -22,7 +25,6 @@ import com.google.inject.name.Names;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
 
 public class RetaskModule implements Module {
 	@Override
@@ -52,4 +54,5 @@ public class RetaskModule implements Module {
 
 		return restTemplate;
 	}
+
 }

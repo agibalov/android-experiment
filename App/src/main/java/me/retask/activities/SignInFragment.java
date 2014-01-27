@@ -47,15 +47,6 @@ public class SignInFragment extends RoboFragment implements View.OnClickListener
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        if(applicationState.getRememberMe()) {
-            signIn();
-        }
-    }
-
-    @Override
     public void onClick(View view) {
         signIn();
     }

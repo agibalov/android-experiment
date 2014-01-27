@@ -16,7 +16,8 @@
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="Retask"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:name=".RetaskApplication">
 
         <activity android:name=".activities.WelcomeActivity">
             <intent-filter>

@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="me.loki2302.TaskListActivity" >
+
+    <item android:id="@+id/deleteTaskMenuItem"
+        android:title="Delete"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/editTaskMenuItem"
+        android:title="Edit"
+        app:showAsAction="always" />
+
+</menu>

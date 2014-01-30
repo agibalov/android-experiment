@@ -62,7 +62,6 @@ public class EditTaskActivity extends BaseActivity<EditTaskActivity> implements 
 
         if(itemId == R.id.saveTaskMenuItem) {
             String taskDescription = ((EditText)findViewById(R.id.taskDescriptionEditText)).getText().toString();
-            app.submit(new UpdateTaskApplicationCommand(taskId, taskDescription));
             submit(new UpdateTaskApplicationCommand(taskId, taskDescription), new ContextAwareApplicationCommandResultListener<EditTaskActivity, Void>() {
                 @Override
                 public void onResult(EditTaskActivity editTaskActivity, Void result) {

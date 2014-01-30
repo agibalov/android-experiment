@@ -5,6 +5,8 @@ import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 
+import roboguice.util.Ln;
+
 @Singleton
 public class RequestSubscriptionService {
     private final List<RequestSubscription> requestSubscriptions = new ArrayList<RequestSubscription>();
@@ -32,6 +34,13 @@ public class RequestSubscriptionService {
             return;
         }
 
-        throw new IllegalStateException();
+        //
+        for(RequestSubscription requestSubscription : requestSubscriptions) {
+            Ln.i("Request subscription: %s %s", requestSubscription.activityId, requestSubscription.requestToken);
+        }
+        //
+
+        String message = String.format("There was no subscription for request %s [%s]", requestToken, activityId);
+        throw new IllegalStateException(message);
     }
 }

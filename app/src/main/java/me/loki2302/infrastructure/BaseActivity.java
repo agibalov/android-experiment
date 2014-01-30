@@ -1,22 +1,27 @@
 package me.loki2302.infrastructure;
 
+import android.app.ProgressDialog;
+
 import com.google.inject.Inject;
 
 import me.loki2302.app.App;
 import me.loki2302.app.ApplicationCommandResultListener;
 import me.loki2302.app.commands.ApplicationCommand;
 
-public abstract class BaseActivity<TContext> extends RoboActionBarActivity {
+public abstract class BaseActivity<TContext> extends RoboActionBarActivity implements App.ProgressListener {
     @Inject
     private App app;
 
     @Inject
     private RequestSubscriptionService requestSubscriptionService;
 
+    private ProgressDialog progressDialog;
+
     @Override
     protected void onPause() {
         super.onPause();
         app.setApplicationCommandResultListener(null);
+        app.setProgressListener(null);
     }
 
     @Override
@@ -31,6 +36,31 @@ public abstract class BaseActivity<TContext> extends RoboActionBarActivity {
                         requestSubscriptionService.handleResult(getActivityId(), requestToken, BaseActivity.this, result);
                     }
                 });
+            }
+        });
+        app.setProgressListener(this);
+    }
+
+    @Override
+    public void onProgressStarted() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressDialog = new ProgressDialog(BaseActivity.this);
+                progressDialog.setIndeterminate(true);
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            }
+        });
+    }
+
+    @Override
+    public void onProgressFinished() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressDialog.dismiss();
+                progressDialog = null;
             }
         });
     }

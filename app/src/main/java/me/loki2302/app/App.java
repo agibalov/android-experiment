@@ -21,12 +21,15 @@ public class App implements TaskRepositoryListener {
     private final List<ResourceSubscription<?>> resourceSubscriptions = new ArrayList<ResourceSubscription<?>>();
     private final List<ApplicationCommandResultInfo> applicationCommandResultInfos = new ArrayList<ApplicationCommandResultInfo>();
     private ApplicationCommandResultListener applicationCommandResultListener;
+    private ProgressListener progressListener;
+    private boolean isInProgress;
 
-    public <TResult> String submit(final ApplicationCommand<TResult> applicationCommand) {
+    public synchronized <TResult> String submit(final ApplicationCommand<TResult> applicationCommand) {
         final String requestToken = UUID.randomUUID().toString();
         executor.execute(new Runnable() {
             @Override
             public void run() {
+                notifyProgressStarted();
                 final int n = 5;
                 for(int i = 0; i < n; ++i) {
                     Ln.i("Working %d/%d...", i + 1, n);
@@ -40,12 +43,13 @@ public class App implements TaskRepositoryListener {
 
                 TResult result = applicationCommand.run(App.this);
                 notifyApplicationCommandResultAvailable(requestToken, result);
+                notifyProgressFinished();
             }
         });
         return requestToken;
     }
 
-    public <TListener> String subscribe(ResourceLocator<TListener> resourceLocator, TListener listener) {
+    public synchronized <TListener> String subscribe(ResourceLocator<TListener> resourceLocator, TListener listener) {
         String subscriptionToken = UUID.randomUUID().toString();
         ResourceSubscription<TListener> resourceSubscription = new ResourceSubscription<TListener>(subscriptionToken, resourceLocator, listener);
         resourceSubscription.initListener(this);
@@ -53,7 +57,7 @@ public class App implements TaskRepositoryListener {
         return subscriptionToken;
     }
 
-    public void unsubscribe(String subscriptionToken) {
+    public synchronized void unsubscribe(String subscriptionToken) {
         for(ResourceSubscription<?> resourceSubscription : resourceSubscriptions) {
             String token = resourceSubscription.getSubscriptionToken();
             if(!token.equals(subscriptionToken)) {
@@ -67,18 +71,18 @@ public class App implements TaskRepositoryListener {
         throw new IllegalArgumentException();
     }
 
-    public TaskRepository getTaskRepository() {
+    public synchronized TaskRepository getTaskRepository() {
         return taskRepository;
     }
 
     @Override
-    public void onRepositoryEvent(Object event) {
+    public synchronized void onRepositoryEvent(Object event) {
         for(ResourceSubscription<?> resourceSubscription : resourceSubscriptions) {
             resourceSubscription.handleEvent(event);
         }
     }
 
-    public void setApplicationCommandResultListener(ApplicationCommandResultListener applicationCommandResultListener) {
+    public synchronized void setApplicationCommandResultListener(ApplicationCommandResultListener applicationCommandResultListener) {
         this.applicationCommandResultListener = applicationCommandResultListener;
         if(applicationCommandResultListener != null) {
             for(ApplicationCommandResultInfo applicationCommandResultInfo : applicationCommandResultInfos) {
@@ -91,7 +95,19 @@ public class App implements TaskRepositoryListener {
         }
     }
 
-    private void notifyApplicationCommandResultAvailable(String requestToken, Object result) {
+    public synchronized void setProgressListener(ProgressListener progressListener) {
+        if(isInProgress && this.progressListener != null) {
+            this.progressListener.onProgressFinished();
+        }
+
+        this.progressListener = progressListener;
+
+        if(progressListener != null && isInProgress) {
+            progressListener.onProgressStarted();
+        }
+    }
+
+    private synchronized void notifyApplicationCommandResultAvailable(String requestToken, Object result) {
         if(applicationCommandResultListener != null) {
             applicationCommandResultListener.onResultAvailable(requestToken, result);
         } else {
@@ -102,8 +118,27 @@ public class App implements TaskRepositoryListener {
         }
     }
 
+    private synchronized void notifyProgressStarted() {
+        isInProgress = true;
+        if(progressListener != null) {
+            progressListener.onProgressStarted();
+        }
+    }
+
+    private synchronized void notifyProgressFinished() {
+        isInProgress = false;
+        if(progressListener != null) {
+            progressListener.onProgressFinished();
+        }
+    }
+
     private static class ApplicationCommandResultInfo {
         public String requestToken;
         public Object result;
+    }
+
+    public static interface ProgressListener {
+        void onProgressStarted();
+        void onProgressFinished();
     }
 }

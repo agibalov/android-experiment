@@ -4,7 +4,7 @@ import me.loki2302.app.App;
 import me.loki2302.app.data.Task;
 import me.loki2302.app.data.TaskRepository;
 
-public class UpdateTaskApplicationCommand implements ApplicationCommand {
+public class UpdateTaskApplicationCommand implements ApplicationCommand<Void> {
     private final int taskId;
     private final String taskDescription;
 
@@ -14,7 +14,7 @@ public class UpdateTaskApplicationCommand implements ApplicationCommand {
     }
 
     @Override
-    public void run(App app) {
+    public Void run(App app) {
         TaskRepository taskRepository = app.getTaskRepository();
         Task task = taskRepository.findOne(taskId);
         if(task == null) {
@@ -23,5 +23,7 @@ public class UpdateTaskApplicationCommand implements ApplicationCommand {
 
         task.description = taskDescription;
         taskRepository.update(task);
+
+        return null;
     }
 }

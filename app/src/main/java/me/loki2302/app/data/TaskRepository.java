@@ -15,17 +15,17 @@ public class TaskRepository {
     public void insert(Task task) {
         task.id = ++lastTaskId;
         tasks.add(task);
-        taskRepositoryListener.onEvent(new TaskAppearedEvent(task.id));
+        taskRepositoryListener.onRepositoryEvent(new TaskAppearedEvent(task.id));
     }
 
     public void update(Task task) {
-        taskRepositoryListener.onEvent(new TaskChangedEvent(task.id));
+        taskRepositoryListener.onRepositoryEvent(new TaskChangedEvent(task.id));
     }
 
     public void delete(int taskId) {
         Task task = findOne(taskId);
         tasks.remove(task);
-        taskRepositoryListener.onEvent(new TaskDisappearedEvent(task.id));
+        taskRepositoryListener.onRepositoryEvent(new TaskDisappearedEvent(task.id));
     }
 
     public List<Task> findAll() {

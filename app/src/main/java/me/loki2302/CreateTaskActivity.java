@@ -6,15 +6,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
 
-import com.google.inject.Inject;
-
-import me.loki2302.app.App;
 import me.loki2302.app.commands.CreateTaskApplicationCommand;
+import me.loki2302.infrastructure.BaseActivity;
+import me.loki2302.infrastructure.ContextAwareApplicationCommandResultListener;
 
-public class CreateTaskActivity extends RoboActionBarActivity {
-    @Inject
-    private App app;
-
+public class CreateTaskActivity extends BaseActivity<CreateTaskActivity> {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,11 +30,20 @@ public class CreateTaskActivity extends RoboActionBarActivity {
 
         if(itemId == R.id.saveTaskMenuItem) {
             String taskDescription = ((EditText)findViewById(R.id.taskDescriptionEditText)).getText().toString();
-            app.submit(new CreateTaskApplicationCommand(taskDescription));
-            finish();
+            submit(new CreateTaskApplicationCommand(taskDescription), new ContextAwareApplicationCommandResultListener<CreateTaskActivity, Integer>() {
+                @Override
+                public void onResult(CreateTaskActivity createTaskActivity, Integer integer) {
+                    createTaskActivity.finish();
+                }
+            });
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected String getActivityId() {
+        return "createtask";
     }
 }

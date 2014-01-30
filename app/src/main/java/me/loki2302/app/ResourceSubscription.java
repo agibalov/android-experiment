@@ -2,12 +2,12 @@ package me.loki2302.app;
 
 import me.loki2302.app.locators.ResourceLocator;
 
-public class Subscription<TListener> {
+public class ResourceSubscription<TListener> {
     private final String subscriptionToken;
     private final ResourceLocator<TListener> resourceLocator;
     private final TListener listener;
 
-    public Subscription(String subscriptionToken, ResourceLocator<TListener> resourceLocator, TListener listener) {
+    public ResourceSubscription(String subscriptionToken, ResourceLocator<TListener> resourceLocator, TListener listener) {
         this.subscriptionToken = subscriptionToken;
         this.resourceLocator = resourceLocator;
         this.listener = listener;

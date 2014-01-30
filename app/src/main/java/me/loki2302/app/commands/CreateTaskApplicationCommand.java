@@ -4,7 +4,7 @@ import me.loki2302.app.App;
 import me.loki2302.app.data.Task;
 import me.loki2302.app.data.TaskRepository;
 
-public class CreateTaskApplicationCommand implements ApplicationCommand {
+public class CreateTaskApplicationCommand implements ApplicationCommand<Integer> {
     private final String taskDescription;
 
     public CreateTaskApplicationCommand(String taskDescription) {
@@ -12,9 +12,11 @@ public class CreateTaskApplicationCommand implements ApplicationCommand {
     }
 
     @Override
-    public void run(App app) {
+    public Integer run(App app) {
         Task task = new Task(-1, taskDescription);
         TaskRepository taskRepository = app.getTaskRepository();
         taskRepository.insert(task);
+
+        return task.id;
     }
 }

@@ -17,8 +17,9 @@ import me.loki2302.app.App;
 import me.loki2302.app.data.Task;
 import me.loki2302.app.locators.AllTasksListener;
 import me.loki2302.app.locators.AllTasksResourceLocator;
+import me.loki2302.infrastructure.BaseActivity;
 
-public class TaskListActivity extends RoboActionBarActivity implements AllTasksListener {
+public class TaskListActivity extends BaseActivity<TaskListActivity> implements AllTasksListener {
     @Inject
     private App app;
     private String subscriptionToken;
@@ -94,5 +95,10 @@ public class TaskListActivity extends RoboActionBarActivity implements AllTasksL
                 taskListAdapter.notifyDataSetChanged();
             }
         });
+    }
+
+    @Override
+    protected String getActivityId() {
+        return "tasklist";
     }
 }

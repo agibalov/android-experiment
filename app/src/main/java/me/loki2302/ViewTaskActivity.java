@@ -14,8 +14,10 @@ import me.loki2302.app.commands.DeleteTaskApplicationCommand;
 import me.loki2302.app.data.Task;
 import me.loki2302.app.locators.SingleTaskListener;
 import me.loki2302.app.locators.SingleTaskResourceLocator;
+import me.loki2302.infrastructure.BaseActivity;
+import me.loki2302.infrastructure.ContextAwareApplicationCommandResultListener;
 
-public class ViewTaskActivity extends RoboActionBarActivity implements SingleTaskListener {
+public class ViewTaskActivity extends BaseActivity<ViewTaskActivity> implements SingleTaskListener {
     @Inject
     private App app;
     private String subscriptionToken;
@@ -66,8 +68,12 @@ public class ViewTaskActivity extends RoboActionBarActivity implements SingleTas
         }
 
         if(itemId == R.id.deleteTaskMenuItem) {
-            app.submit(new DeleteTaskApplicationCommand(taskId));
-            finish();
+            submit(new DeleteTaskApplicationCommand(taskId), new ContextAwareApplicationCommandResultListener<ViewTaskActivity, Void>() {
+                @Override
+                public void onResult(ViewTaskActivity viewTaskActivity, Void result) {
+                    viewTaskActivity.finish();
+                }
+            });
             return true;
         }
 
@@ -93,5 +99,10 @@ public class ViewTaskActivity extends RoboActionBarActivity implements SingleTas
                 ((TextView)findViewById(R.id.taskDescriptionTextView)).setText(task.description);
             }
         });
+    }
+
+    @Override
+    protected String getActivityId() {
+        return String.format("viewtask-%d", getIntent().getIntExtra("taskId", -1));
     }
 }

@@ -14,8 +14,10 @@ import me.loki2302.app.commands.UpdateTaskApplicationCommand;
 import me.loki2302.app.data.Task;
 import me.loki2302.app.locators.SingleTaskListener;
 import me.loki2302.app.locators.SingleTaskResourceLocator;
+import me.loki2302.infrastructure.BaseActivity;
+import me.loki2302.infrastructure.ContextAwareApplicationCommandResultListener;
 
-public class EditTaskActivity extends RoboActionBarActivity implements SingleTaskListener {
+public class EditTaskActivity extends BaseActivity<EditTaskActivity> implements SingleTaskListener {
     @Inject
     private App app;
     private String subscriptionToken;
@@ -61,7 +63,12 @@ public class EditTaskActivity extends RoboActionBarActivity implements SingleTas
         if(itemId == R.id.saveTaskMenuItem) {
             String taskDescription = ((EditText)findViewById(R.id.taskDescriptionEditText)).getText().toString();
             app.submit(new UpdateTaskApplicationCommand(taskId, taskDescription));
-            finish();
+            submit(new UpdateTaskApplicationCommand(taskId, taskDescription), new ContextAwareApplicationCommandResultListener<EditTaskActivity, Void>() {
+                @Override
+                public void onResult(EditTaskActivity editTaskActivity, Void result) {
+                    editTaskActivity.finish();
+                }
+            });
             return true;
         }
 
@@ -87,5 +94,10 @@ public class EditTaskActivity extends RoboActionBarActivity implements SingleTas
                 ((EditText)findViewById(R.id.taskDescriptionEditText)).setText(task.description);
             }
         });
+    }
+
+    @Override
+    protected String getActivityId() {
+        return String.format("edittask-%d", getIntent().getIntExtra("taskId", -1));
     }
 }

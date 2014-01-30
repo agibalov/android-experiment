@@ -1,5 +1,6 @@
 package me.loki2302;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,7 +33,10 @@ public class CreateTaskActivity extends BaseActivity<CreateTaskActivity> {
             String taskDescription = ((EditText)findViewById(R.id.taskDescriptionEditText)).getText().toString();
             submit(new CreateTaskApplicationCommand(taskDescription), new ContextAwareApplicationCommandResultListener<CreateTaskActivity, Integer>() {
                 @Override
-                public void onResult(CreateTaskActivity createTaskActivity, Integer integer) {
+                public void onResult(CreateTaskActivity createTaskActivity, Integer result) {
+                    Intent viewTaskIntent = new Intent(createTaskActivity, ViewTaskActivity.class);
+                    viewTaskIntent.putExtra("taskId", (int)result);
+                    createTaskActivity.startActivity(viewTaskIntent);
                     createTaskActivity.finish();
                 }
             });

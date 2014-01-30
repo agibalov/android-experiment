@@ -83,6 +83,10 @@ public class ViewTaskActivity extends BaseActivity<ViewTaskActivity> implements 
     @Override
     public void onSetTask(final Task task) {
         this.task = task;
+        if(task == null) {
+            return;
+        }
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

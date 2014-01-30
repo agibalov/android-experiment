@@ -16,10 +16,10 @@ public class SingleTaskResourceLocator implements ResourceLocator<SingleTaskList
     public void initListener(App app, SingleTaskListener singleTaskListener) {
         TaskRepository taskRepository = app.getTaskRepository();
         Task task = taskRepository.findOne(taskId);
-        if(task == null) {
-            String message = String.format("There is no task with id %d", taskId);
+        /*if(task == null) {
+             String message = String.format("There is no task with id %d", taskId);
             throw new IllegalStateException(message);
-        }
+        }*/
 
         singleTaskListener.onSetTask(task);
     }

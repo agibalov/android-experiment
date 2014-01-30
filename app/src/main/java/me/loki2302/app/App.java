@@ -27,7 +27,7 @@ public class App implements TaskRepositoryListener {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                final int n = 10;
+                final int n = 5;
                 for(int i = 0; i < n; ++i) {
                     Ln.i("Working %d/%d...", i + 1, n);
                     try {

@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 
@@ -62,12 +63,18 @@ public class EditTaskActivity extends BaseActivity<EditTaskActivity> implements 
 
         if(itemId == R.id.saveTaskMenuItem) {
             String taskDescription = ((EditText)findViewById(R.id.taskDescriptionEditText)).getText().toString();
+            if(taskDescription == null || taskDescription.equals("")) {
+                Toast.makeText(this, "Description should not be empty", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
             submit(new UpdateTaskApplicationCommand(taskId, taskDescription), new ContextAwareApplicationCommandResultListener<EditTaskActivity, Void>() {
                 @Override
                 public void onResult(EditTaskActivity editTaskActivity, Void result) {
                     editTaskActivity.finish();
                 }
             });
+
             return true;
         }
 

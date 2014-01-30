@@ -17,7 +17,8 @@ public class SingleTaskResourceLocator implements ResourceLocator<SingleTaskList
         TaskRepository taskRepository = app.getTaskRepository();
         Task task = taskRepository.findOne(taskId);
         if(task == null) {
-            throw new IllegalStateException();
+            String message = String.format("There is no task with id %d", taskId);
+            throw new IllegalStateException(message);
         }
 
         singleTaskListener.onSetTask(task);

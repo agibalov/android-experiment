@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import me.loki2302.app.commands.CreateTaskApplicationCommand;
 import me.loki2302.infrastructure.BaseActivity;
@@ -31,6 +32,11 @@ public class CreateTaskActivity extends BaseActivity<CreateTaskActivity> {
 
         if(itemId == R.id.saveTaskMenuItem) {
             String taskDescription = ((EditText)findViewById(R.id.taskDescriptionEditText)).getText().toString();
+            if(taskDescription == null || taskDescription.equals("")) {
+                Toast.makeText(this, "Description should not be empty", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
             submit(new CreateTaskApplicationCommand(taskDescription), new ContextAwareApplicationCommandResultListener<CreateTaskActivity, Integer>() {
                 @Override
                 public void onResult(CreateTaskActivity createTaskActivity, Integer result) {
@@ -40,6 +46,7 @@ public class CreateTaskActivity extends BaseActivity<CreateTaskActivity> {
                     createTaskActivity.finish();
                 }
             });
+
             return true;
         }
 

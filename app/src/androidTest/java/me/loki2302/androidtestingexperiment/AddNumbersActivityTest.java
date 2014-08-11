@@ -1,5 +1,6 @@
 package me.loki2302.androidtestingexperiment;
 
+import android.accessibilityservice.AccessibilityService;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.TouchUtils;
 import android.test.UiThreadTest;

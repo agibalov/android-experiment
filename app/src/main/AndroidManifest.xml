@@ -25,6 +25,9 @@
             android:name=".CalculatorIntentService"
             android:exported="false" >
         </service>
+        <provider
+            android:authorities="me.loki2302.androidtestingexperiment.DummyContentProvider"
+            android:name=".DummyContentProvider" />
     </application>
 
 </manifest>

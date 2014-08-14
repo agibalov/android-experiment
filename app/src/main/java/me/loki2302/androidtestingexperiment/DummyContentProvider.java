@@ -9,22 +9,15 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 public class DummyContentProvider extends ContentProvider {
-    public final static String AUTHORITY = "me.loki2302.androidtestingexperiment.DummyContentProvider";
-
     private final static UriMatcher URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
-    private final static String NOTES_PATH = "notes";
-    private final static String NOTE_PATH = "notes/#";
-
-    public final static Uri CONTENT_URI = Uri.parse(String.format("content://%s/%s", AUTHORITY, NOTES_PATH));
-
-    private final static int NOTES_URI_TYPE = 1;
-    private final static int NOTE_URI_TYPE = 2;
+    private final static int NOTES_URI_CODE = 1;
+    private final static int NOTE_URI_CODE = 2;
 
     private DummySQLiteOpenHelper databaseOpenHelper;
 
     static {
-        URI_MATCHER.addURI(AUTHORITY, NOTES_PATH, NOTES_URI_TYPE);
-        URI_MATCHER.addURI(AUTHORITY, NOTE_PATH, NOTE_URI_TYPE);
+        URI_MATCHER.addURI(DummyContract.AUTHORITY, DummyContract.Notes.NOTES_PATH, NOTES_URI_CODE);
+        URI_MATCHER.addURI(DummyContract.AUTHORITY, DummyContract.Notes.NOTE_PATH, NOTE_URI_CODE);
     }
 
     @Override
@@ -36,12 +29,13 @@ public class DummyContentProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-        queryBuilder.setTables(DummySQLiteOpenHelper.TABLE_NOTES);
 
-        int uriType = URI_MATCHER.match(uri);
-        if(uriType == NOTES_URI_TYPE) {
-            // intentionally doing nothing
-        } else if(uriType == NOTE_URI_TYPE) {
+        int uriCode = URI_MATCHER.match(uri);
+        if(uriCode == NOTES_URI_CODE) {
+            queryBuilder.setTables(DummySQLiteOpenHelper.TABLE_NOTES);
+        } else if(uriCode == NOTE_URI_CODE) {
+            queryBuilder.setTables(DummySQLiteOpenHelper.TABLE_NOTES);
+
             String id = uri.getLastPathSegment();
             queryBuilder.appendWhere(DummySQLiteOpenHelper.COLUMN_ID + "=" + id);
         } else {
@@ -58,16 +52,14 @@ public class DummyContentProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         SQLiteDatabase db = databaseOpenHelper.getWritableDatabase();
-        int uriType = URI_MATCHER.match(uri);
-        long id;
-        if(uriType == NOTES_URI_TYPE) {
-            id = db.insert(DummySQLiteOpenHelper.TABLE_NOTES, null, values);
+        int uriCode = URI_MATCHER.match(uri);
+        if(uriCode == NOTES_URI_CODE) {
+            long id = db.insert(DummySQLiteOpenHelper.TABLE_NOTES, null, values);
             getContext().getContentResolver().notifyChange(uri, null);
-        } else {
-            throw new IllegalArgumentException("Can't insert, unknown URI: " + uri);
+            return Uri.withAppendedPath(DummyContract.Notes.NOTES_CONTENT_URI, String.valueOf(id));
         }
 
-        return Uri.parse(String.format("%s/%d", NOTES_PATH, id));
+        throw new IllegalArgumentException("Can't insert, unknown URI: " + uri);
     }
 
     @Override

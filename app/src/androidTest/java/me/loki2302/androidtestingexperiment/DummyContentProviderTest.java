@@ -10,12 +10,12 @@ import static android.test.MoreAsserts.assertNotEqual;
 
 public class DummyContentProviderTest extends ProviderTestCase2<DummyContentProvider> {
     public DummyContentProviderTest() {
-        super(DummyContentProvider.class, DummyContentProvider.AUTHORITY);
+        super(DummyContentProvider.class, DummyContract.AUTHORITY);
     }
 
     public void testContentProviderIsEmptyByDefault() {
         ContentResolver contentResolver = getMockContentResolver();
-        Cursor cursor = contentResolver.query(DummyContentProvider.CONTENT_URI, null, null, null, null);
+        Cursor cursor = contentResolver.query(DummyContract.Notes.NOTES_CONTENT_URI, null, null, null, null);
         try {
             assertEquals(2, cursor.getColumnCount());
 
@@ -37,11 +37,11 @@ public class DummyContentProviderTest extends ProviderTestCase2<DummyContentProv
         contentValues.put(DummySQLiteOpenHelper.COLUMN_CONTENT, "hello");
 
         ContentResolver contentResolver = getMockContentResolver();
-        Uri uri = contentResolver.insert(DummyContentProvider.CONTENT_URI, contentValues);
+        Uri uri = contentResolver.insert(DummyContract.Notes.NOTES_CONTENT_URI, contentValues);
         String idString = uri.getLastPathSegment();
         assertEquals("1", idString);
 
-        Cursor cursor = contentResolver.query(DummyContentProvider.CONTENT_URI, null, null, null, null);
+        Cursor cursor = contentResolver.query(DummyContract.Notes.NOTES_CONTENT_URI, null, null, null, null);
         try {
             int rowCount = cursor.getCount();
             assertEquals(1, rowCount);

@@ -20,6 +20,11 @@
             android:name=".OnPauseActivity"
             android:label="@string/title_activity_on_pause" >
         </activity>
+
+        <service
+            android:name=".CalculatorIntentService"
+            android:exported="false" >
+        </service>
     </application>
 
 </manifest>

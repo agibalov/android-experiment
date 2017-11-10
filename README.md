@@ -1,0 +1,13 @@
+android-fsm-experiment
+======================
+
+Android `Activity` lifecycle is known to be weird and hard to understand. There are almost no guarantees one could use to properly restore and save the state. Trivial scenarios like device orientation changes, going "home" or switching the phone to sleep mode slightly differ in terms of API. This results in bugs which are hard to find and lots of weird `if`s required to fix them.
+
+The general recommendation is just to make the activities as stateless as possible: listen to `ContentProvider` and handle long-running operations in `Service`s. This ideally makes activities only needed to interact with the user. But "as stateless as possible" doesn't always mean "stateless".
+
+The code provided here is a silly approach to persist activity state even after the device is rebooted. Key points are:
+
+1. There's a [finite state machine](https://github.com/loki2302/android-fsm-experiment/blob/master/app/src/main/java/me/loki2302/fsm/StateMachine.java) is used to define the notions of [states](https://github.com/loki2302/android-fsm-experiment/blob/master/app/src/main/java/me/loki2302/fsm/State.java) ([example](https://github.com/loki2302/android-fsm-experiment/blob/master/app/src/main/java/me/loki2302/states/DisplayingProgressDialogState.java)) and [events](https://github.com/loki2302/android-fsm-experiment/blob/master/app/src/main/java/me/loki2302/fsm/Event.java) ([example](https://github.com/loki2302/android-fsm-experiment/blob/master/app/src/main/java/me/loki2302/events/DisplayProgressDialogRequestedEvent.java)). At every moment of time, FSM holds a current state and is ready to accept a message (event). Once message arrives, the new state is computed, the current state is unloaded and the new state is loaded. "Loading and unloading the state" stands for making changes to target context.
+3. There's a [persistence solution](https://github.com/loki2302/android-fsm-experiment/blob/master/app/src/main/java/me/loki2302/fsm/StateService.java) that allows for state object serialization and database persistence. 
+2. There's an [Activity](https://github.com/loki2302/android-fsm-experiment/blob/master/app/src/main/java/me/loki2302/MainActivity.java) we want to make stateful. This activity is a [target context](https://github.com/loki2302/android-fsm-experiment/blob/master/app/src/main/java/me/loki2302/MainActivityContext.java) for the FSM.
+3. There's an abstract [FSMActivity](https://github.com/loki2302/android-fsm-experiment/blob/master/app/src/main/java/me/loki2302/fsm/FSMActivity.java) that handles `onPause()` and `onResume` events to save and restore activity state.

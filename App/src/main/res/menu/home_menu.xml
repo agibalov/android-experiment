@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="me.retask.activities.HomeActivity">
+    <item android:id="@+id/createTaskMenuItem"
+        android:title="New Task"
+        app:showAsAction="always" />
+    <item android:id="@+id/signOutMenuItem"
+        android:title="Sign Out"
+        app:showAsAction="never" />
+</menu>

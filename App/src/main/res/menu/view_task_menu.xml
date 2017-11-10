@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="me.retask.activities.HomeActivity">
+
+    <item android:id="@+id/wontDoMenuItem"
+        android:title="Won't Do"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/startMenuItem"
+        android:title="Start"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/postponeMenuItem"
+        android:title="Postpone"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/doneMenuItem"
+        android:title="Done"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/notDoneMenuItem"
+        android:title="Not Done"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/completeMenuItem"
+        android:title="Complete"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/editMenuItem"
+        android:title="Edit"
+        app:showAsAction="always" />
+
+</menu>

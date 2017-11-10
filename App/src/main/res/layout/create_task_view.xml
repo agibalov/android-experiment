@@ -1,0 +1,15 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    style="@style/RetaskRootLayout">
+    
+    <EditText 
+        android:id="@+id/taskDescriptionEditText"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:ems="10"
+        android:inputType="textMultiLine"
+        android:hint="Task description"
+        android:gravity="top" />
+    
+</FrameLayout>

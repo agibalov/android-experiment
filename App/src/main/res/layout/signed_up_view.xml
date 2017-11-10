@@ -1,0 +1,35 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    style="@style/RetaskRootLayout">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_centerInParent="true">
+
+        <TextView
+            android:id="@+id/messageTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="We have sent an email to xxx@xxx."
+            android:gravity="center"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Give it few minutes to arrive, then check your inbox and follow the link to activate your account"
+            android:gravity="center"
+            android:layout_marginTop="10dp"/>
+
+        <Button
+            android:id="@+id/proceedToSignInButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Proceed to Sign In"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp" />
+    </LinearLayout>
+</RelativeLayout>

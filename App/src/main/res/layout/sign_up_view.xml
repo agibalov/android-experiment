@@ -1,0 +1,36 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    style="@style/RetaskRootLayout">
+    
+    <LinearLayout 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+        
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/email"
+            android:id="@+id/emailEditText"
+            android:layout_marginBottom="10dp"
+            android:inputType="textEmailAddress" />
+        
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/password"
+            android:id="@+id/passwordEditText"
+            android:layout_marginBottom="10dp"
+            android:inputType="textPassword" />
+
+        <Button 
+	        android:layout_width="wrap_content" 
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center"
+	        android:text="Sign Up"
+	        android:id="@+id/signUpButton" />
+                
+    </LinearLayout>
+</RelativeLayout>

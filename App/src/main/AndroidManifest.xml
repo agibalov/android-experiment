@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="me.retask"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="7"
+        android:targetSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:debuggable="false"
+        android:allowBackup="true"
+        android:icon="@drawable/icon"
+        android:label="Retask"
+        android:theme="@style/AppTheme"
+        android:name=".RetaskApplication">
+
+        <activity android:name=".activities.WelcomeActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.SignedUpActivity" />
+        <activity android:name=".activities.HomeActivity" />
+        <activity android:name=".activities.ViewTaskActivity" />
+        <activity android:name=".activities.CreateTaskActivity" />
+        <activity android:name=".activities.EditTaskActivity" />
+
+        <provider
+            android:authorities="me.retask.tasks"
+            android:name=".dal.RetaskContentProvider" />
+
+    </application>
+
+</manifest>

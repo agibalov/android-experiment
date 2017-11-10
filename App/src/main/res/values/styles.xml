@@ -1,0 +1,64 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="RetaskActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid">
+        <item name="android:background">@drawable/actionbar_background</item>
+        <item name="background">@drawable/actionbar_background</item>
+        <item name="android:backgroundStacked">@drawable/actionbar_background</item>
+        <item name="backgroundStacked">@drawable/actionbar_background</item>
+    </style>
+
+    <style name="RetaskActionBarTabs" parent="@style/Widget.AppCompat.ActionBar.TabView">
+        <item name="android:background">@drawable/actionbar_tab_indicator</item>
+        <item name="background">@drawable/actionbar_tab_indicator</item>
+    </style>
+
+    <style name="RetaskActionBarActions" parent="@style/Widget.AppCompat.ActionButton">
+        <item name="android:background">@drawable/actionbar_action_bg</item>
+    </style>
+
+    <style name="RetaskEditText" parent="@android:style/Widget.EditText">
+        <item name="android:background">@drawable/edittext_background</item>
+        <item name="android:textColor">#444444</item>
+        <item name="android:padding">5dp</item>
+    </style>
+
+    <style name="RetaskButton" parent="@android:style/Widget.Button">
+        <item name="android:background">@drawable/button_background</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="RetaskProgressDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
+    <style name="RetaskRootLayout">
+        <item name="android:background">#eeeeee</item>
+        <item name="android:padding">5dp</item>
+    </style>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <item name="android:actionBarStyle">@style/RetaskActionBar</item>
+        <item name="actionBarStyle">@style/RetaskActionBar</item>
+        <item name="android:actionBarTabStyle">@style/RetaskActionBarTabs</item>
+        <item name="actionBarTabStyle">@style/RetaskActionBarTabs</item>
+        <item name="android:actionBarDivider">@drawable/actionbar_divider</item>
+        <item name="actionBarDivider">@drawable/actionbar_divider</item>
+        <item name="android:actionButtonStyle">@style/RetaskActionBarActions</item>
+        <item name="actionButtonStyle">@style/RetaskActionBarActions</item>
+
+        <item name="android:editTextStyle">@style/RetaskEditText</item>
+        <item name="android:buttonStyle">@style/RetaskButton</item>
+    </style>
+</resources>

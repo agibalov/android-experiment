@@ -1,0 +1,24 @@
+<<<<<<< HEAD
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+*.apk
+*.ap_
+*.dex
+target
+.classpath
+.settings
+.project
+bin
+=======
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+>>>>>>> testing/master
